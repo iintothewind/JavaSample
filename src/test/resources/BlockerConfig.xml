@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE Config [
+        <!ELEMENT Config (blockers)*>
+        <!ELEMENT blockers (blocker)*>
+        <!ELEMENT blocker (#PCDATA)>
+        <!ATTLIST blocker
+                prefix CDATA #REQUIRED
+                before CDATA #IMPLIED
+                after CDATA #IMPLIED>
+        ]>
+<Config>
+    <blockers>
+        <blocker prefix="type" before="500" after="500"/>
+        <blocker prefix="click" before="500" after="500"/>
+    </blockers>
+</Config>

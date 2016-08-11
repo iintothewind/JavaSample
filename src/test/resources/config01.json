@@ -1,0 +1,14 @@
+{
+  "Blocker": [
+    {
+      "prefix": "testEn",
+      "before": 0,
+      "after": 0
+    },
+    {
+      "prefix": "testCfg",
+      "before": 0,
+      "after": 0
+    }
+  ]
+}

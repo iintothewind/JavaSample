@@ -1,0 +1,19 @@
+{
+  "blockers": [
+    {
+      "prefix": "test1",
+      "before": 1000,
+      "after": 0
+    },
+    {
+      "prefix": "test2",
+      "before": 1000,
+      "after": 0
+    },
+    {
+      "prefix": "test3",
+      "before": 1000,
+      "after": 0
+    }
+  ]
+}
