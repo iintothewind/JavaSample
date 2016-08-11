@@ -11,21 +11,21 @@ The target methods can be configured by using annotation or xml config file.
 ## csv
 opencsv practices
 
-##dagger
+## dagger
 dagger2 practices
 
-##foundation
+## foundation
 jdk practices
 
-##jackson
+## jackson
 jackson practices
 
-##lambda
+## lambda
 java8 practices
 
-#merge
+## merge
 merge sort sample based on file storage
 
-#refect
+## refect
 cglib practices
 
