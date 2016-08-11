@@ -1,8 +1,8 @@
 package sample.lambda.function;
 
-import sample.guava.bean.Person;
 import org.junit.Assert;
 import org.junit.Test;
+import sample.lambda.bean.Person;
 
 import java.util.function.Supplier;
 

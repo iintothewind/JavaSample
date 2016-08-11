@@ -6,7 +6,6 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
 import sample.csv.bean.Country;
-import sample.guava.basic.Transformer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
