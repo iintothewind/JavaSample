@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>application</groupId>
-    <artifactId>JavaSample</artifactId>
+    <artifactId>sample</artifactId>
     <version>1.0</version>
 
     <properties>
@@ -128,14 +128,9 @@
             <version>19.0</version>
         </dependency>
         <dependency>
-            <groupId>com.google.code.findbugs</groupId>
-            <artifactId>findbugs</artifactId>
-            <version>3.0.1</version>
-        </dependency>
-        <dependency>
-            <groupId>com.lambdista</groupId>
-            <artifactId>try</artifactId>
-            <version>0.3.0</version>
+            <groupId>io.javaslang</groupId>
+            <artifactId>javaslang</artifactId>
+            <version>2.0.3</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>

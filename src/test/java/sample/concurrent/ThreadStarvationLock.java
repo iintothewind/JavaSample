@@ -1,6 +1,6 @@
 package sample.concurrent;
 
-import com.lambdista.util.Try;
+import javaslang.control.Try;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
@@ -21,8 +21,7 @@ class SubTask implements Callable<String> {
     @Override
     public String call() throws Exception {
         // before get() returned, it needs an extra thread to execute the subtask
-        return Try.apply(() -> pool.submit(() -> "pass").get(100, TimeUnit.MILLISECONDS)).getOrElse("fail");
-
+        return Try.of(() -> pool.submit(() -> "pass").get(100, TimeUnit.MILLISECONDS)).getOrElse("fail");
     }
 }
 

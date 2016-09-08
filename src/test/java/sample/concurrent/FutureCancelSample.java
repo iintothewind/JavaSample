@@ -1,6 +1,8 @@
 package sample.concurrent;
 
-import com.lambdista.util.Try;
+
+import com.google.common.base.Throwables;
+import javaslang.control.Try;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;
@@ -25,8 +27,9 @@ class InterruptableTask implements Callable<String> {
         log.info("in call, try to sleep");
         started.countDown();
         // @formatter:off
-        Try.apply(() -> {TimeUnit.SECONDS.sleep(10);return true;})
-           .recover(e -> {log.info("sleep interrupted");interrupted.countDown();return false;});
+        // InterruptedException belongs to FatalException, thus it will be thrown but never hold in Failure
+        Try.run(() -> {try{TimeUnit.SECONDS.sleep(10);}catch(InterruptedException e){Throwables.propagate(e);}})
+           .onFailure(e -> {log.info("sleep interrupted");interrupted.countDown();});
         // @formatter:on
         return "Done";
     }
@@ -51,7 +54,7 @@ public class FutureCancelSample {
 
     @After
     public void tearDown() {
-        Optional.of(pool).ifPresent((p) -> Try.apply(() -> p.awaitTermination(500, TimeUnit.MILLISECONDS)));
+        Optional.ofNullable(pool).ifPresent((p) -> Try.of(() -> p.awaitTermination(500, TimeUnit.MILLISECONDS)));
     }
 
     @Test(expected = CancellationException.class)
@@ -75,7 +78,7 @@ public class FutureCancelSample {
     }
 
     @Test
-    public void testInterruptFutureTask() throws InterruptedException {
+    public void testInterruptFutureTask() throws InterruptedException, ExecutionException {
         pool = Executors.newCachedThreadPool();
         InterruptableTask task = new InterruptableTask();
         Future<String> future = pool.submit(task);
