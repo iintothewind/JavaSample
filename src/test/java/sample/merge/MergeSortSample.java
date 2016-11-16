@@ -1,5 +1,7 @@
 package sample.merge;
 
+import java.util.*;
+
 public class MergeSortSample {
     public static int[] mergeSort(int[] arr) {
         if (arr.length == 1) {
@@ -41,5 +43,45 @@ public class MergeSortSample {
             result[++k] = arr2[j];
         }
         return result;
+    }
+
+
+    /**
+     * read resource file from given url,
+     * return all of its lines as an Iterator when resource is available
+     * return empty when resource is unavailable
+     *
+     * @param url given url
+     * @return Some iterator when resource available, Empty when resource is unavailable
+     */
+    private static Optional<Iterator<String>> from(String url) {
+
+        return Optional.empty();
+    }
+
+
+    /**
+     * read a text file, split each line into words, distinct words, and sort them according to word frequency, in a most frequent at top to least frequent at bottom order.
+     *
+     * @param url given url
+     * @return the ranked list
+     */
+    public static Optional<Iterable<String>> rank(String url) {
+
+        return Optional.empty();
+    }
+
+
+    /**
+     * use merge sort to sort a given list
+     * Do not use APIs which have already implemented the merge sort algorithm
+     *
+     * @param list given unsorted list
+     * @param <T>  comparable element
+     * @return sorted list
+     */
+    public static <T extends Comparable<? super T>> List<T> mergeSort(List<T> list) {
+
+        return Collections.EMPTY_LIST;
     }
 }
