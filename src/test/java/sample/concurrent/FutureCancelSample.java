@@ -18,82 +18,82 @@ import java.util.concurrent.*;
  * CompletableFuture 不能被中断
  */
 class InterruptableTask implements Callable<String> {
-    private final Logger log = LogManager.getLogger(this.getClass().getName());
-    private final CountDownLatch started = new CountDownLatch(1);
-    private final CountDownLatch interrupted = new CountDownLatch(1);
+  private final Logger log = LogManager.getLogger(this.getClass().getName());
+  private final CountDownLatch started = new CountDownLatch(1);
+  private final CountDownLatch interrupted = new CountDownLatch(1);
 
-    @Override
-    public String call() {
-        log.info("in call, try to sleep");
-        started.countDown();
-        // @formatter:off
+  @Override
+  public String call() {
+    log.info("in call, try to sleep");
+    started.countDown();
+    // @formatter:off
         // InterruptedException belongs to FatalException, thus it will be thrown but never hold in Failure
-        Try.run(() -> {try{TimeUnit.SECONDS.sleep(10);}catch(InterruptedException e){Throwables.propagate(e);}})
+        Try.run(() -> {try{TimeUnit.SECONDS.sleep(10);}catch(InterruptedException e){Throwables.throwIfUnchecked(e);}})
            .onFailure(e -> {log.info("sleep interrupted");interrupted.countDown();});
         // @formatter:on
-        return "Done";
-    }
+    return "Done";
+  }
 
-    public void blockUntilStarted() throws InterruptedException {
-        started.await();
-    }
+  public void blockUntilStarted() throws InterruptedException {
+    started.await();
+  }
 
-    public boolean blockUntilInterrupted() throws InterruptedException {
-        return interrupted.await(100, TimeUnit.MILLISECONDS);
-    }
+  public boolean blockUntilInterrupted() throws InterruptedException {
+    return interrupted.await(100, TimeUnit.MILLISECONDS);
+  }
 }
 
 public class FutureCancelSample {
 
-    private ExecutorService pool = null;
+  private ExecutorService pool = null;
 
-    @Before
-    public void setUp() {
+  @Before
+  public void setUp() {
 
-    }
+  }
 
-    @After
-    public void tearDown() {
-        Optional.ofNullable(pool).ifPresent((p) -> Try.of(() -> p.awaitTermination(500, TimeUnit.MILLISECONDS)));
-    }
+  @After
+  public void tearDown() {
+    Optional.ofNullable(pool).ifPresent((p) -> Try.of(() -> p.awaitTermination(500, TimeUnit.MILLISECONDS)));
+  }
 
-    @Test(expected = CancellationException.class)
-    public void testCancelFutureTask() throws ExecutionException, InterruptedException {
-        pool = Executors.newCachedThreadPool();
-        InterruptableTask task = new InterruptableTask();
-        Future<String> future = pool.submit(task);
-        task.blockUntilStarted();
-        future.cancel(true); // set true to interrupt the running thread, no exception is thrown from here
-        future.get(); // throws CancellationException
-    }
+  @Test(expected = CancellationException.class)
+  public void testCancelFutureTask() throws ExecutionException, InterruptedException {
+    pool = Executors.newCachedThreadPool();
+    InterruptableTask task = new InterruptableTask();
+    Future<String> future = pool.submit(task);
+    task.blockUntilStarted();
+    future.cancel(true); // set true to interrupt the running thread, no exception is thrown from here
+    future.get(); // throws CancellationException
+  }
 
-    @Test(expected = CancellationException.class)
-    public void testCancelCompletableFutureTask() throws InterruptedException, ExecutionException {
-        pool = Executors.newWorkStealingPool();
-        InterruptableTask task = new InterruptableTask();
-        Future<String> future = CompletableFuture.supplyAsync(task::call, pool);
-        task.blockUntilStarted();
-        future.cancel(true); // CancellationException is thrown, not like the above example
-        future.get();
-    }
+  @Test(expected = CancellationException.class)
+  public void testCancelCompletableFutureTask() throws InterruptedException, ExecutionException {
+    pool = Executors.newWorkStealingPool();
+    InterruptableTask task = new InterruptableTask();
+    Future<String> future = CompletableFuture.supplyAsync(task::call, pool);
+    task.blockUntilStarted();
+    future.cancel(true); // CancellationException is thrown, not like the above example
+    future.get();
+  }
 
-    @Test
-    public void testInterruptFutureTask() throws InterruptedException, ExecutionException {
-        pool = Executors.newCachedThreadPool();
-        InterruptableTask task = new InterruptableTask();
-        Future<String> future = pool.submit(task);
-        task.blockUntilStarted();
-        future.cancel(true); // set true to interrupt the running thread, no exception is thrown from here
-        Assertions.assertThat(task.blockUntilInterrupted()).isTrue(); // thread.sleep() is interrupted, hence returns true
-    }
+  @Test
+  public void testInterruptFutureTask() throws InterruptedException {
+    pool = Executors.newCachedThreadPool();
+    InterruptableTask task = new InterruptableTask();
+    Future<String> future = pool.submit(task);
+    task.blockUntilStarted();
+    future.cancel(true); // set true to interrupt the running thread, no exception is thrown from here
+    Assertions.assertThat(task.blockUntilInterrupted()).isTrue(); // thread.sleep() is interrupted, hence returns true
+  }
 
-    @Test
-    public void testInterruptCompletableFutureTask() throws InterruptedException {
-        pool = Executors.newWorkStealingPool();
-        InterruptableTask task = new InterruptableTask();
-        Future<String> future = CompletableFuture.supplyAsync(task::call, pool);
-        task.blockUntilStarted();
-        future.cancel(true); // CancellationException is thrown, not like the above example
-        Assertions.assertThat(task.blockUntilInterrupted()).isFalse(); // thread.sleep() is never interrupted
-    }
+  @Test
+  public void testInterruptCompletableFutureTask() throws InterruptedException {
+    pool = Executors.newWorkStealingPool();
+    InterruptableTask task = new InterruptableTask();
+    Future<String> future = CompletableFuture.supplyAsync(task::call, pool);
+    task.blockUntilStarted();
+    future.cancel(true); // CancellationException is thrown, not like the above example
+    Assertions.assertThat(task.blockUntilInterrupted()).isFalse(); // thread.sleep() is never interrupted
+  }
 }
