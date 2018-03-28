@@ -3,7 +3,6 @@ package sample.lambda.basic;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
-import java.sample.lambda.basic.Lst;
 import java.util.NoSuchElementException;
 import java.util.function.Function;
 import java.util.stream.StreamSupport;

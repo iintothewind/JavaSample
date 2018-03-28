@@ -1,4 +1,4 @@
-package java.sample.lambda.basic;
+package sample.lambda.basic;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
