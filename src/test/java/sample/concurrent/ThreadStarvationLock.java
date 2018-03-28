@@ -1,6 +1,6 @@
 package sample.concurrent;
 
-import javaslang.control.Try;
+import io.vavr.control.Try;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.assertj.core.api.Assertions;

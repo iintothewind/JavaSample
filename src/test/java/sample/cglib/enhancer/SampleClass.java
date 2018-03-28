@@ -9,7 +9,7 @@ public class SampleClass {
     public void testBlock() {
     }
 
-    @Block(before = 3000, after = 4000)
+  @Block(before = 300, after = 400)
     public void annotated() {
 
     }
