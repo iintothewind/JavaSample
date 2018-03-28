@@ -168,6 +168,14 @@
     </dependency>
   </dependencies>
 
+  <distributionManagement>
+    <repository>
+      <id>aliyun-release</id>
+      <name>aliyun-release</name>
+      <url>http://maven.aliyun.com/nexus/content/groups/public</url>
+    </repository>
+  </distributionManagement>
+
   <build>
     <plugins>
       <plugin>
