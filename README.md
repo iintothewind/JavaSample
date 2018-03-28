@@ -1,3 +1,6 @@
+[![Build Status](https://travis-ci.org/iintothewind/JavaSample.svg?branch=master)](https://travis-ci.org/iintothewind/JavaSample)
+
+
 # JavaSample
 Sample code from my daily learning and practice
 ## lambda
