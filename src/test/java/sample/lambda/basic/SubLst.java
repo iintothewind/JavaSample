@@ -2,6 +2,7 @@ package sample.lambda.basic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import io.vavr.control.Option;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.Test;
