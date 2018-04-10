@@ -1,11 +1,11 @@
 package sample.lambda.basic;
 
 import org.junit.Assert;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 
@@ -77,26 +77,22 @@ public class RoutesTest {
     Assert.assertEquals(0, routes.routeDistance("AED"));
   }
 
-  @Ignore
   @Test
-  public void testThrow() {
-    expectedException.expect(RuntimeException.class);
-    expectedException.expectMessage("");
-    new Routes("AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7").routeDistance("AEBCD");
+  public void testFindRoutesWithMaxStops() {
+    Routes routes = new Routes("AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7");
+    Assert.assertTrue(routes.findRoutes(routes.traverseWithMaxStops("C", 3), r -> r.endsWith("C")).containsAll(Arrays.asList("CDC", "CEBC")));
   }
 
   @Test
-  public void testTraverse() {
+  public void testFindRoutesWithExactStops() {
     Routes routes = new Routes("AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7");
-    System.out.println(routes.traverse("A"));
+    Assert.assertTrue(routes.findRoutes(routes.traverseWithMaxStops("A", 4), s -> s.endsWith("C") && routes.convertToStops(s).size() == 4).containsAll(Arrays.asList("ABCDC", "ADCDC", "ADEBC")));
   }
 
   @Test
-  public void testFindRoutes() {
+  public void testFindRoutesWithMaxDistance() {
     Routes routes = new Routes("AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7");
-    System.out.println(routes.traverse("A"));
-    System.out.println(routes.findRoutes("C", r -> r.endsWith("C") && r.length() <= 3));
-    System.out.println(routes.findRoutes("A", r -> r.endsWith("C") && routes.convertToStops(r).size() == 4));
+    Assert.assertTrue(routes.findRoutes(routes.traverseWithMaxDistance("C", 30), s -> s.endsWith("C")).containsAll(Arrays.asList("CDC", "CDCEBC", "CDEBC", "CDEBCEBC", "CEBC", "CEBCDC", "CEBCDEBC", "CEBCEBC", "CEBCEBCEBC")));
   }
 
   @Test
