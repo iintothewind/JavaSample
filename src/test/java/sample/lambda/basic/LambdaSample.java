@@ -1,8 +1,8 @@
 package sample.lambda.basic;
 
 import com.google.common.collect.Lists;
-import sample.lambda.bean.Person;
 import org.junit.Test;
+import sample.lambda.bean.Person;
 
 import javax.swing.*;
 import java.awt.*;
@@ -11,8 +11,6 @@ import java.awt.event.ActionListener;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-
-import static javax.swing.JFrame.*;
 
 public class LambdaSample {
 
@@ -57,7 +55,7 @@ public class LambdaSample {
 
         button.addActionListener(e -> System.out.println("click detected by lambda listener"));
         JFrame frame = new JFrame("Listener Test");
-        frame.setDefaultCloseOperation(EXIT_ON_CLOSE);
+      frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.add(button, BorderLayout.CENTER);
         frame.pack();
         frame.setVisible(true);
