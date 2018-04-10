@@ -233,9 +233,9 @@ public class Routes {
       System.out.println(e.getMessage());
     }
     System.out.println("6. The number of trips starting at C and ending at C with a maximum of 3 stops.");
-    System.out.println(routes.findRoutes(routes.traverseWithMaxStops("C", 3), r -> r.endsWith("C")).stream().map(s -> String.format("%s: %s tops", s, routes.convertToStops(s).size())).collect(Collectors.toList()));
+    System.out.println(routes.findRoutes(routes.traverseWithMaxStops("C", 3), r -> r.endsWith("C")).stream().map(s -> String.format("%s: %s stops", s, routes.convertToStops(s).size())).collect(Collectors.toList()));
     System.out.println("7. The number of trips starting at A and ending at C with exactly 4 stops.");
-    System.out.println(routes.findRoutes(routes.traverseWithMaxStops("A", 4), s -> s.endsWith("C") && routes.convertToStops(s).size() == 4).stream().map(s -> String.format("%s: %s tops", s, routes.convertToStops(s).size())).collect(Collectors.toList()));
+    System.out.println(routes.findRoutes(routes.traverseWithMaxStops("A", 4), s -> s.endsWith("C") && routes.convertToStops(s).size() == 4).stream().map(s -> String.format("%s: %s stops", s, routes.convertToStops(s).size())).collect(Collectors.toList()));
     System.out.println("8. The length of the shortest route (in terms of distance to travel) from A to C.");
     System.out.println(routes.shortestDistance("A", "C"));
     System.out.println("9. The length of the shortest route (in terms of distance to travel) from B to B.");
