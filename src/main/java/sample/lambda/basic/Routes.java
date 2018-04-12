@@ -1,6 +1,7 @@
 package sample.lambda.basic;
 
 import java.util.*;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -113,70 +114,23 @@ public class Routes {
   }
 
   /**
-   * traverse from given start edges, always try to traverse as many edges as possible, but make sure that each edge has only been traversed once in each route
+   * traverse from given start edges, always try to traverse as many edges as possible,
+   * till none of the new route can match the predicate
    *
    * @param routes a string of some nodes as route
    * @return a list of routes that starts from given start edges
    */
-  private List<String> traverse(Set<String> routes) {
+  private List<String> traverse(Set<String> routes, BiPredicate<String, String> bp) {
     Set<String> tmpRoutes = new HashSet<>(routes);
     for (String route : routes) {
       for (String stop : edges.keySet().stream().filter(a -> a.startsWith(route.substring(route.length() - 1))).collect(Collectors.toSet())) {
-        if (!route.contains(stop)) {
+        if (bp.test(route, stop)) {
           tmpRoutes.add(route.concat(stop.substring(1)));
         }
       }
     }
     if (tmpRoutes.size() > routes.size()) {
-      return traverse(tmpRoutes);
-    } else {
-      return tmpRoutes.stream().sorted().collect(Collectors.toList());
-    }
-  }
-
-  /**
-   * traverse from given start edges, traverse till none of the new routes match the stops predicate
-   *
-   * @param routes         a string of some nodes as route
-   * @param stopsPredicate a predicate which will test the stops of each traversed route
-   * @return a list of routes that starts from given start edges
-   */
-  private List<String> traverseWithStopsPredicate(Set<String> routes, Predicate<Integer> stopsPredicate) {
-    Set<String> tmpRoutes = new HashSet<>(routes);
-    for (String route : routes) {
-      for (String stop : edges.keySet().stream().filter(a -> a.startsWith(route.substring(route.length() - 1))).collect(Collectors.toSet())) {
-        if (stopsPredicate.test(convertToStops(route.concat(stop.substring(1))).size())) {
-          tmpRoutes.add(route.concat(stop.substring(1)));
-        }
-      }
-    }
-
-    if (tmpRoutes.size() > routes.size()) {
-      return traverseWithStopsPredicate(tmpRoutes, stopsPredicate);
-    } else {
-      return tmpRoutes.stream().sorted().collect(Collectors.toList());
-    }
-  }
-
-  /**
-   * traverse from given start edges, traverse till none of the new routes match the distance predicate
-   *
-   * @param routes            a string of some nodes as route
-   * @param distancePredicate a predicate which will test the distance of each traversed route
-   * @return a list of routes that starts from given start edges
-   */
-  private List<String> traverseWithDistancePredicate(Set<String> routes, Predicate<Integer> distancePredicate) {
-    Set<String> tmpRoutes = new HashSet<>(routes);
-    for (String route : routes) {
-      for (String stop : edges.keySet().stream().filter(a -> a.startsWith(route.substring(route.length() - 1))).collect(Collectors.toSet())) {
-        if (distancePredicate.test(routeDistance(route.concat(stop.substring(1))))) {
-          tmpRoutes.add(route.concat(stop.substring(1)));
-        }
-      }
-    }
-
-    if (tmpRoutes.size() > routes.size()) {
-      return traverseWithDistancePredicate(tmpRoutes, distancePredicate);
+      return traverse(tmpRoutes, bp);
     } else {
       return tmpRoutes.stream().sorted().collect(Collectors.toList());
     }
@@ -191,7 +145,8 @@ public class Routes {
   public List<String> traverse(String start) {
     return Optional.ofNullable(start)
       .filter(nodes::contains)
-      .map(b -> traverse(edges.keySet().stream().filter(c -> c.startsWith(b)).collect(Collectors.toSet())))
+      .map(b -> traverse(edges.keySet().stream().filter(c -> c.startsWith(b)).collect(Collectors.toSet()),
+        (route, stop) -> !route.contains(stop)))
       .orElse(new ArrayList<>());
   }
 
@@ -205,7 +160,8 @@ public class Routes {
   public List<String> traverseWithMaxStops(String start, int maxStops) {
     return Optional.ofNullable(start)
       .filter(nodes::contains)
-      .map(b -> traverseWithStopsPredicate(edges.keySet().stream().filter(c -> c.startsWith(b)).collect(Collectors.toSet()), i -> i <= Optional.of(maxStops).filter(n -> n >= 1).orElse(1)))
+      .map(b -> traverse(edges.keySet().stream().filter(c -> c.startsWith(b)).collect(Collectors.toSet()),
+        (route, stop) -> convertToStops(route.concat(stop.substring(1))).size() <= Optional.of(maxStops).filter(n -> n > 0).orElse(1)))
       .orElse(new ArrayList<>());
   }
 
@@ -219,7 +175,8 @@ public class Routes {
   public List<String> traverseWithMaxDistance(String start, int maxDistance) {
     return Optional.ofNullable(start)
       .filter(nodes::contains)
-      .map(b -> traverseWithDistancePredicate(edges.keySet().stream().filter(c -> c.startsWith(b)).collect(Collectors.toSet()), i -> i <= Optional.of(maxDistance).filter(n -> n > 0).orElse(1)))
+      .map(b -> traverse(edges.keySet().stream().filter(c -> c.startsWith(b)).collect(Collectors.toSet()),
+        (route, stop) -> routeDistance(route.concat(stop.substring(1))) <= Optional.of(maxDistance).filter(n -> n > 0).orElse(1)))
       .orElse(new ArrayList<>());
   }
 
