@@ -1,6 +1,14 @@
 package sample.merge;
 
+import io.vavr.control.Try;
+import org.junit.Test;
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 public class MergeSortSample {
     public static int[] mergeSort(int[] arr) {
@@ -46,42 +54,63 @@ public class MergeSortSample {
     }
 
 
-    /**
-     * read resource file from given url,
-     * return all of its lines as an Iterator when resource is available
-     * return empty when resource is unavailable
-     *
-     * @param url given url
-     * @return Some iterator when resource available, Empty when resource is unavailable
-     */
-    private static Optional<Iterator<String>> from(String url) {
-
-        return Optional.empty();
-    }
+  /**
+   * read lines from a text file, return all lines
+   *
+   * @param path, the path of input file
+   * @return an iterable that contains all lines, return empty list if there is any IOException
+   */
+  public static Iterable<String> readLines(String path) {
+    return Try.of(() -> Files.lines(Paths.get(path)).collect(Collectors.toList())).getOrElse(new ArrayList<>());
+  }
 
 
-    /**
-     * read a text file, split each line into words, distinct words, and sort them according to word frequency, in a most frequent at top to least frequent at bottom order.
-     *
-     * @param url given url
-     * @return the ranked list
-     */
-    public static Optional<Iterable<String>> rank(String url) {
+  /**
+   * split each line into words, distinct words, and sort them according to word frequency,
+   * return all words and their count numbers as an Iterable of string separated by a space character,
+   * in a most frequent at top to least frequent at bottom order.
+   *
+   * @param lines given url
+   * @return an Iterable that contains all distinct words and their count numbers
+   * as an Iterable of string separated by a space character, ordered by count number
+   */
+  public static Iterable<String> rank(Iterable<String> lines) {
+    return Optional
+      .ofNullable(lines)
+      .map(lns -> StreamSupport.stream(lines.spliterator(), false)
+        .flatMap(str ->
+          Arrays.stream(str.split("\\s+")))
+        .collect(Collectors.toMap(
+          Function.identity(),
+          str -> 1,
+          (l, r) -> l + r))
+        .entrySet()
+        .stream()
+        .filter(e -> !"".equals(e.getKey()))
+        .sorted(Comparator
+          .<Map.Entry<String, Integer>, Integer>comparing(Map.Entry::getValue)
+          .reversed())
+        .map(entry -> String.format("%s %s", entry.getKey(), entry.getValue()))
+        .collect(Collectors.toList())
+      ).orElse(new ArrayList<>());
+  }
 
-        return Optional.empty();
-    }
+  @Test
+  public void testRank() {
+    rank(readLines("pom.xml")).forEach(System.out::println);
+  }
 
 
-    /**
-     * use merge sort to sort a given list
-     * Do not use APIs which have already implemented the merge sort algorithm
-     *
-     * @param list given unsorted list
-     * @param <T>  comparable element
-     * @return sorted list
-     */
-    public static <T extends Comparable<? super T>> List<T> mergeSort(List<T> list) {
+  /**
+   * use merge sort to sort a given list
+   * Do not use APIs which have already implemented the merge sort algorithm
+   *
+   * @param list given unsorted list
+   * @param <T>  comparable element
+   * @return sorted list
+   */
+  public static <T extends Comparable<? super T>> Iterable<T> mergeSort(Iterable<T> list) {
 
-        return Collections.EMPTY_LIST;
-    }
+    return Collections.EMPTY_LIST;
+  }
 }
