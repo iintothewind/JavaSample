@@ -51,7 +51,7 @@ public interface ValidationUtils {
     }
 
     static Validation<String, String> checkStringNotEmpty(final String error) {
-        return check(input -> Optional.ofNullable(input).map(String::trim).filter(s -> !s.isEmpty()).isPresent(), error);
+        return check(input -> Optional.ofNullable(input).filter(s -> !s.isEmpty()).isPresent(), error);
     }
 
 }
