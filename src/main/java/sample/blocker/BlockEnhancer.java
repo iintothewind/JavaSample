@@ -48,6 +48,7 @@ public class BlockEnhancer<T> {
     return new BlockEnhancer<>(target, null, null);
   }
 
+  @SuppressWarnings("unchecked")
   public T create() {
     CallbackHelper callbackHelper = new CallbackHelper(target, target.getInterfaces()) {
       @Override

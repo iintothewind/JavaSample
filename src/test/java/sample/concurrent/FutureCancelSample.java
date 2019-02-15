@@ -1,7 +1,6 @@
 package sample.concurrent;
 
 
-import com.google.common.base.Throwables;
 import io.vavr.control.Try;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +27,7 @@ class InterruptableTask implements Callable<String> {
     started.countDown();
     // @formatter:off
         // InterruptedException belongs to FatalException, thus it will be thrown but never hold in Failure
-        Try.run(() -> {try{TimeUnit.SECONDS.sleep(10);}catch(InterruptedException e){Throwables.propagate(e);}})
+        Try.run(() -> {try{TimeUnit.SECONDS.sleep(10);}catch(InterruptedException e){throw e;}})
            .onFailure(e -> {log.info("sleep interrupted");interrupted.countDown();});
         // @formatter:on
     return "Done";
