@@ -19,7 +19,7 @@ public class BlockEnhancer {
   private static final int DEFAULT_BLOCK_TIME = 1000;
 
   @Test
-  public void testBlock() throws Exception {
+  public void testBlock() {
     Enhancer enhancer = new Enhancer();
     enhancer.setSuperclass(SampleClass.class);
     enhancer.setCallback(new NavigationMethodInterceptor("tes=5000"));
