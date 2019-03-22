@@ -9,15 +9,15 @@ import javax.inject.Singleton;
 
 @Module
 public class CyborgModule {
-    @Provides
-    @Singleton
-    public Legs provideCyborgLegs() {
-        return new CyborgLegs();
-    }
+  @Provides
+  @Singleton
+  public Legs provideCyborgLegs() {
+    return new CyborgLegs();
+  }
 
-    @Provides
-    @Singleton
-    public Sensors provideCyborgSensors() {
-        return new CyborgSensors();
-    }
+  @Provides
+  @Singleton
+  public Sensors provideCyborgSensors() {
+    return new CyborgSensors();
+  }
 }

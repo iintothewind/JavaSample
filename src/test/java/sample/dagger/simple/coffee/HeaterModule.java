@@ -7,9 +7,9 @@ import javax.inject.Singleton;
 
 @Module
 class HeaterModule {
-    @Provides
-    @Singleton
-    Heater provideHeater() {
-        return new ElectricHeater();
-    }
+  @Provides
+  @Singleton
+  Heater provideHeater() {
+    return new ElectricHeater();
+  }
 }

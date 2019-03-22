@@ -8,8 +8,8 @@ import javax.inject.Singleton;
 @Singleton
 @Component(modules = {CyborgModule.class})
 public interface Cyborg {
-    public abstract Legs getLegs();
+  public abstract Legs getLegs();
 
-    public abstract Sensors getSensors();
+  public abstract Sensors getSensors();
 
 }

@@ -1,9 +1,9 @@
 package sample.dagger.simple.coffee;
 
 interface Heater {
-    void on();
+  void on();
 
-    void off();
+  void off();
 
-    boolean isHot();
+  boolean isHot();
 }

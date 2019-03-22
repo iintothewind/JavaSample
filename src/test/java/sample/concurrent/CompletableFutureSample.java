@@ -25,8 +25,8 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CompletableFutureSample {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   final Random random = new Random();
+  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private ExecutorService pool = null;
 
   @Before

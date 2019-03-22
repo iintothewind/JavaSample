@@ -32,6 +32,9 @@ public class FunctionSample {
   Function<Person, Map<String, String>> after = person -> {
     return ImmutableMap.of("name", person.getName(), "age", person.getAge().toString(), "occupation", person.getOccupation());
   };
+  private Function<String, Integer> a = s -> Option.of(Ints.tryParse(s)).getOrElse(0);
+  private Function<Integer, List<Integer>> b = ImmutableList::of;
+  private Function<List<String>, String> d = l -> l.stream().findFirst().orElse("");
 
   private Person applyFromMappingsToPerson(String mappings, Function<String, Person> before) {
     return before.apply(mappings);
@@ -48,12 +51,6 @@ public class FunctionSample {
   private Map<String, String> applyFromStringToMap(String mappings, Function<String, Map<String, String>> function) {
     return function.apply(mappings);
   }
-
-  private Function<String, Integer> a = s -> Option.of(Ints.tryParse(s)).getOrElse(0);
-
-  private Function<Integer, List<Integer>> b = ImmutableList::of;
-
-  private Function<List<String>, String> d = l -> l.stream().findFirst().orElse("");
 
   @Test
   public void testCompose() {
