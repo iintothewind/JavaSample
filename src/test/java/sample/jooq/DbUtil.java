@@ -37,13 +37,13 @@ public class DbUtil {
 
   public <T> List<T> fetch(@NonNull RecordMapper<? super Record, T> mapper) {
     if (Objects.isNull(bindings)) {
-      return Try.of(() -> dslContext)
+      return Try.success(dslContext)
         .mapTry(dslContext -> dslContext.fetch(sql))
         .mapTry(result -> result.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(ImmutableList.of());
     } else {
-      return Try.of(() -> dslContext)
+      return Try.success(dslContext)
         .mapTry(dslContext -> dslContext.fetch(sql, bindings))
         .mapTry(result -> result.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -53,13 +53,13 @@ public class DbUtil {
 
   public <T> Optional<T> fetchSingle(@NonNull Function<? super Record, T> mapper) {
     if (Objects.isNull(bindings)) {
-      return Try.of(() -> dslContext)
+      return Try.success(dslContext)
         .mapTry(dslContext -> dslContext.fetchOptional(sql))
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(Optional.empty());
     } else {
-      return Try.of(() -> dslContext)
+      return Try.success(dslContext)
         .mapTry(dslContext -> dslContext.fetchOptional(sql, bindings))
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
