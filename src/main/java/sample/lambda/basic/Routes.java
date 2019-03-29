@@ -84,6 +84,46 @@ public class Routes {
         s -> Integer.parseInt(s.substring(2))));
   }
 
+  public static void main(String[] argc) {
+    Routes routes = new Routes("AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7");
+    System.out.println("1. The distance of the route A-B-C.");
+    System.out.println(routes.routeDistance("ABC"));
+    System.out.println("2. The distance of the route A-D.");
+    System.out.println(routes.routeDistance("AD"));
+    System.out.println("3. The distance of the route A-D-C.");
+    System.out.println(routes.routeDistance("ADC"));
+    System.out.println("4. The distance of the route A-E-B-C-D.");
+    System.out.println(routes.routeDistance("AEBCD"));
+    System.out.println("5. The distance of the route A-E-D.");
+    try {
+      System.out.println(routes.routeDistance("AED"));
+    } catch (RuntimeException e) {
+      System.out.println(e.getMessage());
+    }
+    System.out.println("6. The number of trips starting at C and ending at C with a maximum of 3 stops.");
+    System.out.println(routes.findRoutes(
+      routes.traverseWithMaxStops("C", 3),
+      r -> r.endsWith("C"))
+      .stream()
+      .map(s -> String.format("%s: %s stops", s, routes.convertToStops(s).size()))
+      .collect(Collectors.toList())
+      .size());
+    System.out.println("7. The number of trips starting at A and ending at C with exactly 4 stops.");
+    System.out.println(routes.findRoutes(
+      routes.traverseWithMaxStops("A", 4),
+      s -> s.endsWith("C") && routes.convertToStops(s).size() == 4)
+      .stream()
+      .map(s -> String.format("%s: %s stops", s, routes.convertToStops(s).size())).
+        collect(Collectors.toList()).size());
+    System.out.println("8. The length of the shortest route (in terms of distance to travel) from A to C.");
+    System.out.println(routes.shortestDistance("A", "C"));
+    System.out.println("9. The length of the shortest route (in terms of distance to travel) from B to B.");
+    System.out.println(routes.shortestDistance("B", "B"));
+    System.out.println("10.The number of different routes from C to C with a distance of less than 30.");
+    System.out.println(routes.findRoutes(
+      routes.traverseWithMaxDistance("C", 30),
+      s -> s.endsWith("C") && routes.routeDistance(s) < 30).size());
+  }
 
   public Set<String> getNodes() {
     return nodes;
@@ -265,46 +305,5 @@ public class Routes {
         .mapToInt(Integer::intValue)
         .sum())
       .orElseThrow(() -> new RuntimeException("no such route"));
-  }
-
-  public static void main(String[] argc) {
-    Routes routes = new Routes("AB5,BC4,CD8,DC8,DE6,AD5,CE2,EB3,AE7");
-    System.out.println("1. The distance of the route A-B-C.");
-    System.out.println(routes.routeDistance("ABC"));
-    System.out.println("2. The distance of the route A-D.");
-    System.out.println(routes.routeDistance("AD"));
-    System.out.println("3. The distance of the route A-D-C.");
-    System.out.println(routes.routeDistance("ADC"));
-    System.out.println("4. The distance of the route A-E-B-C-D.");
-    System.out.println(routes.routeDistance("AEBCD"));
-    System.out.println("5. The distance of the route A-E-D.");
-    try {
-      System.out.println(routes.routeDistance("AED"));
-    } catch (RuntimeException e) {
-      System.out.println(e.getMessage());
-    }
-    System.out.println("6. The number of trips starting at C and ending at C with a maximum of 3 stops.");
-    System.out.println(routes.findRoutes(
-      routes.traverseWithMaxStops("C", 3),
-      r -> r.endsWith("C"))
-      .stream()
-      .map(s -> String.format("%s: %s stops", s, routes.convertToStops(s).size()))
-      .collect(Collectors.toList())
-      .size());
-    System.out.println("7. The number of trips starting at A and ending at C with exactly 4 stops.");
-    System.out.println(routes.findRoutes(
-      routes.traverseWithMaxStops("A", 4),
-      s -> s.endsWith("C") && routes.convertToStops(s).size() == 4)
-      .stream()
-      .map(s -> String.format("%s: %s stops", s, routes.convertToStops(s).size())).
-        collect(Collectors.toList()).size());
-    System.out.println("8. The length of the shortest route (in terms of distance to travel) from A to C.");
-    System.out.println(routes.shortestDistance("A", "C"));
-    System.out.println("9. The length of the shortest route (in terms of distance to travel) from B to B.");
-    System.out.println(routes.shortestDistance("B", "B"));
-    System.out.println("10.The number of different routes from C to C with a distance of less than 30.");
-    System.out.println(routes.findRoutes(
-      routes.traverseWithMaxDistance("C", 30),
-      s -> s.endsWith("C") && routes.routeDistance(s) < 30).size());
   }
 }

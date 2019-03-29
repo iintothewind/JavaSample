@@ -9,12 +9,6 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface Lst<T> extends Iterable<T> {
-  T head();
-
-  Lst<T> tail();
-
-  boolean isEmpty();
-
   @SuppressWarnings("unchecked")
   static <A> Lst<A> empty() {
     return (Lst<A>) Nil.instance;
@@ -29,6 +23,12 @@ public interface Lst<T> extends Iterable<T> {
     }
     return result;
   }
+
+  T head();
+
+  Lst<T> tail();
+
+  boolean isEmpty();
 
   default Lst<T> cons(T x) {
     Objects.requireNonNull(x, "x should not be null");

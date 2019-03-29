@@ -3,17 +3,17 @@ package sample.dagger.simple.coffee;
 import javax.inject.Inject;
 
 class Thermosiphon implements Pump {
-    private final Heater heater;
+  private final Heater heater;
 
-    @Inject
-    Thermosiphon(Heater heater) {
-        this.heater = heater;
-    }
+  @Inject
+  Thermosiphon(Heater heater) {
+    this.heater = heater;
+  }
 
-    @Override
-    public void pump() {
-        if (heater.isHot()) {
-            System.out.println("=> => pumping => =>");
-        }
+  @Override
+  public void pump() {
+    if (heater.isHot()) {
+      System.out.println("=> => pumping => =>");
     }
+  }
 }
