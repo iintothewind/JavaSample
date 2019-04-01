@@ -25,7 +25,6 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class CompletableFutureSample {
-  final Random random = new Random();
   private final Logger log = LogManager.getLogger(this.getClass().getName());
   private ExecutorService pool = null;
 
@@ -212,14 +211,14 @@ public class CompletableFutureSample {
   public void testApplyToEither() throws ExecutionException, InterruptedException {
     CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
       try {
-        TimeUnit.MILLISECONDS.sleep(random.nextInt(100));
+        TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current().nextInt(100));
       } catch (InterruptedException e) {
         Throwables.throwIfUnchecked(e);
       }
       return "Do";
     }, this.pool).applyToEither(CompletableFuture.supplyAsync(() -> {
       try {
-        TimeUnit.MILLISECONDS.sleep(random.nextInt(100));
+        TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current().nextInt(100));
       } catch (InterruptedException e) {
         Throwables.throwIfUnchecked(e);
       }
@@ -232,7 +231,7 @@ public class CompletableFutureSample {
     Objects.requireNonNull(syllable);
     return CompletableFuture.runAsync(() -> {
       try {
-        TimeUnit.MILLISECONDS.sleep(random.nextInt(100));
+        TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current().nextInt(100));
       } catch (InterruptedException e) {
         Throwables.throwIfUnchecked(e);
       }
@@ -245,21 +244,21 @@ public class CompletableFutureSample {
     CompletableFuture.allOf(this.sing("Do"), this.sing("Re"), this.sing("Mi")).join();
   }
 
-  private CompletableFuture<String> chant(String syllable) {
+  private CompletableFuture<String> chant(String syllable, final int millis) {
     Objects.requireNonNull(syllable);
     return CompletableFuture.supplyAsync(() -> {
       try {
-        TimeUnit.MILLISECONDS.sleep(random.nextInt(100));
+        TimeUnit.MILLISECONDS.sleep(millis);
       } catch (InterruptedException e) {
         Throwables.throwIfUnchecked(e);
       }
-      return syllable;
+      return String.format("%s:%s", syllable, millis);
     });
   }
 
   @Test
   public void testAnyOf() {
-    CompletableFuture.anyOf(this.chant("Do"), this.chant("Re"), this.chant("Mi")).thenAccept(this.log::info);
+    CompletableFuture.anyOf(this.chant("Do", 7), this.chant("Re", 9), this.chant("Mi", 20)).thenAccept(this.log::info);
   }
 
   @Test
