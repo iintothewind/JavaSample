@@ -9,8 +9,6 @@ import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 
-;
-
 public class ClassDeclarationSpy {
   private final Logger log = LogManager.getLogger();
   private final Class<?> clazz;

@@ -53,11 +53,8 @@ public class Person implements Comparable<Person> {
     } else if (!name.equals(other.name))
       return false;
     if (occupation == null) {
-      if (other.occupation != null)
-        return false;
-    } else if (!occupation.equals(other.occupation))
-      return false;
-    return true;
+      return other.occupation == null;
+    } else return occupation.equals(other.occupation);
   }
 
   @Override

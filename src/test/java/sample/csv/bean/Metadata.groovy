@@ -11,7 +11,7 @@ import org.junit.Test
 import java.beans.BeanInfo
 import java.beans.Introspector
 
-public class Metadata implements Comparable<Metadata> {
+class Metadata implements Comparable<Metadata> {
   private static final DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("dd/MM/yyyy")
   String fileName
   String contentType
@@ -32,7 +32,7 @@ public class Metadata implements Comparable<Metadata> {
     return dateTimeFormat.parseDateTime(date)
   }
 
-  public static Metadata from(Map<String, String> map) {
+  static Metadata from(Map<String, String> map) {
     Preconditions.checkNotNull(map)
     def metaData = new Metadata()
     metaData.setFileName(map.get("filename"))
@@ -47,13 +47,13 @@ public class Metadata implements Comparable<Metadata> {
     metaData.setPolicyNumber(map.get("PolicyNumber"))
     metaData.setProductName(map.get("ProductName"))
     metaData.setInsert(map.get("_Insert1"))
-    return metaData;
+    return metaData
   }
 
   @Override
-  public int compareTo(Metadata that) {
+  int compareTo(Metadata that) {
     if (that == null)
-      return -1;
+      return -1
     else {
       return ComparisonChain.start()
         .compare(this.adviserNumber, that.adviserNumber)
@@ -68,12 +68,12 @@ public class Metadata implements Comparable<Metadata> {
         .compare(this.policyNumber, that.policyNumber)
         .compare(this.productName, that.productName)
         .compare(this.insert, that.insert)
-        .result();
+        .result()
     }
   }
 
   @Override
-  public String toString() {
+  String toString() {
     return MoreObjects.toStringHelper(this)
       .add("filename", this.fileName)
       .add("contentType", this.contentType)
@@ -91,7 +91,7 @@ public class Metadata implements Comparable<Metadata> {
   }
 
   @Test
-  public void testBeans() {
+  void testBeans() {
     BeanInfo beanInfo = Introspector.getBeanInfo(this.class)
     //beanInfo.getPropertyDescriptors().each { println it }
     beanInfo.methodDescriptors.each {

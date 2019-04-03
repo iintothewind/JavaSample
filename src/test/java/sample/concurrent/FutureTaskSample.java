@@ -46,11 +46,11 @@ public class FutureTaskSample {
         Optional<String> possibleName = Optional.fromNullable(person.getName());
         Optional<Integer> possibleAge = Optional.fromNullable(person.getAge());
         Optional<String> possibleOccupation = Optional.fromNullable(person.getOccupation());
-        boolean match = possibleName.isPresent() ? Objects.equal(person.getName(), input.getName()) : true;
-        match = match && (possibleAge.isPresent() ? Objects.equal(person.getAge(), input.getAge()) : true);
+        boolean match = !possibleName.isPresent() || Objects.equal(person.getName(), input.getName());
+        match = match && (!possibleAge.isPresent() || Objects.equal(person.getAge(), input.getAge()));
         match = match
-          && (possibleOccupation.isPresent() ? Objects.equal(person.getOccupation(),
-          input.getOccupation()) : true);
+          && (!possibleOccupation.isPresent() || Objects.equal(person.getOccupation(),
+          input.getOccupation()));
 
         return match;
       }

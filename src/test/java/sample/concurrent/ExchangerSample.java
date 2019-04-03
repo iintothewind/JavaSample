@@ -102,7 +102,7 @@ final class Talker implements Runnable {
   public void run() {
     Preconditions.checkNotNull(map);
     String key = "start";
-    String message = new String();
+    String message = "";
     while (!Strings.isNullOrEmpty(key)) {
       try {
         key = exchanger.exchange(key + "=" + map.get(key), 20, TimeUnit.MILLISECONDS);
