@@ -9,6 +9,7 @@ import org.jooq.Record;
 import org.jooq.RecordMapper;
 import org.jooq.impl.DSL;
 
+import java.sql.Connection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,6 +26,10 @@ public class DbUtil {
     this.dslContext = dslContext;
     this.sql = sql;
     this.bindings = bindings;
+  }
+
+  public static DbUtil withConnectionAndSql(@NonNull final Connection connection, @NonNull final String sql) {
+    return new DbUtil(DSL.using(connection), sql, null);
   }
 
   public static DbUtil withSql(@NonNull final String sql) {
