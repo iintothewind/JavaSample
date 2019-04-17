@@ -1,12 +1,11 @@
 package sample.jooq;
 
+import java.sql.Connection;
+import javax.sql.DataSource;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.google.common.collect.ImmutableMap;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
-
-import javax.sql.DataSource;
-import java.sql.Connection;
 
 
 @Slf4j
@@ -24,13 +23,9 @@ public class DataSourceUtil {
       .getOrElseThrow(() -> new IllegalStateException("DbUtil initialization failed"));
   }
 
-  public static DataSourceUtil getInstance() {
-    return InstanceHolder.instance;
-  }
-
   public static Connection getConnection() {
     return Try
-      .of(() -> getInstance().dataSource.getConnection())
+        .of(InstanceHolder.instance.dataSource::getConnection)
       .onFailure(Throwable::printStackTrace)
       .getOrElseThrow(() -> new IllegalStateException("connect to db error"));
   }
