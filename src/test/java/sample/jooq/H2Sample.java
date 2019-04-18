@@ -68,4 +68,13 @@ public class H2Sample {
     System.out.println(tuple);
   }
 
+  @Test
+  public void testDbUtil() {
+    final Optional<Tuple2<Integer, String>> tuple = DbUtil
+      .withConnectionAndSql(DataSourceUtil.getConnection(), "SELECT * FROM INFORMATION_SCHEMA.HELP where id = ? ")
+      .withBindings(0)
+      .fetchSingle(record -> Tuple.of(record.getValue("ID", Integer.class), record.getValue("TOPIC", String.class)));
+    tuple.ifPresent(System.out::println);
+  }
+
 }

@@ -1,18 +1,19 @@
 package sample.jooq;
 
+import com.google.common.collect.ImmutableList;
+import io.vavr.control.Try;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
+import org.jooq.DSLContext;
+import org.jooq.Record;
+import org.jooq.RecordMapper;
+import org.jooq.impl.DSL;
+
 import java.sql.Connection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import org.jooq.DSLContext;
-import org.jooq.Record;
-import org.jooq.RecordMapper;
-import org.jooq.impl.DSL;
-import com.google.common.collect.ImmutableList;
-import io.vavr.control.Try;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 
 
 @Slf4j
@@ -27,16 +28,16 @@ public class DbUtil {
     this.bindings = bindings;
   }
 
-    public static DbUtil withDslContextAndSql(@NonNull final DSLContext dslContext, @NonNull final String sql) {
-        return new DbUtil(dslContext, sql, null);
-    }
+  public static DbUtil withDslContextAndSql(@NonNull final DSLContext dslContext, @NonNull final String sql) {
+    return new DbUtil(dslContext, sql, null);
+  }
 
   public static DbUtil withConnectionAndSql(@NonNull final Connection connection, @NonNull final String sql) {
-      return withDslContextAndSql(DSL.using(connection), sql);
+    return withDslContextAndSql(DSL.using(connection), sql);
   }
 
   public static DbUtil withSql(@NonNull final String sql) {
-      return withConnectionAndSql(DataSourceUtil.getConnection(), sql);
+    return withConnectionAndSql(DataSourceUtil.getConnection(), sql);
   }
 
   public DbUtil withBindings(@NonNull final Object... bindings) {
