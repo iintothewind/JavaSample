@@ -43,7 +43,7 @@ public class DbUtil {
   }
 
   /**
-   * fetch with default COMP db connection
+   * fetch with default H2 db connection
    *
    * @param sql statement, better to be prepared statement
    */

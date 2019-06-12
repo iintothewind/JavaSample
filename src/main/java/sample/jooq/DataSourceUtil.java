@@ -7,19 +7,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
-import java.util.Objects;
 import java.util.Optional;
 
 
 @Slf4j
 public class DataSourceUtil {
-  static {
-    if (Objects.isNull(System.getProperty("JAWS_HOSTNAME"))) {
-      System.setProperty("JAWS_HOSTNAME", "msmaster.qa.paypal.com");
-      System.setProperty("JAWS_SSH_RESTRICTED_STAGE", "true");
-    }
-  }
-
   private final DataSource dataSource;
 
   private DataSourceUtil(final String url, final String userName, final String password) {
