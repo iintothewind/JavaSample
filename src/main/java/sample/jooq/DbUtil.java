@@ -5,7 +5,6 @@ import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Record;
-import org.jooq.RecordMapper;
 import org.jooq.impl.DSL;
 
 import java.sql.Connection;
@@ -56,13 +55,13 @@ public class DbUtil {
     return new DbUtil(connection, sql, bindings);
   }
 
-  public <T> List<T> fetch(@NonNull RecordMapper<? super Record, T> mapper) {
+  public <T> List<T> fetch(@NonNull Function<? super Record, T> mapper) {
     if (Objects.isNull(bindings)) {
       return Try.success(connection)
         .mapTry(DSL::using)
         .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql)).andThenTry(dslContext::close))
         .andThenTry(connection::close)
-        .mapTry(result -> result.map(mapper))
+        .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(ImmutableList.of());
     } else {
@@ -70,7 +69,7 @@ public class DbUtil {
         .mapTry(DSL::using)
         .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql, bindings)).andThenTry(dslContext::close))
         .andThenTry(connection::close)
-        .mapTry(result -> result.map(mapper))
+        .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(ImmutableList.of());
     }
