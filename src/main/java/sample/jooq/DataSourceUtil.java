@@ -46,6 +46,6 @@ public class DataSourceUtil {
   }
 
   private static class InstanceHolder {
-    private static final DataSourceUtil instance = new DataSourceUtil("", "", "");
+    private static final DataSourceUtil instance = new DataSourceUtil(null, null, null);
   }
 }
