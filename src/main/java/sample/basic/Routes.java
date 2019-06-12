@@ -1,4 +1,4 @@
-package sample.lambda.basic;
+package sample.basic;
 
 import java.util.*;
 import java.util.function.BiPredicate;

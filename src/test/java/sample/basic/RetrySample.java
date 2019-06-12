@@ -1,4 +1,4 @@
-package sample.lambda.basic;
+package sample.basic;
 
 import com.nurkiewicz.asyncretry.AsyncRetryExecutor;
 import com.nurkiewicz.asyncretry.RetryExecutor;

@@ -1,4 +1,4 @@
-package sample.lambda.basic;
+package sample.basic;
 
 import org.junit.Assert;
 import org.junit.Rule;

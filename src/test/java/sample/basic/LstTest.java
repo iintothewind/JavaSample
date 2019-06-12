@@ -1,4 +1,4 @@
-package sample.lambda.basic;
+package sample.basic;
 
 import org.assertj.core.api.Assertions;
 import org.junit.Test;

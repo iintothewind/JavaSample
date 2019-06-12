@@ -1,20 +1,25 @@
 package sample.csv.basic;
 
-
 import au.com.bytecode.opencsv.CSV;
 import au.com.bytecode.opencsv.CSVReader;
 import com.google.common.base.Function;
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableBiMap;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
+import sample.basic.CryptoUtil;
 import sample.csv.bean.Country;
 
 import java.io.*;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 
 public class Sample {
@@ -57,7 +62,6 @@ public class Sample {
     });
   }
 
-
   @Test
   public void testMerge() throws IOException {
     ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();
@@ -67,4 +71,23 @@ public class Sample {
     }
   }
 
+  @Test
+  public void testBiMap() {
+    final ImmutableBiMap<String, String> map = ImmutableBiMap.<String, String>builder().putAll(Maps.filterKeys(ImmutableMap.of("1", "A", "2", "B"), i -> !Objects.equals(i, "1"))).put("1", "d").build();
+    System.out.println(map);
+  }
+
+  @Test
+  public void testDigest() {
+    final String enc = CryptoUtil.encryptToBase64("abc".getBytes());
+    System.out.println(enc);
+    final String dec = CryptoUtil.decryptFromBase64(enc);
+    System.out.println(dec);
+  }
+
+  @Test
+  public void testMatch() {
+    final boolean m = Pattern.compile("\\w+").matcher("asda-_fsd").matches();
+    System.out.println(m);
+  }
 }

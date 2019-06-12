@@ -1,4 +1,4 @@
-package sample.lambda.basic;
+package sample.basic;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

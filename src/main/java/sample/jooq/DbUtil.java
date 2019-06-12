@@ -20,6 +20,7 @@ public class DbUtil {
   static {
     System.setProperty("org.jooq.no-logo", "true");
   }
+
   private final String sql;
   private final Object[] bindings;
 
