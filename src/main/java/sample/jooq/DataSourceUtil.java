@@ -14,7 +14,7 @@ import java.util.Optional;
 public class DataSourceUtil {
   private final DataSource dataSource;
 
-  private DataSourceUtil(final String url, final String userName, final String password) {
+  public DataSourceUtil(final String url, final String userName, final String password) {
     dataSource = Try
       .of(() -> DruidDataSourceFactory.createDataSource(HashMap
         .<String, String>empty()
@@ -30,6 +30,10 @@ public class DataSourceUtil {
       .getOrElseThrow(() -> new IllegalStateException("DbUtil initialization failed"));
   }
 
+  public DataSourceUtil() {
+    this(null, null, null);
+  }
+
   public static Connection getConnection() {
     return Try
       .of(InstanceHolder.instance.dataSource::getConnection)
@@ -38,6 +42,6 @@ public class DataSourceUtil {
   }
 
   private static class InstanceHolder {
-    private static final DataSourceUtil instance = new DataSourceUtil(null, null, null);
+    private static final DataSourceUtil instance = new DataSourceUtil();
   }
 }

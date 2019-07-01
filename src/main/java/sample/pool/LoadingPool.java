@@ -15,7 +15,7 @@ public class LoadingPool<T> implements Pool<T> {
   private final BlockingQueue<T> queue;
   private final ExecutorService pool;
 
-  private LoadingPool(final int min, final int max, final Supplier<T> supplier) {
+  public LoadingPool(final int min, final int max, final Supplier<T> supplier) {
     Preconditions.checkArgument(min > 0, "min is required bigger than 0");
     Preconditions.checkArgument(max < 99, "max is required smaller than 99");
     Preconditions.checkArgument(min < max, "max is required smaller than 99");
