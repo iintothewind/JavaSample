@@ -200,16 +200,18 @@
       <artifactId>json</artifactId>
       <version>20180813</version>
     </dependency>
-
   </dependencies>
 
-  <distributionManagement>
+  <repositories>
     <repository>
       <id>aliyun-release</id>
-      <name>aliyun-release</name>
       <url>http://maven.aliyun.com/nexus/content/groups/public</url>
     </repository>
-  </distributionManagement>
+    <repository>
+      <id>validation-release</id>
+      <url>https://dl.bintray.com/iintothewind/maven</url>
+    </repository>
+  </repositories>
 
   <build>
     <plugins>
