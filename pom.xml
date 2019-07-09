@@ -200,6 +200,11 @@
       <artifactId>json</artifactId>
       <version>20180813</version>
     </dependency>
+    <dependency>
+      <groupId>com.github.iintothewind</groupId>
+      <artifactId>validation</artifactId>
+      <version>0.7</version>
+    </dependency>
   </dependencies>
 
   <repositories>
