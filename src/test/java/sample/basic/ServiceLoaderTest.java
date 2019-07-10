@@ -2,13 +2,16 @@ package sample.basic;
 
 import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
+import org.junit.Ignore;
 import org.junit.Test;
 import sample.pool.Pool;
 
 import java.util.ServiceLoader;
 
+@Ignore
 @Slf4j
 public class ServiceLoaderTest {
+
 
   @Test
   @SuppressWarnings("unchecked")
