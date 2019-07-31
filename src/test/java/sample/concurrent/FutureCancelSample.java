@@ -25,11 +25,12 @@ class InterruptableTask implements Callable<String> {
   public String call() {
     log.info("in call, try to sleep");
     started.countDown();
-    // @formatter:off
-        // InterruptedException belongs to FatalException, thus it will be thrown but never hold in Failure
-        Try.run(() -> {try{TimeUnit.SECONDS.sleep(10);}catch(InterruptedException e){throw e;}})
-           .onFailure(e -> {log.info("sleep interrupted");interrupted.countDown();});
-        // @formatter:on
+    // InterruptedException belongs to FatalException, thus it will be thrown but never hold in Failure
+    Try.run(() -> TimeUnit.SECONDS.sleep(10))
+      .onFailure(e -> {
+        log.info("sleep interrupted: {}", e.getMessage());
+        interrupted.countDown();
+      });
     return "Done";
   }
 
@@ -73,26 +74,16 @@ public class FutureCancelSample {
     Future<String> future = CompletableFuture.supplyAsync(task::call, pool);
     task.blockUntilStarted();
     future.cancel(true); // CancellationException is thrown, not like the above example
-    future.get();
+    future.get(); // CancellationException
   }
 
   @Test
-  public void testInterruptFutureTask() throws InterruptedException, ExecutionException {
+  public void testInterruptFutureTask() throws InterruptedException {
     pool = Executors.newCachedThreadPool();
     InterruptableTask task = new InterruptableTask();
     Future<String> future = pool.submit(task);
     task.blockUntilStarted();
     future.cancel(true); // set true to interrupt the running thread, no exception is thrown from here
-    Assertions.assertThat(task.blockUntilInterrupted()).isTrue(); // thread.sleep() is interrupted, hence returns true
-  }
-
-  @Test
-  public void testInterruptCompletableFutureTask() throws InterruptedException {
-    pool = Executors.newWorkStealingPool();
-    InterruptableTask task = new InterruptableTask();
-    Future<String> future = CompletableFuture.supplyAsync(task::call, pool);
-    task.blockUntilStarted();
-    future.cancel(true); // CancellationException is thrown, not like the above example
-    Assertions.assertThat(task.blockUntilInterrupted()).isFalse(); // thread.sleep() is never interrupted
+    Assertions.assertThat(task.blockUntilInterrupted()).isFalse(); // thread.sleep() is not interrupted, hence returns false
   }
 }

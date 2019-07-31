@@ -43,7 +43,7 @@ public class StreamSample {
       .stream()
       .collect(Collectors.groupingBy(t -> t._1, Collectors.mapping(t -> t._2, Collectors.toList())));
     System.out.println(m1);
-    final Map<Integer, Optional<String>> m2 = m1.entrySet().stream().map(kv -> Tuple.of(kv.getKey(), kv.getValue().stream().max(Comparator.naturalOrder()))).collect(Collectors.toMap(t -> t._1, t -> t._2));
+    final Map<Integer, Optional<String>> m2 = m1.entrySet().stream().map(kv -> Tuple.of(kv.getKey(), kv.getValue().stream().max(Comparator.<String>naturalOrder()))).collect(Collectors.toMap(t -> t._1, t -> t._2));
     System.out.println(m2);
   }
 
@@ -52,7 +52,7 @@ public class StreamSample {
     final Map<Integer, Optional<String>> m = ImmutableList
       .of(Tuple.of(1, "a"), Tuple.of(1, "b"), Tuple.of(2, "c"), Tuple.of(2, "d"), Tuple.of(3, "e"))
       .stream()
-      .collect(Collectors.groupingBy(t -> t._1, Collectors.mapping(t -> t._2, Collectors.maxBy(Comparator.naturalOrder()))));
+      .collect(Collectors.groupingBy(t -> t._1, Collectors.mapping(t -> t._2, Collectors.maxBy(Comparator.<String>naturalOrder()))));
     System.out.println(m);
   }
 }
