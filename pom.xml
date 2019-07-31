@@ -209,6 +209,13 @@
 
   <repositories>
     <repository>
+      <id>oss-release</id>
+      <url>https://oss.sonatype.org/content/groups/public</url>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </repository>
+    <repository>
       <id>aliyun-release</id>
       <url>http://maven.aliyun.com/nexus/content/groups/public</url>
     </repository>
@@ -237,4 +244,5 @@
       </plugin>
     </plugins>
   </build>
+
 </project>

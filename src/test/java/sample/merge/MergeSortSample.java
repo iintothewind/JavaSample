@@ -73,11 +73,11 @@ public class MergeSortSample {
    * return all words and their count numbers as an Iterable of string separated by a space character,
    * in a most frequent at top to least frequent at bottom order.
    *
-   * @param lines given url
+   * @param lines given string lines
    * @return an Iterable that contains all distinct words and their count numbers
-   * as an Iterable of string separated by a space character, ordered by count number
+   * as an Iterable of string separated by a space character, ordered by count number, then word
    */
-  public static Iterable<String> rank(Iterable<String> lines) {
+  public static Iterable<String> process(Iterable<String> lines) {
     return Optional
       .ofNullable(lines)
       .map(lns -> StreamSupport.stream(lns.spliterator(), false)
@@ -86,7 +86,7 @@ public class MergeSortSample {
         .collect(Collectors.toMap(
           Function.identity(),
           str -> 1,
-          (l, r) -> l + r))
+          Integer::sum))
         .entrySet()
         .stream()
         .filter(e -> !"".equals(e.getKey()))
@@ -114,6 +114,6 @@ public class MergeSortSample {
 
   @Test
   public void testRank() {
-    rank(readLines("lines.txt")).forEach(System.out::println);
+    process(readLines("lines.txt")).forEach(System.out::println);
   }
 }

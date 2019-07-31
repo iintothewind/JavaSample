@@ -57,17 +57,19 @@ public class DbUtil {
 
   public <T> List<T> fetch(@NonNull Function<? super Record, T> mapper) {
     if (Objects.isNull(bindings)) {
-      return Try.success(connection)
+      return Try
+        .success(connection)
         .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql)).andThenTry(dslContext::close))
-        .andThenTry(connection::close)
+        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql)).andFinallyTry(dslContext::close))
+        .andFinallyTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(ImmutableList.of());
     } else {
-      return Try.success(connection)
+      return Try
+        .success(connection)
         .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql, bindings)).andThenTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql, bindings)).andFinallyTry(dslContext::close))
         .andThenTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -77,17 +79,19 @@ public class DbUtil {
 
   public <T> Optional<T> fetchSingle(@NonNull Function<? super Record, T> mapper) {
     if (Objects.isNull(bindings)) {
-      return Try.success(connection)
+      return Try
+        .success(connection)
         .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetchOptional(sql)).andThenTry(dslContext::close))
-        .andThenTry(connection::close)
+        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetchOptional(sql)).andFinallyTry(dslContext::close))
+        .andFinallyTry(connection::close)
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(Optional.empty());
     } else {
-      return Try.success(connection)
+      return Try
+        .success(connection)
         .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetchOptional(sql, bindings)).andThenTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetchOptional(sql, bindings)).andFinallyTry(dslContext::close))
         .andThenTry(connection::close)
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -97,17 +101,19 @@ public class DbUtil {
 
   public int execute() {
     if (Objects.isNull(bindings)) {
-      return Try.success(connection)
+      return Try
+        .success(connection)
         .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.execute(sql)).andThenTry(dslContext::close))
-        .andThenTry(connection::close)
+        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.execute(sql)).andFinallyTry(dslContext::close))
+        .andFinallyTry(connection::close)
         .onFailure(t -> log.error("execute sql error: {}", t))
         .getOrElse(-1);
     } else {
-      return Try.success(connection)
+      return Try
+        .success(connection)
         .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.execute(sql, bindings)).andThenTry(dslContext::close))
-        .andThenTry(connection::close)
+        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.execute(sql, bindings)).andFinallyTry(dslContext::close))
+        .andFinallyTry(connection::close)
         .onFailure(t -> log.error("execute sql error: {}", t))
         .getOrElse(-1);
     }
