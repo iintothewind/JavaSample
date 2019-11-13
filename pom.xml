@@ -13,7 +13,7 @@
     <scala.version>2.11.6</scala.version>
     <log4j.version>2.11.1</log4j.version>
     <dagger.version>2.15</dagger.version>
-    <jackson.version>2.9.9</jackson.version>
+    <jackson.version>2.10.1</jackson.version>
     <assertj.version>2.9.5</assertj.version>
     <jmh.version>2.9.5</jmh.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
