@@ -99,6 +99,7 @@ public class MergeSortSample {
       ).orElse(new ArrayList<>());
   }
 
+
   /**
    * use merge sort to sort a given list
    * Do not use APIs which have already implemented the merge sort algorithm

@@ -3,14 +3,15 @@ package sample.concurrent;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import io.vavr.control.Try;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.assertj.core.data.Offset;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -24,8 +25,8 @@ import java.util.concurrent.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class CompletableFutureSample {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private ExecutorService pool = null;
 
   @Before
@@ -35,8 +36,7 @@ public class CompletableFutureSample {
 
   @After
   public void tearDown() throws InterruptedException {
-    this.pool.awaitTermination(3, TimeUnit.SECONDS);
-    this.pool.shutdownNow();
+    Optional.ofNullable(pool).ifPresent((p) -> Try.of(() -> p.awaitTermination(5, TimeUnit.SECONDS)));
   }
 
   public CompletableFuture<String> askIncompleted() {
@@ -258,7 +258,7 @@ public class CompletableFutureSample {
 
   @Test
   public void testAnyOf() {
-    CompletableFuture.anyOf(this.chant("Do", 7), this.chant("Re", 9), this.chant("Mi", 20)).thenAccept(this.log::info);
+    CompletableFuture.anyOf(this.chant("Do", 7), this.chant("Re", 9), this.chant("Mi", 20)).thenAccept(System.out::println);
   }
 
   @Test
@@ -274,4 +274,55 @@ public class CompletableFutureSample {
     System.out.println("ForkJoinPool.getCommonPoolParallelism() == " + ForkJoinPool.getCommonPoolParallelism());
   }
 
+  @Test
+  public void testCancellableFuture() {
+    final CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+      try {
+        TimeUnit.MILLISECONDS.sleep(100);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      return "this is a message";
+    }, this.pool);
+
+    final CompletableFuture<String> cancellable1 = TimeoutSupportFuture.within(future, Duration.ofMillis(50));
+    final CompletableFuture<String> cancellable2 = TimeoutSupportFuture.within(future, Duration.ofMillis(200));
+    cancellable1.whenComplete((s, throwable) -> {
+      if (s != null) {
+        log.info("s == {}", s);
+      } else {
+        log.info(throwable.getMessage());
+      }
+    });
+    cancellable2.whenComplete((s, throwable) -> {
+      if (s != null) {
+        log.info("s == {}", s);
+      } else {
+        log.info(throwable.getMessage());
+      }
+    });
+  }
+
+//  @Test
+//  public void testCancellableFuture9() {
+//    final CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+//      try {
+//        for (int i = 0; i < 9; i++) {
+//          log.info("sleep...");
+//          TimeUnit.MILLISECONDS.sleep(300);
+//        }
+//      } catch (InterruptedException e) {
+//        throw new RuntimeException(e);
+//      }
+//      return "this is a message";
+//    }, this.pool);
+//    future.orTimeout(300, TimeUnit.MILLISECONDS).whenComplete((s, throwable) -> {
+//      if (s != null) {
+//        log.info("s == {}", s);
+//      } else {
+//        log.info(throwable.getMessage());
+//      }
+//    });
+//
+//  }
 }

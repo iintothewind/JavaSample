@@ -43,7 +43,7 @@ public class DbUtil {
   }
 
   /**
-   * fetch with default H2 db connection
+   * fetch with default db connection
    *
    * @param sql statement, better to be prepared statement
    */
@@ -55,21 +55,33 @@ public class DbUtil {
     return new DbUtil(connection, sql, bindings);
   }
 
+  /**
+   * execute sql to fetch result as a list
+   * use mapper to convert Record to T type
+   * Empty list will be returned if any exception occurs
+   * <br>
+   * <b>Caution:
+   * To ensure function robust,
+   * All exceptions will be contained in Try monad,
+   * means code never breaks in this function when sql error, db connection error, etc happen</b>
+   * <br>
+   * <b>Check your logs for any possible errors, handle empty value return</b>
+   *
+   * @return the list of T which is converted from fetched records, empty when any exception occurs
+   */
   public <T> List<T> fetch(@NonNull Function<? super Record, T> mapper) {
     if (Objects.isNull(bindings)) {
       return Try
-        .success(connection)
-        .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql)).andFinallyTry(dslContext::close))
+        .of(() -> DSL.using(connection))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql)).andFinallyTry(dslContext::close))
         .andFinallyTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(ImmutableList.of());
     } else {
       return Try
-        .success(connection)
-        .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetch(sql, bindings)).andFinallyTry(dslContext::close))
+        .of(() -> DSL.using(connection))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql, bindings)).andFinallyTry(dslContext::close))
         .andThenTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -77,21 +89,33 @@ public class DbUtil {
     }
   }
 
+  /**
+   * execute sql to fetch result as an Optional
+   * use mapper to convert Record to T type
+   * Optional.empty will be returned if any exception occurs
+   * <br>
+   * <b>Caution:
+   * To ensure function robust,
+   * All exceptions will be contained in Try monad,
+   * means code never breaks in this function when sql error, db connection error, etc happen</b>
+   * <br>
+   * <b>Check your logs for any possible errors, handle empty value return</b>
+   *
+   * @return the Optional of T which is converted from fetched records, empty when any exception occurs
+   */
   public <T> Optional<T> fetchSingle(@NonNull Function<? super Record, T> mapper) {
     if (Objects.isNull(bindings)) {
       return Try
-        .success(connection)
-        .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetchOptional(sql)).andFinallyTry(dslContext::close))
+        .of(() -> DSL.using(connection))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql)).andFinallyTry(dslContext::close))
         .andFinallyTry(connection::close)
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(Optional.empty());
     } else {
       return Try
-        .success(connection)
-        .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.fetchOptional(sql, bindings)).andFinallyTry(dslContext::close))
+        .of(() -> DSL.using(connection))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql, bindings)).andFinallyTry(dslContext::close))
         .andThenTry(connection::close)
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -99,20 +123,28 @@ public class DbUtil {
     }
   }
 
+  /**
+   * <b>Caution:
+   * To ensure function robust,
+   * All exceptions will be contained in Try monad,
+   * Means code never breaks in this function when sql error, db connection error, etc happen</b>
+   * <br>
+   * <b>Check your logs for any possible errors, handle empty value return</b>
+   *
+   * @return number of rows affected, -1 when any exception occurs
+   */
   public int execute() {
     if (Objects.isNull(bindings)) {
       return Try
-        .success(connection)
-        .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.execute(sql)).andFinallyTry(dslContext::close))
+        .of(() -> DSL.using(connection))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql)).andFinallyTry(dslContext::close))
         .andFinallyTry(connection::close)
         .onFailure(t -> log.error("execute sql error: {}", t))
         .getOrElse(-1);
     } else {
       return Try
-        .success(connection)
-        .mapTry(DSL::using)
-        .flatMapTry(dslContext -> Try.success(dslContext).mapTry(context -> context.execute(sql, bindings)).andFinallyTry(dslContext::close))
+        .of(() -> DSL.using(connection))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql, bindings)).andFinallyTry(dslContext::close))
         .andFinallyTry(connection::close)
         .onFailure(t -> log.error("execute sql error: {}", t))
         .getOrElse(-1);

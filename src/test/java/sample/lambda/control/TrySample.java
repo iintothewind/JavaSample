@@ -22,6 +22,7 @@ public class TrySample {
       .forEach(System.out::println);
   }
 
+
   @Test
   public void testOptionToTry() {
     Option.of("test")

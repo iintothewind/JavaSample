@@ -29,4 +29,6 @@ public class GetMiddle {
     assertEquals("t", getMiddle("testing"));
     assertEquals("A", getMiddle("A"));
   }
+
 }
+
