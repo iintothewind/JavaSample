@@ -18,7 +18,7 @@ public class DataSourceUtil {
     dataSource = Try
       .of(() -> DruidDataSourceFactory.createDataSource(HashMap
         .<String, String>empty()
-        .put("url", Optional.ofNullable(url).orElse("jdbc:h2:mem:test;MVCC=TRUE;DB_CLOSE_DELAY=-1;MODE=POSTGRESQL"))
+        .put("url", Optional.ofNullable(url).orElse("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=POSTGRESQL"))
         .put("username", Optional.ofNullable(userName).orElse("postgress"))
         .put("password", Optional.ofNullable(password).orElse("admin"))
         .put("maxActive", "2")
