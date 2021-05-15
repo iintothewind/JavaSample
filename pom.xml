@@ -5,7 +5,7 @@
 
   <groupId>application</groupId>
   <artifactId>JavaSample</artifactId>
-  <version>1.0</version>
+  <version>1.0-SNAPSHOT</version>
 
   <properties>
     <java.version>1.8</java.version>
@@ -73,7 +73,7 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-core</artifactId>
-      <version>5.2.5.RELEASE</version>
+      <version>5.3.7</version>
     </dependency>
     <dependency>
       <groupId>au.com.bytecode</groupId>
@@ -101,6 +101,11 @@
       <version>${log4j.version}</version>
     </dependency>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.30</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.logging.log4j</groupId>
       <artifactId>log4j-slf4j-impl</artifactId>
       <version>${log4j.version}</version>
@@ -118,7 +123,7 @@
     <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
-      <version>[30.0-jre,)</version>
+      <version>30.1.1-jre</version>
     </dependency>
     <dependency>
       <groupId>io.vavr</groupId>
@@ -166,7 +171,7 @@
     <dependency>
       <groupId>org.jooq</groupId>
       <artifactId>jooq</artifactId>
-      <version>3.13.1</version>
+      <version>3.14.9</version>
     </dependency>
     <dependency>
       <groupId>com.nurkiewicz.asyncretry</groupId>
@@ -187,7 +192,7 @@
     <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
-      <version>1.18.6</version>
+      <version>1.18.20</version>
     </dependency>
     <dependency>
       <groupId>commons-codec</groupId>
@@ -195,19 +200,9 @@
       <version>1.12</version>
     </dependency>
     <dependency>
-      <groupId>org.testng</groupId>
-      <artifactId>testng</artifactId>
-      <version>7.1.0</version>
-    </dependency>
-    <dependency>
       <groupId>org.json</groupId>
       <artifactId>json</artifactId>
-      <version>20190722</version>
-    </dependency>
-    <dependency>
-      <groupId>com.github.iintothewind</groupId>
-      <artifactId>validation</artifactId>
-      <version>0.7</version>
+      <version>20210307</version>
     </dependency>
     <dependency>
       <groupId>com.google.auto.value</groupId>
@@ -229,33 +224,52 @@
 
   <repositories>
     <repository>
-      <id>oss-release</id>
-      <url>https://oss.sonatype.org/content/groups/public</url>
+      <id>wise-release</id>
+      <url>http://42.192.12.138:8681/nexus/repository/maven-public</url>
       <snapshots>
         <enabled>true</enabled>
       </snapshots>
     </repository>
-    <repository>
-      <id>aliyun-release</id>
-      <url>http://maven.aliyun.com/nexus/content/groups/public</url>
-    </repository>
-    <repository>
-      <id>validation-release</id>
-      <url>https://dl.bintray.com/iintothewind/maven</url>
-    </repository>
   </repositories>
+
+
+  <distributionManagement>
+    <repository>
+      <id>releases</id>
+      <url>http://42.192.12.138:8681/nexus/repository/maven-releases</url>
+    </repository>
+    <snapshotRepository>
+      <id>snapshots</id>
+      <url>http://42.192.12.138:8681/nexus/repository/maven-snapshots</url>
+    </snapshotRepository>
+  </distributionManagement>
 
   <build>
     <plugins>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.7.0</version>
+        <version>3.8.1</version>
         <configuration>
           <source>${java.version}</source>
           <target>${java.version}</target>
           <showWarnings>true</showWarnings>
         </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-source-plugin</artifactId>
+        <version>3.2.1</version>
+        <configuration>
+          <attach>true</attach>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>

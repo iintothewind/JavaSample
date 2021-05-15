@@ -73,7 +73,7 @@ public class DbUtil {
     if (Objects.isNull(bindings)) {
       return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql)).andFinallyTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql)))
         .andFinallyTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -81,7 +81,7 @@ public class DbUtil {
     } else {
       return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql, bindings)).andFinallyTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql, bindings)))
         .andThenTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -107,7 +107,7 @@ public class DbUtil {
     if (Objects.isNull(bindings)) {
       return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql)).andFinallyTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql)))
         .andFinallyTry(connection::close)
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -115,7 +115,7 @@ public class DbUtil {
     } else {
       return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql, bindings)).andFinallyTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql, bindings)))
         .andThenTry(connection::close)
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
@@ -137,14 +137,14 @@ public class DbUtil {
     if (Objects.isNull(bindings)) {
       return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql)).andFinallyTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql)))
         .andFinallyTry(connection::close)
         .onFailure(t -> log.error("execute sql error: {}", t))
         .getOrElse(-1);
     } else {
       return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql, bindings)).andFinallyTry(dslContext::close))
+        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql, bindings)))
         .andFinallyTry(connection::close)
         .onFailure(t -> log.error("execute sql error: {}", t))
         .getOrElse(-1);
