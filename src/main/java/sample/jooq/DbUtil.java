@@ -1,6 +1,7 @@
 package sample.jooq;
 
 import com.google.common.collect.ImmutableList;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -70,29 +71,19 @@ public class DbUtil {
    * @return the list of T which is converted from fetched records, empty when any exception occurs
    */
   public <T> List<T> fetch(@NonNull Function<? super Record, T> mapper) {
-    if (Objects.isNull(bindings)) {
-      return Try
+    return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql)))
+        .flatMapTry(dslContext -> Try.of(() -> Option.of(bindings).map(b -> dslContext.fetch(sql, b)).getOrElse(() -> dslContext.fetch(sql))))
         .andFinallyTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(ImmutableList.of());
-    } else {
-      return Try
-        .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetch(sql, bindings)))
-        .andThenTry(connection::close)
-        .mapTry(result -> result.map(mapper::apply))
-        .onFailure(t -> log.error("fetch records error: {}", t))
-        .getOrElse(ImmutableList.of());
-    }
   }
 
   /**
    * execute sql to fetch result as an Optional
    * use mapper to convert Record to T type
-   * Optional.empty will be returned if any exception occurs
+   * Optional.empty() will be returned if any exception occurs
    * <br>
    * <b>Caution:
    * To ensure function robust,
@@ -104,23 +95,13 @@ public class DbUtil {
    * @return the Optional of T which is converted from fetched records, empty when any exception occurs
    */
   public <T> Optional<T> fetchSingle(@NonNull Function<? super Record, T> mapper) {
-    if (Objects.isNull(bindings)) {
-      return Try
+    return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql)))
+        .flatMapTry(dslContext -> Try.of(() -> Option.of(bindings).map(b -> dslContext.fetchOptional(sql, b)).getOrElse(() -> dslContext.fetchOptional(sql))))
         .andFinallyTry(connection::close)
         .mapTry(r -> r.map(mapper))
         .onFailure(t -> log.error("fetch records error: {}", t))
         .getOrElse(Optional.empty());
-    } else {
-      return Try
-        .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.fetchOptional(sql, bindings)))
-        .andThenTry(connection::close)
-        .mapTry(r -> r.map(mapper))
-        .onFailure(t -> log.error("fetch records error: {}", t))
-        .getOrElse(Optional.empty());
-    }
   }
 
   /**
@@ -134,21 +115,12 @@ public class DbUtil {
    * @return number of rows affected, -1 when any exception occurs
    */
   public int execute() {
-    if (Objects.isNull(bindings)) {
-      return Try
+    return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql)))
+        .flatMapTry(dslContext -> Try.of(() -> Option.of(bindings).map(b -> dslContext.execute(sql, b)).getOrElse(() -> dslContext.execute(sql))))
         .andFinallyTry(connection::close)
         .onFailure(t -> log.error("execute sql error: {}", t))
         .getOrElse(-1);
-    } else {
-      return Try
-        .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> dslContext.execute(sql, bindings)))
-        .andFinallyTry(connection::close)
-        .onFailure(t -> log.error("execute sql error: {}", t))
-        .getOrElse(-1);
-    }
   }
 }
 
