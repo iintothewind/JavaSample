@@ -1,7 +1,6 @@
 package sample.http;
 
 import com.google.common.base.Throwables;
-import com.google.common.collect.ImmutableList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.control.Try;
@@ -19,17 +18,9 @@ import java.util.stream.Collectors;
 
 @Slf4j
 public class ResourceSyncUtil {
-  public static List<String> readLines(final String file) {
-    final List<String> lines = Try.of(() -> ResourceUtil.loadResource(file))
-      .mapTry(r -> r.getFile().toPath())
-      .mapTry(Files::readAllLines)
-      .onFailure(Throwables::throwIfUnchecked)
-      .getOrElse(ImmutableList.of());
-    return lines;
-  }
 
   private static void checkEntries(final String file) {
-    final List<String> invalidLines = readLines(file).stream().filter(StringUtils::isNoneBlank).filter(s -> s.split("=").length != 2).collect(Collectors.toList());
+    final List<String> invalidLines = ResourceUtil.readLines(file).stream().filter(StringUtils::isNoneBlank).filter(s -> s.split("=").length != 2).collect(Collectors.toList());
     if (!CollectionUtils.isEmpty(invalidLines)) {
       throw new IllegalStateException(String.format("invalid entries found: %s", invalidLines));
     }
@@ -37,7 +28,7 @@ public class ResourceSyncUtil {
 
   private static List<Tuple2<String, String>> loadEntries(final String file) {
     checkEntries(file);
-    final List<Tuple2<String, String>> entries = readLines(file).stream().filter(StringUtils::isNoneBlank).map(s -> s.split("=")).map(pair -> Tuple.of(pair[0], pair[1])).collect(Collectors.toList());
+    final List<Tuple2<String, String>> entries = ResourceUtil.readLines(file).stream().filter(StringUtils::isNoneBlank).map(s -> s.split("=")).map(pair -> Tuple.of(pair[0], pair[1])).collect(Collectors.toList());
     return entries;
   }
 

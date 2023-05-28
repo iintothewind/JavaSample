@@ -12,6 +12,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.StreamUtils;
 
 import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
@@ -80,5 +81,14 @@ public class ResourceUtil {
       .stream()
       .findFirst()
       .orElseThrow(() -> new IllegalStateException(String.format("unable to read resource of pattern: %s", locationPattern)));
+  }
+
+  public static List<String> readLines(final String locationPattern) {
+    final List<String> lines = Try.of(() -> loadResource(locationPattern))
+      .mapTry(r -> r.getFile().toPath())
+      .mapTry(Files::readAllLines)
+      .onFailure(Throwables::throwIfUnchecked)
+      .getOrElse(ImmutableList.of());
+    return lines;
   }
 }
