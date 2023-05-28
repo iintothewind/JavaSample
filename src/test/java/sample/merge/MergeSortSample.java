@@ -3,9 +3,14 @@ package sample.merge;
 import io.vavr.control.Try;
 import org.junit.Test;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -116,5 +121,23 @@ public class MergeSortSample {
   @Test
   public void testRank() {
     process(readLines("lines.txt")).forEach(System.out::println);
+  }
+
+  public static String normalizePath(String url) {
+    return Try
+      .of(() -> new File(url))
+      .filter(File::exists)
+      .mapTry(File::getCanonicalPath)
+      .getOrElseThrow(() -> new IllegalArgumentException(String.format("file path: %s is not existing",
+        Try.of(() -> new File(url)).mapTry(File::getCanonicalPath).getOrElse(url))));
+  }
+
+  @Test
+  public void testNormalizePath() {
+    final String path = normalizePath("./");
+    System.out.println(path);
+
+    final File f = new File("file:///Volumes/work/code/java/JavaSample");
+    System.out.println(f.exists());
   }
 }

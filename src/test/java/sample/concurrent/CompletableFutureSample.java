@@ -21,7 +21,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -258,7 +264,7 @@ public class CompletableFutureSample {
 
   @Test
   public void testAnyOf() {
-    CompletableFuture.anyOf(this.chant("Do", 7), this.chant("Re", 9), this.chant("Mi", 20)).thenAccept(System.out::println);
+    CompletableFuture.anyOf(this.chant("Do", 7), this.chant("Re", 9), this.chant("Mi", 20));
   }
 
   @Test
