@@ -1,7 +1,6 @@
-package sample.http;
+package sample.basic;
 
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.core.io.Resource;
@@ -10,6 +9,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.util.StreamUtils;
 import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
+import io.vavr.collection.Traversable;
 import io.vavr.collection.Vector;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
@@ -63,7 +63,7 @@ public class ResourceUtil {
         return Try
             .of(() -> resourcePatternResolver.getResources(locationPattern))
             .mapTry(resources -> Vector.ofAll(Arrays.stream(resources)).filter(Resource::exists).toJavaList())
-            .onSuccess(resources -> resources.forEach(r -> log.info("loaded resource: {}", Try.of(() -> r.getURI().toString()).getOrElse(""))))
+            .onSuccess(v -> v.forEach(r -> log.info("loaded resource: {}", Try.of(() -> r.getURI().toString()).getOrElse(""))))
             .onFailure(Throwables::throwIfUnchecked)
             .flatMap(resources -> Try.traverse(resources, r -> Try.of(() -> StreamUtils.copyToString(r.getInputStream(), Charset.defaultCharset()))))
             .getOrElse(Vector.empty())
@@ -83,14 +83,5 @@ public class ResourceUtil {
             .stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException(String.format("unable to read resource of pattern: %s", locationPattern)));
-    }
-
-    public static List<String> readLines(final String locationPattern) {
-        final List<String> lines = Try.of(() -> loadResource(locationPattern))
-            .mapTry(r -> r.getFile().toPath())
-            .mapTry(Files::readAllLines)
-            .onFailure(Throwables::throwIfUnchecked)
-            .getOrElse(ImmutableList.of());
-        return lines;
     }
 }
