@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.With;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.ConnectionPool;
 import okhttp3.HttpUrl;
@@ -89,6 +90,7 @@ public class Translator {
   @NoArgsConstructor
   @JsonIgnoreProperties(ignoreUnknown = true)
   public static class Translation {
+    @With
     List<Sentence> sentences;
 
     @Getter
@@ -99,7 +101,9 @@ public class Translator {
     @NoArgsConstructor
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static class Sentence {
+      @With
       String orig;
+      @With
       String trans;
     }
   }

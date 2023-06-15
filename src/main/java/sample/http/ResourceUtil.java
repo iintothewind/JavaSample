@@ -4,6 +4,11 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Properties;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.core.io.support.ResourcePatternResolver;
@@ -92,5 +97,21 @@ public class ResourceUtil {
             .onFailure(Throwables::throwIfUnchecked)
             .getOrElse(ImmutableList.of());
         return lines;
+    }
+
+    public static Properties loadProperties(final String locationPattern) {
+        final Properties properties = new Properties();
+        Try.of(() -> loadResource(locationPattern))
+            .andThenTry(r -> properties.load(r.getInputStream()))
+            .onFailure(Throwables::throwIfUnchecked);
+        return properties;
+    }
+    public static Map<String,String> loadPropertiesAsMap(final String locationPattern) {
+        final Properties properties = new Properties();
+        Try.of(() -> loadResource(locationPattern))
+            .andThenTry(r -> properties.load(r.getInputStream()))
+            .onFailure(Throwables::throwIfUnchecked);
+        final Map<String, String> map = properties.stringPropertyNames().stream().collect(Collectors.toMap(Function.identity(), properties::getProperty));
+        return map;
     }
 }

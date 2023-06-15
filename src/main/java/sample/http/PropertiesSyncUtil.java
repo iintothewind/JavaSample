@@ -36,7 +36,11 @@ public class PropertiesSyncUtil {
 
     private static List<Tuple2<String, String>> loadEntries(final String file) {
         checkEntries(file);
-        final List<Tuple2<String, String>> entries = ResourceUtil.readLines(file).stream().filter(StringUtils::isNoneBlank).map(s -> s.split("=")).map(pair -> Tuple.of(pair[0], pair[1])).collect(Collectors.toList());
+        final List<Tuple2<String, String>> entries = ResourceUtil.loadPropertiesAsMap(file)
+            .entrySet().stream()
+            .filter(kv -> StringUtils.isNotBlank(kv.getValue()))
+            .map(kv -> Tuple.of(kv.getKey(), kv.getValue()))
+            .collect(Collectors.toList());
         return entries;
     }
 
@@ -46,7 +50,7 @@ public class PropertiesSyncUtil {
             Optional
                 .ofNullable(entry._2)
                 .filter(v -> exceptions.stream().noneMatch(s -> StringUtils.equalsIgnoreCase(s, v)))
-                .map(v -> StringEscapeUtils.escapeJava(Translator.translate("en", targetLanguage, v)))
+                .map(v -> Translator.translate(Translator.Language.Automatic.getCode(), targetLanguage, v))
                 .orElse(entry._2));
         return translated;
     }
@@ -71,7 +75,24 @@ public class PropertiesSyncUtil {
             .onFailure(Throwables::throwIfUnchecked);
     }
 
+    public static void escapeEntries(final String file) {
+        final Resource resource = ResourceUtil.loadResource(file);
+        final String parent = Try.of(() -> resource.getFile().getParent()).getOrElse("");
+        final String child = Try
+            .of(() -> resource.getFile().getName())
+            .map(n -> n.split("\\."))
+            .map(pair -> String.format("%s_%s.%s", pair[0], "escaped", pair[1]))
+            .getOrElse("");
+        final File targetFile = new File(parent, child);
+        final List<Tuple2<String, String>> entries = loadEntries(file);
+        final List<String> lines = entries.stream().map(t -> String.format("%s=%s", t._1, Optional.ofNullable(t._2).map(StringEscapeUtils::escapeJava).orElse(""))).collect(Collectors.toList());
+        log.info("saving escpated entries to: {}", targetFile.getPath());
+        Try.run(() -> Files.write(targetFile.toPath(), lines, StandardOpenOption.CREATE))
+            .onFailure(Throwables::throwIfUnchecked);
+    }
+
     public static void syncProperties(final String enPropertiesFile) {
+        saveTranslateEntries(enPropertiesFile, Translator.Language.English.getCode());
         saveTranslateEntries(enPropertiesFile, Translator.Language.ChineseSimplified.getCode());
         saveTranslateEntries(enPropertiesFile, Translator.Language.ChineseTraditional.getCode());
         saveTranslateEntries(enPropertiesFile, Translator.Language.French.getCode());
