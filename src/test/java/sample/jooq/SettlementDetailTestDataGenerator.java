@@ -1,6 +1,6 @@
 package sample.jooq;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import com.google.common.base.Preconditions;
 import com.zaxxer.hikari.HikariDataSource;
@@ -22,28 +21,29 @@ import io.vavr.Tuple2;
 import io.vavr.Tuple3;
 import io.vavr.Tuple4;
 import io.vavr.collection.HashMap;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 
 
 public class SettlementDetailTestDataGenerator {
     private HikariDataSource dataSource = null;
-    private String driverSql = "INSERT INTO settlement_details values (null, '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',null,null,null)";
-    private String fleetSql = "INSERT INTO settlement_details values (null, '%s', '%s', '%s', null,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',null,null,null)";
-    private String deliveryCompanySql = "INSERT INTO settlement_details values (null, '%s', '%s', null, null,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',null,null,null)";
-    private String clientSql = "INSERT INTO settlement_details values (null, '%s', null, null, null,'%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',null,null,null)";
+    private String sql = "INSERT INTO settlement_details" +
+        "(client, deliveryCompany, fleet, driver, route, otp, totalParcel, zone1Parcel, zone2Parcel, zone3Parcel, totalAmount, tax, totalPaid, zone1, zone2, zone3, overWeight, routeIncentiveParcel, greenZoneParcel, yellowZoneParcel, timeIncentive, weightIncentive, routeIncentive, settlementDate, createdDate, updatedDate) " +
+        "values " +
+        "(?,      ?,               ?,      ?,     ?,     ?,   ?,           ?,           ?,           ?,           ?,           ?,   ?,         ?,     ?,     ?,     ?,          ?,                    ?,               ?,                ?,             ?,               ?,              ?,              ?,           ?)";
 
     @Before
     public void setUp() throws Exception {
         dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/echobase?useSSL=false");
         dataSource.setUsername("root");
-        dataSource.setPassword("password");
+        dataSource.setPassword("admin");
     }
 
     private List<Tuple2<Integer, String>> loadClients() {
         final List<Tuple2<Integer, String>> clients = DbUtil
             .withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow((Supplier<RuntimeException>) RuntimeException::new),
-                "SELECT * FROM clients")
+                "SELECT id,clientName FROM clients")
             .fetch(record -> Tuple.of(record.getValue("id", Integer.class), record.getValue("clientName", String.class)));
         return clients;
     }
@@ -75,270 +75,180 @@ public class SettlementDetailTestDataGenerator {
         return drivers;
     }
 
-    private List<String> genDates(final LocalDate from, final LocalDate to) {
+    private List<String> genDates(final LocalDateTime from, final LocalDateTime to) {
         Preconditions.checkNotNull(from);
         Preconditions.checkNotNull(to);
         Preconditions.checkArgument(to.isAfter(from));
         final long n = ChronoUnit.DAYS.between(from, to);
-        final List<String> dates = LongStream.range(0L, n+1)
+        final List<String> dates = LongStream.range(0L, n + 1)
             .mapToObj(from::plusDays)
-            .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+            .map(d -> d.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
             .collect(Collectors.toList());
         return dates;
     }
 
-    private List<Map<String, Integer>> genDrivers() {
-        final int zone0Rate = 3;
-        final int zone1Rate = 4;
-        final int zone2Rate = 5;
+    private List<Map<String, String>> genDrivers() {
+        final Double zone1Rate = 3D;
+        final Double zone2Rate = 4D;
+        final Double zone3Rate = 5D;
 
-        final int zone0Parcel = rand(30, 50);
-        final int zone0Payment = zone0Parcel * zone0Rate;
-        final int zone1Parcel = rand(10, 20);
-        final int zone1Payment = zone1Parcel * zone1Rate;
-        final int zone2Parcel = rand(1, 10);
-        final int zone2Payment = zone2Parcel * zone2Rate;
-        final int totalParcel = zone0Parcel + zone1Parcel + zone2Parcel;
-        final int overWeight = rand(1, 50);
-        final int routeIncentiveParcel = rand(1, 30);
-        final int green = rand(10, 40);
-        final int yellow = rand(1, 20);
-        final int timeIncentive = (int) (green * 0.15d);
-        final int weightIncentive = (int) (overWeight * 0.15d);
-        final int routeIncentive = (int) (routeIncentiveParcel * 0.15d);
-        final int totalPayment = zone0Payment + zone1Payment + zone2Payment + timeIncentive + weightIncentive + routeIncentive;
-        final int tax = (int) (totalPayment * 0.15d);
-        final int totalPaid = (int) ((totalPayment - tax) * 0.75d);
+        final Integer zone1Parcel = rand(30, 50);
+        final Double zone1Payment = zone1Parcel * zone1Rate;
+        final Integer zone2Parcel = rand(10, 20);
+        final Double zone2Payment = zone2Parcel * zone2Rate;
+        final Integer zone3Parcel = rand(1, 10);
+        final Double zone3Payment = zone3Parcel * zone3Rate;
+        final Integer totalParcel = zone1Parcel + zone2Parcel + zone3Parcel;
+        final Double overWeight = Double.valueOf(rand(1, 50).toString());
+        final Integer routeIncentiveParcel = rand(1, 30);
+        final Integer green = rand(10, 40);
+        final Integer yellow = rand(1, 20);
+        final Double timeIncentive = green * 0.15d;
+        final Double weightIncentive = overWeight * 0.15d;
+        final Double routeIncentive = routeIncentiveParcel * 0.15d;
+        final Double totalPayment = zone1Payment + zone2Payment + zone3Payment + timeIncentive + weightIncentive + routeIncentive;
+        final Double tax = totalPayment * 0.15d;
+        final Double totalPaid = (totalPayment - tax) * 0.75d;
 
-        final List<Map<String, Integer>> drivers = loadClients().stream()
+        final List<Map<String, String>> drivers = loadClients().stream()
             .flatMap(c -> loadDeliveryCompanies(c._1).stream().map(dc -> Tuple.of(c._1, dc._1)))
             .flatMap(dc -> loadFleets(dc._2).stream().map(f -> Tuple.of(dc._1, dc._2, f._1)))
             .flatMap(f -> loadDrivers(f._3).stream().map(d -> Tuple.of(f._1, f._2, f._3, d._1)))
-            .map(d -> HashMap.<String, Integer>empty()
-                .put("clientId", d._1)
-                .put("deliveryCompanyId", d._2)
-                .put("fleetId", d._3)
-                .put("driverId", d._4)
-                .put("totalParcel", totalParcel)
-                .put("zone0Parcel", zone0Parcel)
-                .put("zone1Parcel", zone1Parcel)
-                .put("zone2Parcel", zone2Parcel)
-                .put("totalPayment", totalPayment)
-                .put("tax", tax)
-                .put("totalPaid", totalPaid)
-                .put("zone0", zone0Payment)
-                .put("zone1", zone1Payment)
-                .put("zone2", zone2Payment)
-                .put("overWeight", overWeight)
-                .put("routeIncentiveParcel", routeIncentiveParcel)
-                .put("greenZoneParcel", green)
-                .put("yellowZoneParcel", yellow)
-                .put("timeIncentive", timeIncentive)
-                .put("weightIncentive", weightIncentive)
-                .put("routeIncentive", routeIncentive)
+            .map(d -> HashMap.<String, String>empty()
+                .put("clientId", d._1.toString())
+                .put("deliveryCompanyId", d._2.toString())
+                .put("fleetId", d._3.toString())
+                .put("driverId", d._4.toString())
+                .put("route", "0")
+                .put("otp", "0")
+                .put("totalParcel", totalParcel.toString())
+                .put("zone1Parcel", zone1Parcel.toString())
+                .put("zone2Parcel", zone2Parcel.toString())
+                .put("zone3Parcel", zone3Parcel.toString())
+                .put("totalPayment", totalPayment.toString())
+                .put("tax", tax.toString())
+                .put("totalPaid", totalPaid.toString())
+                .put("zone1", zone1Payment.toString())
+                .put("zone2", zone2Payment.toString())
+                .put("zone3", zone3Payment.toString())
+                .put("overWeight", overWeight.toString())
+                .put("routeIncentiveParcel", routeIncentiveParcel.toString())
+                .put("greenZoneParcel", green.toString())
+                .put("yellowZoneParcel", yellow.toString())
+                .put("timeIncentive", timeIncentive.toString())
+                .put("weightIncentive", weightIncentive.toString())
+                .put("routeIncentive", routeIncentive.toString())
                 .toJavaMap())
             .collect(Collectors.toList());
 
         return drivers;
     }
 
-    private List<Map<String, Integer>> genFleets(final List<Map<String, Integer>> drivers) {
-        final List<Map<String, Integer>> fleets = loadClients().stream()
+    private List<Map<String, String>> genFleets(final List<Map<String, String>> drivers) {
+        final List<Map<String, String>> fleets = loadClients().stream()
             .flatMap(c -> loadDeliveryCompanies(c._1).stream().map(dc -> Tuple.of(c._1, dc._1)))
             .flatMap(dc -> loadFleets(dc._2).stream().map(f -> Tuple.of(dc._1, dc._2, f._1)))
-            .map(f -> Tuple.of(f, drivers.stream().filter(m -> Objects.equals(m.getOrDefault("fleetId", 0), f._3)).collect(Collectors.toList())))
-            .map(t -> HashMap.<String, Integer>empty()
-                .put("clientId", t._1._1)
-                .put("deliveryCompanyId", t._1._2)
-                .put("fleetId", t._1._3)
-                .put("driverId", 0)
-                .put("totalParcel", t._2.stream().mapToInt(m -> m.getOrDefault("totalParcel", 0)).sum())
-                .put("zone0Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone0Parcel", 0)).sum())
-                .put("zone1Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone1Parcel", 0)).sum())
-                .put("zone2Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone2Parcel", 0)).sum())
-                .put("totalPayment", t._2.stream().mapToInt(m -> m.getOrDefault("totalPayment", 0)).sum())
-                .put("tax", t._2.stream().mapToInt(m -> m.getOrDefault("tax", 0)).sum())
-                .put("totalPaid", t._2.stream().mapToInt(m -> m.getOrDefault("totalPaid", 0)).sum())
-                .put("zone0", t._2.stream().mapToInt(m -> m.getOrDefault("zone0", 0)).sum())
-                .put("zone1", t._2.stream().mapToInt(m -> m.getOrDefault("zone1", 0)).sum())
-                .put("zone2", t._2.stream().mapToInt(m -> m.getOrDefault("zone2", 0)).sum())
-                .put("overWeight", t._2.stream().mapToInt(m -> m.getOrDefault("overWeight", 0)).sum())
-                .put("routeIncentiveParcel", t._2.stream().mapToInt(m -> m.getOrDefault("routeIncentiveParcel", 0)).sum())
-                .put("greenZoneParcel", t._2.stream().mapToInt(m -> m.getOrDefault("greenZoneParcel", 0)).sum())
-                .put("yellowZoneParcel", t._2.stream().mapToInt(m -> m.getOrDefault("yellowZoneParcel", 0)).sum())
-                .put("timeIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("timeIncentive", 0)).sum())
-                .put("weightIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("weightIncentive", 0)).sum())
-                .put("routeIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("routeIncentive", 0)).sum())
+            .map(f -> Tuple.of(f, drivers.stream().filter(m -> Objects.equals(m.getOrDefault("fleetId", "0"), f._3.toString())).collect(Collectors.toList())))
+            .map(t -> HashMap.<String, String>empty()
+                .put("clientId", t._1._1.toString())
+                .put("deliveryCompanyId", t._1._2.toString())
+                .put("fleetId", t._1._3.toString())
+                .put("route", "0")
+                .put("otp", "0")
+                .put("totalParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("totalParcel", "0"))).sum()))
+                .put("zone1Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone1Parcel", "0"))).sum()))
+                .put("zone2Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone2Parcel", "0"))).sum()))
+                .put("zone3Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone3Parcel", "0"))).sum()))
+                .put("totalPayment", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("totalPayment", "0"))).sum()))
+                .put("tax", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("tax", "0"))).sum()))
+                .put("totalPaid", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("totalPaid", "0"))).sum()))
+                .put("zone1", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone1", "0"))).sum()))
+                .put("zone2", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone2", "0"))).sum()))
+                .put("zone3", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone3", "0"))).sum()))
+                .put("overWeight", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("overWeight", "0"))).sum()))
+                .put("routeIncentiveParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("routeIncentiveParcel", "0"))).sum()))
+                .put("greenZoneParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("greenZoneParcel", "0"))).sum()))
+                .put("yellowZoneParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("yellowZoneParcel", "0"))).sum()))
+                .put("timeIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("timeIncentive", "0"))).sum()))
+                .put("weightIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("weightIncentive", "0"))).sum()))
+                .put("routeIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("routeIncentive", "0"))).sum()))
                 .toJavaMap())
             .collect(Collectors.toList());
         return fleets;
     }
 
-    private List<Map<String, Integer>> genDriverCompanies(final List<Map<String, Integer>> fleets) {
-        final List<Map<String, Integer>> deliveryCompanies = loadClients().stream()
+    private List<Map<String, String>> genDeliveryCompanies(final List<Map<String, String>> fleets) {
+        final List<Map<String, String>> deliveryCompanies = loadClients().stream()
             .flatMap(c -> loadDeliveryCompanies(c._1).stream().map(dc -> Tuple.of(c._1, dc._1)))
-            .map(dc -> Tuple.of(dc, fleets.stream().filter(f -> Objects.equals(f.getOrDefault("deliveryCompanyId", 0), dc._2)).collect(Collectors.toList())))
-            .map(t -> HashMap.<String, Integer>empty()
-                .put("clientId", t._1._1)
-                .put("deliveryCompanyId", t._1._2)
-                .put("fleetId", 0)
-                .put("driverId", 0)
-                .put("totalParcel", t._2.stream().mapToInt(m -> m.getOrDefault("totalParcel", 0)).sum())
-                .put("zone0Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone0Parcel", 0)).sum())
-                .put("zone1Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone1Parcel", 0)).sum())
-                .put("zone2Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone2Parcel", 0)).sum())
-                .put("totalPayment", t._2.stream().mapToInt(m -> m.getOrDefault("totalPayment", 0)).sum())
-                .put("tax", t._2.stream().mapToInt(m -> m.getOrDefault("tax", 0)).sum())
-                .put("totalPaid", t._2.stream().mapToInt(m -> m.getOrDefault("totalPaid", 0)).sum())
-                .put("zone0", t._2.stream().mapToInt(m -> m.getOrDefault("zone0", 0)).sum())
-                .put("zone1", t._2.stream().mapToInt(m -> m.getOrDefault("zone1", 0)).sum())
-                .put("zone2", t._2.stream().mapToInt(m -> m.getOrDefault("zone2", 0)).sum())
-                .put("overWeight", t._2.stream().mapToInt(m -> m.getOrDefault("overWeight", 0)).sum())
-                .put("routeIncentiveParcel", t._2.stream().mapToInt(m -> m.getOrDefault("routeIncentiveParcel", 0)).sum())
-                .put("greenZoneParcel", t._2.stream().mapToInt(m -> m.getOrDefault("greenZoneParcel", 0)).sum())
-                .put("yellowZoneParcel", t._2.stream().mapToInt(m -> m.getOrDefault("yellowZoneParcel", 0)).sum())
-                .put("timeIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("timeIncentive", 0)).sum())
-                .put("weightIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("weightIncentive", 0)).sum())
-                .put("routeIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("routeIncentive", 0)).sum())
+            .map(dc -> Tuple.of(dc, fleets.stream().filter(f -> Objects.equals(f.getOrDefault("deliveryCompanyId", "0"), dc._2.toString())).collect(Collectors.toList())))
+            .map(t -> HashMap.<String, String>empty()
+                .put("clientId", t._1._1.toString())
+                .put("deliveryCompanyId", t._1._2.toString())
+                .put("route", "0")
+                .put("otp", "0")
+                .put("totalParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("totalParcel", "0"))).sum()))
+                .put("zone1Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone1Parcel", "0"))).sum()))
+                .put("zone2Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone2Parcel", "0"))).sum()))
+                .put("zone3Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone3Parcel", "0"))).sum()))
+                .put("totalPayment", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("totalPayment", "0"))).sum()))
+                .put("tax", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("tax", "0"))).sum()))
+                .put("totalPaid", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("totalPaid", "0"))).sum()))
+                .put("zone1", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone1", "0"))).sum()))
+                .put("zone2", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone2", "0"))).sum()))
+                .put("zone3", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone3", "0"))).sum()))
+                .put("overWeight", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("overWeight", "0"))).sum()))
+                .put("routeIncentiveParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("routeIncentiveParcel", "0"))).sum()))
+                .put("greenZoneParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("greenZoneParcel", "0"))).sum()))
+                .put("yellowZoneParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("yellowZoneParcel", "0"))).sum()))
+                .put("timeIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("timeIncentive", "0"))).sum()))
+                .put("weightIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("weightIncentive", "0"))).sum()))
+                .put("routeIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("routeIncentive", "0"))).sum()))
                 .toJavaMap())
             .collect(Collectors.toList());
         return deliveryCompanies;
     }
 
-    private List<Map<String, Integer>> genClients(final List<Map<String, Integer>> driverCompanies) {
-        final List<Map<String, Integer>> clients = loadClients().stream()
-            .map(c -> Tuple.of(c, driverCompanies.stream().filter(dc -> Objects.equals(dc.getOrDefault("clientId", 0), c._1)).collect(Collectors.toList())))
-            .map(t -> HashMap.<String, Integer>empty()
-                .put("clientId", t._1._1)
-                .put("deliveryCompanyId", 0)
-                .put("fleetId", 0)
-                .put("driverId", 0)
-                .put("totalParcel", t._2.stream().mapToInt(m -> m.getOrDefault("totalParcel", 0)).sum())
-                .put("zone0Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone0Parcel", 0)).sum())
-                .put("zone1Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone1Parcel", 0)).sum())
-                .put("zone2Parcel", t._2.stream().mapToInt(m -> m.getOrDefault("zone2Parcel", 0)).sum())
-                .put("totalPayment", t._2.stream().mapToInt(m -> m.getOrDefault("totalPayment", 0)).sum())
-                .put("tax", t._2.stream().mapToInt(m -> m.getOrDefault("tax", 0)).sum())
-                .put("totalPaid", t._2.stream().mapToInt(m -> m.getOrDefault("totalPaid", 0)).sum())
-                .put("zone0", t._2.stream().mapToInt(m -> m.getOrDefault("zone0", 0)).sum())
-                .put("zone1", t._2.stream().mapToInt(m -> m.getOrDefault("zone1", 0)).sum())
-                .put("zone2", t._2.stream().mapToInt(m -> m.getOrDefault("zone2", 0)).sum())
-                .put("overWeight", t._2.stream().mapToInt(m -> m.getOrDefault("overWeight", 0)).sum())
-                .put("routeIncentiveParcel", t._2.stream().mapToInt(m -> m.getOrDefault("routeIncentiveParcel", 0)).sum())
-                .put("greenZoneParcel", t._2.stream().mapToInt(m -> m.getOrDefault("greenZoneParcel", 0)).sum())
-                .put("yellowZoneParcel", t._2.stream().mapToInt(m -> m.getOrDefault("yellowZoneParcel", 0)).sum())
-                .put("timeIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("timeIncentive", 0)).sum())
-                .put("weightIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("weightIncentive", 0)).sum())
-                .put("routeIncentive", t._2.stream().mapToInt(m -> m.getOrDefault("routeIncentive", 0)).sum())
+    private List<Map<String, String>> genClients(final List<Map<String, String>> deliveryCompanies) {
+        final List<Map<String, String>> clients = loadClients().stream()
+            .map(c -> Tuple.of(c, deliveryCompanies.stream().filter(dc -> Objects.equals(dc.getOrDefault("clientId", "0"), c._1.toString())).collect(Collectors.toList())))
+            .map(t -> HashMap.<String, String>empty()
+                .put("clientId", t._1._1.toString())
+                .put("route", "0")
+                .put("otp", "0")
+                .put("totalParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("totalParcel", "0"))).sum()))
+                .put("zone1Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone1Parcel", "0"))).sum()))
+                .put("zone2Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone2Parcel", "0"))).sum()))
+                .put("zone3Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone3Parcel", "0"))).sum()))
+                .put("totalPayment", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("totalPayment", "0"))).sum()))
+                .put("tax", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("tax", "0"))).sum()))
+                .put("totalPaid", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("totalPaid", "0"))).sum()))
+                .put("zone1", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone1", "0"))).sum()))
+                .put("zone2", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone2", "0"))).sum()))
+                .put("zone3", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("zone3", "0"))).sum()))
+                .put("overWeight", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("overWeight", "0"))).sum()))
+                .put("routeIncentiveParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("routeIncentiveParcel", "0"))).sum()))
+                .put("greenZoneParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("greenZoneParcel", "0"))).sum()))
+                .put("yellowZoneParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("yellowZoneParcel", "0"))).sum()))
+                .put("timeIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("timeIncentive", "0"))).sum()))
+                .put("weightIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("weightIncentive", "0"))).sum()))
+                .put("routeIncentive", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("routeIncentive", "0"))).sum()))
                 .toJavaMap())
             .collect(Collectors.toList());
-        return driverCompanies;
+        return clients;
     }
 
-    private List<String> genSqls(final String settlementDate) {
-        final List<Map<String, Integer>> drivers = genDrivers();
-        final List<Map<String, Integer>> fleets = genFleets(drivers);
-        final List<Map<String, Integer>> deliveryCompanies = genFleets(fleets);
-        final List<Map<String, Integer>> clients = genFleets(deliveryCompanies);
-
-        final List<String> driverSqls = drivers.stream().map(d -> String.format(driverSql,
-                d.get("clientId"),
-                d.get("deliveryCompanyId"),
-                d.get("fleetId"),
-                d.get("driverId"),
-                d.get("totalParcel"),
-                d.get("zone0Parcel"),
-                d.get("zone1Parcel"),
-                d.get("zone2Parcel"),
-                d.get("totalPayment"),
-                d.get("tax"),
-                d.get("totalPaid"),
-                d.get("zone0"),
-                d.get("zone1"),
-                d.get("zone2"),
-                d.get("overWeight"),
-                d.get("routeIncentiveParcel"),
-                d.get("greenZoneParcel"),
-                d.get("yellowZoneParcel"),
-                d.get("timeIncentive"),
-                d.get("weightIncentive"),
-                d.get("routeIncentive")
-                , settlementDate))
+    private List<Map<String, String>> genEntities(final String settlementDate) {
+        final List<Map<String, String>> drivers = genDrivers();
+        final List<Map<String, String>> fleets = genFleets(drivers);
+        final List<Map<String, String>> deliveryCompanies = genDeliveryCompanies(fleets);
+        final List<Map<String, String>> clients = genClients(deliveryCompanies);
+        return Stream.of(drivers, fleets, deliveryCompanies, clients)
+            .flatMap(Collection::stream)
+            .map(m -> HashMap.ofAll(m).put("settlementDate", settlementDate).toJavaMap())
             .collect(Collectors.toList());
-
-        final List<String> fleetSqls = fleets.stream().map(f -> String.format(fleetSql,
-                f.get("clientId"),
-                f.get("deliveryCompanyId"),
-                f.get("fleetId"),
-                f.get("totalParcel"),
-                f.get("zone0Parcel"),
-                f.get("zone1Parcel"),
-                f.get("zone2Parcel"),
-                f.get("totalPayment"),
-                f.get("tax"),
-                f.get("totalPaid"),
-                f.get("zone0"),
-                f.get("zone1"),
-                f.get("zone2"),
-                f.get("overWeight"),
-                f.get("routeIncentiveParcel"),
-                f.get("greenZoneParcel"),
-                f.get("yellowZoneParcel"),
-                f.get("timeIncentive"),
-                f.get("weightIncentive"),
-                f.get("routeIncentive")
-                , settlementDate))
-            .collect(Collectors.toList());
-
-        final List<String> deliveryCompanySqls = deliveryCompanies.stream().map(f -> String.format(deliveryCompanySql,
-                f.get("clientId"),
-                f.get("deliveryCompanyId"),
-                f.get("totalParcel"),
-                f.get("zone0Parcel"),
-                f.get("zone1Parcel"),
-                f.get("zone2Parcel"),
-                f.get("totalPayment"),
-                f.get("tax"),
-                f.get("totalPaid"),
-                f.get("zone0"),
-                f.get("zone1"),
-                f.get("zone2"),
-                f.get("overWeight"),
-                f.get("routeIncentiveParcel"),
-                f.get("greenZoneParcel"),
-                f.get("yellowZoneParcel"),
-                f.get("timeIncentive"),
-                f.get("weightIncentive"),
-                f.get("routeIncentive")
-                , settlementDate))
-            .collect(Collectors.toList());
-
-        final List<String> clientSqls = clients.stream().map(f -> String.format(clientSql,
-                f.get("clientId"),
-                f.get("totalParcel"),
-                f.get("zone0Parcel"),
-                f.get("zone1Parcel"),
-                f.get("zone2Parcel"),
-                f.get("totalPayment"),
-                f.get("tax"),
-                f.get("totalPaid"),
-                f.get("zone0"),
-                f.get("zone1"),
-                f.get("zone2"),
-                f.get("overWeight"),
-                f.get("routeIncentiveParcel"),
-                f.get("greenZoneParcel"),
-                f.get("yellowZoneParcel"),
-                f.get("timeIncentive"),
-                f.get("weightIncentive"),
-                f.get("routeIncentive")
-                , settlementDate))
-            .collect(Collectors.toList());
-
-        return Stream.of(driverSqls, fleetSqls, deliveryCompanySqls, clientSqls).flatMap(Collection::stream).collect(Collectors.toList());
     }
 
-    private int rand(int min, int max) {
+    private Integer rand(int min, int max) {
         return ThreadLocalRandom.current().nextInt(min, max + 1);
     }
 
@@ -387,89 +297,61 @@ public class SettlementDetailTestDataGenerator {
 
     @Test
     public void testGenDates() {
-        final List<String> dates = genDates(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 4, 5));
+        final List<String> dates = genDates(LocalDateTime.of(2023, 4, 1, 0, 0, 0), LocalDateTime.of(2023, 5, 21, 0, 0, 0));
         System.out.println(dates);
     }
 
     @Test
     public void testGenDriverSettlement() {
-        int zone0Rate = 3;
-        int zone1Rate = 4;
-        int zone2Rate = 5;
-
-        int zone0 = rand(30, 50);
-        int zone0Payment = zone0 * zone0Rate;
-        int zone1 = rand(10, 20);
-        int zone1Payment = zone1 * zone1Rate;
-        int zone2 = rand(1, 10);
-        int zone2Payment = zone2 * zone2Rate;
-        int total = zone0 + zone1 + zone2;
-        int overWeight = rand(1, 50);
-        int routeIncentiveParcel = rand(1, 30);
-        int green = rand(10, 40);
-        int yellow = rand(1, 20);
-        int timeIncentive = (int) (green * 0.15d);
-        int weightIncentive = (int) (overWeight * 0.15d);
-        int routeIncentive = (int) (routeIncentiveParcel * 0.15d);
-        int income = zone0Payment + zone1Payment + zone2Payment + timeIncentive + weightIncentive + routeIncentive;
-        int tax = (int) (income * 0.15d);
-        int payment = (int) ((income - tax) * 0.75d);
-        final List<Tuple4<Integer, Integer, Integer, Integer>> drivers = loadClients().stream()
-            .flatMap(c -> loadDeliveryCompanies(c._1).stream().map(dc -> Tuple.of(c._1, dc._1)))
-            .flatMap(dc -> loadFleets(dc._2).stream().map(f -> Tuple.of(dc._1, dc._2, f._1)))
-            .flatMap(f -> loadDrivers(f._3).stream().map(d -> Tuple.of(f._1, f._2, f._3, d._1)))
-            .collect(Collectors.toList());
-
-        String sql = "INSERT INTO settlement_details values (null, '%s', '%s', '%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s',null,null,null)";
-
-        final List<String> sqls = drivers
-            .stream()
-            .map(d -> String.format(sql, d._1, d._2, d._3(), d._4, total, zone0, zone1, zone2, income, tax, payment, zone0Payment, zone1Payment, zone2Payment, overWeight, routeIncentiveParcel, green, yellow, timeIncentive, weightIncentive, routeIncentive, "2023-05-01"))
-            .collect(Collectors.toList());
-
-        sqls.forEach(s -> System.out.println(s));
-
     }
 
     @Test
     public void testGenDrivers() {
-        final List<Map<String, Integer>> drivers = genDrivers();
-        final List<String> sqls = drivers.stream().map(d -> String.format(driverSql,
-                d.get("clientId"),
-                d.get("deliveryCompanyId"),
-                d.get("fleetId"),
-                d.get("driverId"),
-                d.get("totalParcel"),
-                d.get("totalParcel"),
-                d.get("zone0Parcel"),
-                d.get("zone1Parcel"),
-                d.get("zone2Parcel"),
-                d.get("totalPayment"),
-                d.get("tax"),
-                d.get("totalPaid"),
-                d.get("zone0"),
-                d.get("zone1"),
-                d.get("zone2"),
-                d.get("overWeight"),
-                d.get("routeIncentiveParcel"),
-                d.get("greenZoneParcel"),
-                d.get("yellowZoneParcel"),
-                d.get("timeIncentive"),
-                d.get("weightIncentive"),
-                d.get("routeIncentive")))
-            .collect(Collectors.toList());
-
-        sqls.forEach(s -> System.out.println(s));
+        final List<Map<String, String>> drivers = genDrivers();
+        System.out.println(drivers);
     }
 
-    @Ignore
+    @Test
+    public void testGenEntities() {
+        final List<Map<String, String>> entities = genEntities("2023-04-01");
+        System.out.println(entities);
+    }
+
     @Test
     public void testGenAndExecuteSqls() {
-        final List<String> dates = genDates(LocalDate.of(2023, 4, 1), LocalDate.of(2023, 5, 21));
-        final List<String> sqls = dates.stream().flatMap(d -> genSqls(d).stream()).collect(Collectors.toList());
-        sqls.forEach(sql -> DbUtil
+        final List<String> dates = genDates(LocalDateTime.of(2023, 6, 1, 0, 0, 0), LocalDateTime.of(2023, 6, 30, 0, 0, 0));
+        final List<Map<String, String>> entities = dates.stream().flatMap(d -> genEntities(d).stream()).collect(Collectors.toList());
+        System.out.println(entities);
+        entities.forEach(m -> DbUtil
             .withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow((Supplier<RuntimeException>) RuntimeException::new), sql)
+            .withBindings(
+                Option.of(m.get("clientId")).map(Integer::parseInt).getOrNull(),
+                Option.of(m.get("deliveryCompanyId")).map(Integer::parseInt).getOrNull(),
+                Option.of(m.get("fleetId")).map(Integer::parseInt).getOrNull(),
+                Option.of(m.get("driverId")).map(Integer::parseInt).getOrNull(),
+                Integer.parseInt(m.get("route")),
+                Double.parseDouble(m.get("otp")),
+                Integer.parseInt(m.get("totalParcel")),
+                Integer.parseInt(m.get("zone1Parcel")),
+                Integer.parseInt(m.get("zone2Parcel")),
+                Integer.parseInt(m.get("zone3Parcel")),
+                Double.parseDouble(m.get("totalPayment")),
+                Double.parseDouble(m.get("tax")),
+                Double.parseDouble(m.get("totalPaid")),
+                Double.parseDouble(m.get("zone1")),
+                Double.parseDouble(m.get("zone2")),
+                Double.parseDouble(m.get("zone3")),
+                Double.parseDouble(m.get("overWeight")),
+                Integer.parseInt(m.get("routeIncentiveParcel")),
+                Integer.parseInt(m.get("greenZoneParcel")),
+                Integer.parseInt(m.get("yellowZoneParcel")),
+                Double.parseDouble(m.get("timeIncentive")),
+                Double.parseDouble(m.get("weightIncentive")),
+                Double.parseDouble(m.get("routeIncentive")),
+                LocalDateTime.parse(m.get("settlementDate"), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")),
+                m.get("createdDate"),
+                m.get("updatedDate"),
+                m.get("token"))
             .execute());
     }
-
 }

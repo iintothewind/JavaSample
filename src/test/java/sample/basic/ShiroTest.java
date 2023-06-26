@@ -1,6 +1,7 @@
 package sample.basic;
 
 import java.util.Base64;
+import java.util.UUID;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.SimpleByteSource;
 import org.junit.Test;
@@ -15,7 +16,7 @@ public class ShiroTest {
 
     @Test
     public void testGenPasswd() {
-        final String pwd = generatePassword("admin", "Yl36AOtaM7MY96ULwIqE9g==");
+        final String pwd = generatePassword("admin", "c/kCCb5AW9UKMMmgM+E23A==");
         System.out.println(pwd);
 
         final String pwd2 = generatePassword("Password@2", "i01GQ6SoMA+IWvsXw24LcA==");
@@ -30,6 +31,12 @@ public class ShiroTest {
         System.out.println(urlEncoded);
         final String decoded = new String(Base64.getDecoder().decode(urlEncoded));
         System.out.println(decoded);
+    }
 
+    @Test
+    public void testUuid() {
+        final String s = UUID.randomUUID().toString();
+        System.out.println(s.substring(32));
+        System.out.println("35a9014e-d56e-44a8-b2f6-393b8bf7".length());
     }
 }
