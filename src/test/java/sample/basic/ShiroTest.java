@@ -16,7 +16,7 @@ public class ShiroTest {
 
     @Test
     public void testGenPasswd() {
-        final String pwd = generatePassword("admin", "c/kCCb5AW9UKMMmgM+E23A==");
+        final String pwd = generatePassword("admin", "mdwKATsr9vgSt9Yl2dC+HA==");
         System.out.println(pwd);
 
         final String pwd2 = generatePassword("Password@2", "i01GQ6SoMA+IWvsXw24LcA==");

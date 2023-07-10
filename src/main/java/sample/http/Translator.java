@@ -44,7 +44,7 @@ public class Translator {
       .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
       .get()
       .build();
-    final String trans = Try.of(() -> client.newCall(request).execute())
+    final String trans = Try.of(() -> HttpUtil.trustAllSslClient.newCall(request).execute())
       .filter(Response::isSuccessful)
       .map(Response::body)
       .mapTry(body -> JsonUtil.load(body.string(), new TypeReference<Translation>() {

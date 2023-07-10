@@ -9,4 +9,5 @@ public class StringSample {
     System.out.println(String.join("-", "2014", "1", "1"));
     System.out.println(String.join("-", ImmutableList.of("2014", "1", "1")));
   }
+
 }

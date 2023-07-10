@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.junit.Before;
 import org.junit.Test;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import com.zaxxer.hikari.HikariDataSource;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -23,6 +24,7 @@ import io.vavr.Tuple4;
 import io.vavr.collection.HashMap;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import sample.http.JsonUtil;
 
 
 public class SettlementDetailTestDataGenerator {
@@ -109,6 +111,7 @@ public class SettlementDetailTestDataGenerator {
         final Double totalPayment = zone1Payment + zone2Payment + zone3Payment + timeIncentive + weightIncentive + routeIncentive;
         final Double tax = totalPayment * 0.15d;
         final Double totalPaid = (totalPayment - tax) * 0.75d;
+        final Double otp = rand(40, 80) / 100d;
 
         final List<Map<String, String>> drivers = loadClients().stream()
             .flatMap(c -> loadDeliveryCompanies(c._1).stream().map(dc -> Tuple.of(c._1, dc._1)))
@@ -120,7 +123,7 @@ public class SettlementDetailTestDataGenerator {
                 .put("fleetId", d._3.toString())
                 .put("driverId", d._4.toString())
                 .put("route", "0")
-                .put("otp", "0")
+                .put("otp", otp.toString())
                 .put("totalParcel", totalParcel.toString())
                 .put("zone1Parcel", zone1Parcel.toString())
                 .put("zone2Parcel", zone2Parcel.toString())
@@ -154,7 +157,7 @@ public class SettlementDetailTestDataGenerator {
                 .put("deliveryCompanyId", t._1._2.toString())
                 .put("fleetId", t._1._3.toString())
                 .put("route", "0")
-                .put("otp", "0")
+                .put("otp", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("otp", "0"))).sum() / t._2.size()))
                 .put("totalParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("totalParcel", "0"))).sum()))
                 .put("zone1Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone1Parcel", "0"))).sum()))
                 .put("zone2Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone2Parcel", "0"))).sum()))
@@ -185,7 +188,7 @@ public class SettlementDetailTestDataGenerator {
                 .put("clientId", t._1._1.toString())
                 .put("deliveryCompanyId", t._1._2.toString())
                 .put("route", "0")
-                .put("otp", "0")
+                .put("otp", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("otp", "0"))).sum() / t._2.size()))
                 .put("totalParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("totalParcel", "0"))).sum()))
                 .put("zone1Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone1Parcel", "0"))).sum()))
                 .put("zone2Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone2Parcel", "0"))).sum()))
@@ -214,7 +217,7 @@ public class SettlementDetailTestDataGenerator {
             .map(t -> HashMap.<String, String>empty()
                 .put("clientId", t._1._1.toString())
                 .put("route", "0")
-                .put("otp", "0")
+                .put("otp", Double.toString(t._2.stream().mapToDouble(m -> Double.parseDouble(m.getOrDefault("otp", "0"))).sum() / t._2.size()))
                 .put("totalParcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("totalParcel", "0"))).sum()))
                 .put("zone1Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone1Parcel", "0"))).sum()))
                 .put("zone2Parcel", Integer.toString(t._2.stream().mapToInt(m -> Integer.parseInt(m.getOrDefault("zone2Parcel", "0"))).sum()))
@@ -317,9 +320,47 @@ public class SettlementDetailTestDataGenerator {
         System.out.println(entities);
     }
 
+
+    @Test
+    public void testStoreWebhook() {
+        final Map<String, String> webhook = HashMap.<String, String>empty().put("url", "https://dev-webhooks.techdinamics.com/mapper/SubmitFile.ashx?sender=ULALA&receiver=GTAGSM&apiKey=CD3255E3C03249D2A89FA07E5A9DF3FC&version=1&doctype=STATUS")
+            .toJavaMap();
+        System.out.println(String.format("webhook: %s", JsonUtil.dump(webhook)));
+        final String sql = "insert into client_infos (clientName,shippingMerchant,shipper,currentCount,shippingLabelPrefix,webhook) values (?,?,?,?,?,?)";
+//        DbUtil.withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow((Supplier<RuntimeException>) RuntimeException::new),sql)
+//            .withBindings("ULALA","gsm@ulala.ca",20,0,"GSM",JsonUtil.dump(webhook))
+//            .execute();
+    }
+
+    @Test
+    public void testGenWebHookCfg() {
+        final Map<String, String> kitsWebHook = HashMap.<String, String>empty()
+            .put("url", "https://us-central1-wide-gecko-214719.cloudfunctions.net/function-prod-kits-webhook-handler")
+            .toJavaMap();
+        System.out.println(String.format("kits webhook: %s", JsonUtil.dump(kitsWebHook)));
+
+        final Map<String, String> ziingWebHook = HashMap.<String, String>empty()
+            .put("url", "https://0476.cxtsoftware.net/CxtWebService/CxtWebServiceRest.svc/rest/process/ulalaInbound/")
+            .toJavaMap();
+        System.out.println(String.format("zing webhook: %s", JsonUtil.dump(ziingWebHook)));
+
+        final Map<String, String> wuyouWebHook = HashMap.<String, String>empty()
+            .put("url", "https://package.51cross-border.com/updateLogistic")
+            .put("header_Authorization","Basic dWxhbGFANTFjcm9zcy1ib3JkZXIuY29tOkdtVml4Mjg3bUlpQWdNSw==")
+            .toJavaMap();
+        System.out.println(String.format("wuyou webhook: %s", JsonUtil.dump(wuyouWebHook)));
+
+        System.out.println("header_1234l".substring("header_".length()));
+    }
+
+    @Test
+    public void testRedirect() {
+    }
+
     @Test
     public void testGenAndExecuteSqls() {
-        final List<String> dates = genDates(LocalDateTime.of(2023, 6, 1, 0, 0, 0), LocalDateTime.of(2023, 6, 30, 0, 0, 0));
+        final List<String> dates = genDates(LocalDateTime.of(2023, 7, 1, 0, 0, 0),
+            LocalDateTime.of(2023, 7, 31, 0, 0, 0));
         final List<Map<String, String>> entities = dates.stream().flatMap(d -> genEntities(d).stream()).collect(Collectors.toList());
         System.out.println(entities);
         entities.forEach(m -> DbUtil
