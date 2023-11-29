@@ -1,7 +1,5 @@
 package sample.jooq;
 
-import com.alibaba.druid.pool.DruidDataSourceFactory;
-import com.google.common.collect.ImmutableMap;
 import com.zaxxer.hikari.HikariDataSource;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
@@ -9,7 +7,6 @@ import io.vavr.control.Try;
 import org.junit.Before;
 import org.junit.Test;
 
-import javax.sql.DataSource;
 import java.util.Optional;
 import java.util.function.Supplier;
 
