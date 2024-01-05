@@ -13,6 +13,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.DoubleStream;
 import java.util.stream.Stream;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.crypto.hash.Sha256Hash;
 import org.apache.shiro.util.SimpleByteSource;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -48,10 +49,13 @@ public class ShiroTest {
 
     @Test
     public void testGenPasswd() {
-        final String pwd = generatePassword("admin", "2jYLie5EpyM0PfWU6Ke/ow==");
+        final String pwd = generatePassword("admin", "14RGCltvzMSXTIDq4FHKtg==");
         System.out.println(pwd);
 
-        final String pwd2 = generatePassword("Password@1", "GrB8dT1biPNq3XlyweGjgw==");
+        final String pwd1 = generatePassword("Password@1", "GrB8dT1biPNq3XlyweGjgw==");
+        System.out.println(pwd1);
+
+        final String pwd2 = generatePassword("Password@2", "U85lI0yQMNPY7h1iqePQOw==");
         System.out.println(pwd2);
     }
 
@@ -218,6 +222,20 @@ public class ShiroTest {
         System.out.println(prefix);
         System.out.println(ImmutableMap.of("YYZ", 1, "YVR", 2));
 
+    }
+
+    public static String extractFsa(final String postCode) {
+        return Optional.ofNullable(postCode)
+            .filter(s -> StringUtils.length(s) >= 3)
+            .map(s -> StringUtils.lowerCase(StringUtils.substring(s, 0, 3)))
+            .orElse(null);
+    }
+
+    @Test
+    public void testExtractFsa() {
+        final String fsa = extractFsa("V5J");
+
+        System.out.println(fsa);
     }
 
 }

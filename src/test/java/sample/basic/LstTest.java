@@ -1,7 +1,13 @@
 package sample.basic;
 
+import com.google.common.collect.ImmutableList;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.Iterator;
 import io.vavr.collection.Vector;
+import java.util.Comparator;
+import java.util.Map.Entry;
+import java.util.Optional;
+import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -16,6 +22,7 @@ import java.util.stream.StreamSupport;
 
 
 public class LstTest {
+
   @Test
   public void testEmpty() {
     System.out.println(Lst.empty());
@@ -47,7 +54,6 @@ public class LstTest {
     final boolean set3 = set1.retainAll(set2);
     System.out.println(set1);
 
-
     final java.util.HashMap<Integer, String> map1 = HashMap.<Integer, String>empty().put(1, "a").put(2, "b").put(3, "c").put(4, "c").put(5, "d").toJavaMap();
     map1.keySet().retainAll(set2);
     System.out.println(map1);
@@ -67,23 +73,30 @@ public class LstTest {
 
   @Test
   public void wordCount() {
-    Map<String, Integer> map = StreamSupport
-      .stream(Arrays.stream("This is a test this is a test ".split(" ")).spliterator(), false)
-      .collect(Collectors.<String, String, Integer>toMap(Function.identity(), s -> 1, Integer::sum));
-
-    System.out.println(map);
+    List<Entry<String, Integer>> entries = ImmutableList
+        .copyOf("This is a test This is another test This is another test  This is test3  This is a test4 ".split("\\s+"))
+        .stream()
+        .collect(Collectors.toMap(Function.identity(), word -> 1, Integer::sum))
+        .entrySet()
+        .stream()
+        .sorted(Comparator.<Entry<String, Integer>>comparingInt(Entry::getValue).reversed().thenComparing(Entry::getKey))
+        .collect(Collectors.toList());
+    System.out.println(entries);
   }
 
-  interface One {
-    default void method() {
-      System.out.println("One");
-    }
-  }
 
-  interface Two {
-    default void method() {
-      System.out.println("One");
-    }
+  public static String extractFsa(final String postCode) {
+    return Optional.ofNullable(postCode).filter(s -> StringUtils.length(s) > 3).map(s -> StringUtils.lowerCase(StringUtils.substring(s, 0, 3))).orElse(null);
   }
+  @Test
+  public void testSliding() {
+    Vector<Vector<Integer>> vectors = Vector.of(1, 2, 3, 4, 5, 6, 7, 8, 9).sliding(2).toVector();
+    System.out.println(vectors);
+    Vector<Vector<Integer>> perms = Vector.of(1, 2, 3).permutations();
+    System.out.println(perms);
+    System.out.println(extractFsa("V5xcccc"));
+    System.out.println(extractFsa("V5"));
+    System.out.println(extractFsa("x58f"));
 
+  }
 }

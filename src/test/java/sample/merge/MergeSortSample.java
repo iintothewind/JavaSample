@@ -9,6 +9,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -17,6 +18,7 @@ import java.util.stream.StreamSupport;
 
 
 public class MergeSortSample {
+
   public static int[] mergeSort(int[] arr) {
     if (arr.length == 1) {
       return arr;
@@ -67,47 +69,43 @@ public class MergeSortSample {
    */
   public static Iterable<String> readLines(String path) {
     return Try.of(() ->
-      Files
-        .lines(Paths.get(path))
-        .collect(Collectors.toList()))
-      .getOrElse(new ArrayList<>());
+            Files
+                .lines(Paths.get(path))
+                .collect(Collectors.toList()))
+        .getOrElse(new ArrayList<>());
   }
 
   /**
-   * split each line into words, distinct words, and sort them according to word frequency,
-   * return all words and their count numbers as an Iterable of string separated by a space character,
-   * in a most frequent at top to least frequent at bottom order.
+   * split each line into words, distinct words, and sort them according to word frequency, return all words and their count numbers as an Iterable of string separated by a space character, in a most
+   * frequent at top to least frequent at bottom order.
    *
    * @param lines given string lines
-   * @return an Iterable that contains all distinct words and their count numbers
-   * as an Iterable of string separated by a space character, ordered by count number, then word
+   * @return an Iterable that contains all distinct words and their count numbers as an Iterable of string separated by a space character, ordered by count number, then word
    */
   public static Iterable<String> process(Iterable<String> lines) {
     return Optional
-      .ofNullable(lines)
-      .map(lns -> StreamSupport.stream(lns.spliterator(), false)
-        .flatMap(str ->
-          Arrays.stream(str.split("\\s+")))
-        .collect(Collectors.toMap(
-          Function.identity(),
-          str -> 1,
-          Integer::sum))
-        .entrySet()
-        .stream()
-        .filter(e -> !"".equals(e.getKey()))
-        .sorted(Comparator
-          .<Map.Entry<String, Integer>, Integer>comparing(Map.Entry::getValue)
-          .thenComparing(Map.Entry::getKey)
-          .reversed())
-        .map(entry -> String.format("%s %s", entry.getKey(), entry.getValue()))
-        .collect(Collectors.toList())
-      ).orElse(new ArrayList<>());
+        .ofNullable(lines)
+        .map(lns -> StreamSupport.stream(lns.spliterator(), false)
+            .flatMap(str ->
+                Arrays.stream(str.split("\\s+")))
+            .collect(Collectors.toMap(
+                Function.identity(),
+                str -> 1,
+                Integer::sum))
+            .entrySet()
+            .stream()
+            .filter(e -> !"".equals(e.getKey()))
+            .sorted(Comparator
+                .<Map.Entry<String, Integer>, Integer>comparing(Map.Entry::getValue)
+                .thenComparing(Map.Entry::getKey)
+                .reversed())
+            .map(entry -> String.format("%s %s", entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList())
+        ).orElse(new ArrayList<>());
   }
 
-
   /**
-   * use merge sort to sort a given list
-   * Do not use APIs which have already implemented the merge sort algorithm
+   * use merge sort to sort a given list Do not use APIs which have already implemented the merge sort algorithm
    *
    * @param list given unsorted list
    * @param <T>  comparable element
@@ -125,11 +123,12 @@ public class MergeSortSample {
 
   public static String normalizePath(String url) {
     return Try
-      .of(() -> new File(url))
-      .filter(File::exists)
-      .mapTry(File::getCanonicalPath)
-      .getOrElseThrow(() -> new IllegalArgumentException(String.format("file path: %s is not existing",
-        Try.of(() -> new File(url)).mapTry(File::getCanonicalPath).getOrElse(url))));
+        .of(() -> new File(url))
+        .filter(File::exists)
+        .mapTry(File::getCanonicalPath)
+        .getOrElseThrow(
+            () -> new IllegalArgumentException(String.format("file path: %s is not existing",
+                Try.of(() -> new File(url)).mapTry(File::getCanonicalPath).getOrElse(url))));
   }
 
   @Test

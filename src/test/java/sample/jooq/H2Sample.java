@@ -12,6 +12,7 @@ import java.util.function.Supplier;
 
 
 public class H2Sample {
+
   private HikariDataSource dataSource = null;
 
   @Before
@@ -31,10 +32,11 @@ public class H2Sample {
   @Test
   public void testDbUtil() {
     final Optional<Tuple2<Integer, String>> tuple = DbUtil
-      .withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow((Supplier<RuntimeException>) RuntimeException::new), "SELECT * FROM INFORMATION_SCHEMA.HELP where id = ? ")
-      .withBindings(0)
-      .fetchSingle(record -> Tuple.of(record.getValue("ID", Integer.class), record.getValue("TOPIC", String.class)));
+        .withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow(() -> new RuntimeException()), "SELECT * FROM INFORMATION_SCHEMA.HELP where id = ? ")
+        .withBindings(0)
+        .fetchSingle(record -> Tuple.of(record.getValue("ID", Integer.class), record.getValue("TOPIC", String.class)));
     tuple.ifPresent(System.out::println);
   }
+
 
 }

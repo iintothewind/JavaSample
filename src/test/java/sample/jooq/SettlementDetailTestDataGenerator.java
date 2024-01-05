@@ -404,4 +404,11 @@ public class SettlementDetailTestDataGenerator {
                 m.get("token"))
             .execute());
     }
+
+    @Test
+    public void testExec() {
+        DbUtil.withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow((Supplier<RuntimeException>) RuntimeException::new), "update tags set tag = ? where id = 1")
+            .withBindings("test")
+            .execute1();
+    }
 }
