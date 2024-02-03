@@ -1,5 +1,6 @@
 package sample.jooq;
 
+import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -409,6 +410,20 @@ public class SettlementDetailTestDataGenerator {
     public void testExec() {
         DbUtil.withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow((Supplier<RuntimeException>) RuntimeException::new), "update tags set tag = ? where id = 1")
             .withBindings("test")
-            .execute1();
+            .execute();
+    }
+
+    public static boolean isConfirmArrivalVisible() {
+
+        final boolean confirmArrival = false;
+       return confirmArrival || (LocalDateTime.now().getHour() > 16 &&  !confirmArrival);
+    }
+
+    @Test
+    public void testToArray() {
+        final Integer[] ints = ImmutableList.of(1, 2, 3).toArray(new Integer[0]);
+        final String[] ss = ImmutableList.of("a","b").toArray(new String[0]);
+        System.out.println(ss);
+
     }
 }

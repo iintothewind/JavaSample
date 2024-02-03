@@ -49,7 +49,7 @@ public class ShiroTest {
 
     @Test
     public void testGenPasswd() {
-        final String pwd = generatePassword("admin", "14RGCltvzMSXTIDq4FHKtg==");
+        final String pwd = generatePassword("admin", "RqJpLsVUWkxSr7lhyZbXEw==");
         System.out.println(pwd);
 
         final String pwd1 = generatePassword("Password@1", "GrB8dT1biPNq3XlyweGjgw==");
