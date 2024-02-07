@@ -43,10 +43,11 @@ public class Translator {
         .build();
 
     final String trans = HttpUtil
-        .sendRequest(request, r -> JsonUtil.load(r.peekBody(Long.MAX_VALUE).string(), new TypeReference<Translation>() {
-        }))
-        .map(t -> t.getSentences().stream().findFirst().map(Sentence::getTrans).orElse(""))
-        .orElse("");
+        .sendRequest(request, r -> JsonUtil
+            .load(r.peekBody(Long.MAX_VALUE).string(), new TypeReference<Translation>() {
+            })
+            .map(t -> t.getSentences().stream().findFirst().map(Sentence::getTrans).orElse(""))
+            .orElse(""));
 
     log.info("content: {} => trans: {}", content, trans);
     return trans;
