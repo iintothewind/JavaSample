@@ -97,12 +97,13 @@ public class HttpUtil {
   }
 
   public static <T> T sendRequest(@NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler) {
+    log.info("sendRequest url: {}", request.url());
     return Try.of(() -> trustAllSslClient.newCall(request).execute())
         .mapTry(response -> handleRedirect(trustAllSslClient, response, request, 5))
         .filter(Objects::nonNull)
         .andThenTry(response -> {
           if (response.isSuccessful()) {
-            log.info("request sent with response code: {}, body: {}", response.code(), peekResponse(response));
+            log.info("request succeeded with response code: {}, body: {}", response.code(), peekResponse(response));
           } else {
             log.warn("request failed with response code: {}, body: {}", response.code(), peekResponse(response));
           }
@@ -113,12 +114,13 @@ public class HttpUtil {
   }
 
   public static boolean executeRequest(@NonNull final Request request) {
+    log.info("executeRequest url: {}", request.url());
     return Try.of(() -> trustAllSslClient.newCall(request).execute())
         .mapTry(response -> handleRedirect(trustAllSslClient, response, request, 5))
         .filter(Objects::nonNull)
         .andThenTry(response -> {
           if (response.isSuccessful()) {
-            log.info("request sent with response code: {}, body: {}", response.code(), peekResponse(response));
+            log.info("request succeeded with response code: {}, body: {}", response.code(), peekResponse(response));
           } else {
             log.warn("request failed with response code: {}, body: {}", response.code(), peekResponse(response));
           }

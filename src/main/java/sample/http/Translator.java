@@ -42,8 +42,6 @@ public class Translator {
         .get()
         .build();
 
-    log.info("url: {}", request.url().url());
-
     final String trans = HttpUtil
         .sendRequest(request, r -> JsonUtil
             .load(HttpUtil.peekResponse(r), new TypeReference<Translation>() {
