@@ -67,7 +67,6 @@ public class HttpUtil {
     return client;
   }
 
-
   private static Response handleRedirect(@NonNull final OkHttpClient client, final Response tempResponse, @NonNull final Request request, @NonNull final Integer maxRedirect) {
     if (Objects.nonNull(tempResponse) && HttpStatusClass.REDIRECTION.contains(tempResponse.code()) && maxRedirect > 0) {
       final String redirectedUrl = tempResponse.header(HttpHeaderNames.LOCATION.toString());
@@ -75,7 +74,7 @@ public class HttpUtil {
       if (Objects.nonNull(redirectedUrl)) {
         final Request newReq = request.newBuilder().url(redirectedUrl).build();
         final Response newResp = Try.of(() -> client.newCall(newReq).execute())
-            .onFailure(t -> log.error("failed to execute redirected url: {} with error: {}", redirectedUrl, t.getMessage()))
+            .onFailure(t -> log.error("failed to execute redirected url: {} ", redirectedUrl, t))
             .getOrElse(new Response.Builder().protocol(Protocol.HTTP_1_0).request(request).code(500).message(String.format("failed to execute request with redirectUrl: %s", redirectedUrl)).build());
         return handleRedirect(client, newResp, newReq, maxRedirect - 1);
       }
@@ -87,7 +86,13 @@ public class HttpUtil {
     return response -> Try.success(response).mapTry(handler).andFinallyTry(response::close);
   }
 
-  public static String readResponse(final Response response) {
+  /**
+   * peek the response as string but not close it.
+   *
+   * @param response
+   * @return response as string
+   */
+  public static String peekResponse(final Response response) {
     return Try.of(() -> response.peekBody(Long.MAX_VALUE).string()).getOrElse("");
   }
 
@@ -97,13 +102,13 @@ public class HttpUtil {
         .filter(Objects::nonNull)
         .andThenTry(response -> {
           if (response.isSuccessful()) {
-            log.info("request sent with response code: {}, body: {}", response.code(), readResponse(response));
+            log.info("request sent with response code: {}, body: {}", response.code(), peekResponse(response));
           } else {
-            log.warn("request failed with response code: {}, body: {}", response.code(), readResponse(response));
+            log.warn("request failed with response code: {}, body: {}", response.code(), peekResponse(response));
           }
         })
         .flatMapTry(createHandler(handler))
-        .onFailure(t -> log.error("error while sending request: {}", t.getMessage()))
+        .onFailure(t -> log.error("error while sending request: {}", request, t))
         .getOrNull();
   }
 
@@ -113,14 +118,13 @@ public class HttpUtil {
         .filter(Objects::nonNull)
         .andThenTry(response -> {
           if (response.isSuccessful()) {
-            log.info("request sent with response code: {}, body: {}", response.code(), readResponse(response));
+            log.info("request sent with response code: {}, body: {}", response.code(), peekResponse(response));
           } else {
-            log.warn("request failed with response code: {}, body: {}", response.code(), readResponse(response));
+            log.warn("request failed with response code: {}, body: {}", response.code(), peekResponse(response));
           }
         })
-        .onFailure(t -> log.error("error while sending request: {}", t.getMessage()))
+        .onFailure(t -> log.error("error while sending request: {}", request, t))
         .map(Response::isSuccessful)
         .getOrElse(false);
   }
-
 }
