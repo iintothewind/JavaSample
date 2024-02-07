@@ -83,7 +83,7 @@ public class HttpUtil {
   }
 
   public static <T> CheckedFunction1<? super Response, Try<T>> createHandler(@NonNull final CheckedFunction1<? super Response, T> handler) {
-    return response -> Try.success(response).mapTry(handler).andFinallyTry(response::close);
+    return response -> Try.success(response).filter(Objects::nonNull).mapTry(handler).andFinallyTry(response::close);
   }
 
   /**
