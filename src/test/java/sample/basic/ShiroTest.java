@@ -92,9 +92,18 @@ public class ShiroTest {
     public void testSplitter() {
         final Tuple2<String, String> map = Splitter.on("<>").withKeyValueSeparator(":").split("a:b").entrySet().stream().findFirst().map(Tuple::fromEntry).orElse(Tuple.of("", ""));
         System.out.println(map);
-        Object[] objs = new Object[] { "1", "2", 3 };
+        Object[] objs = new Object[]{"1", "2", 3};
         final Tuple3<Object, Object, Object> t = Tuple.of(objs[0], objs[1], objs[2]);
         System.out.println(t);
+    }
+
+    @Test
+    public void testInteger() {
+        final Integer i = 0;
+        final boolean result = Objects.equals(i, 0);
+        System.out.println(result);
+
+
     }
 
     @Getter
@@ -144,14 +153,14 @@ public class ShiroTest {
         //        System.out.println(viewMap);
 
         final List<ManifestView> lst = result.stream().collect(Collectors.groupingBy(ManifestView::getManifest))
-            .entrySet().stream()
-            .map(kv -> kv.getValue()
-                .stream()
-                .reduce(
-                    ManifestView.builder().manifest(kv.getKey()).total(0L).incomplete(0L).build(),
-                    (z, mv) -> z.withTotal(z.getTotal() + mv.getNumber()).withIncomplete(!"COMPLETED".equalsIgnoreCase(mv.getStatus()) ? z.getIncomplete() + mv.getNumber() : z.getIncomplete()),
-                    (z1, z2) -> z1.withTotal(z1.getTotal() + z2.getTotal()).withIncomplete(z1.getIncomplete() + z2.getIncomplete())))
-            .collect(Collectors.toList());
+                .entrySet().stream()
+                .map(kv -> kv.getValue()
+                        .stream()
+                        .reduce(
+                                ManifestView.builder().manifest(kv.getKey()).total(0L).incomplete(0L).build(),
+                                (z, mv) -> z.withTotal(z.getTotal() + mv.getNumber()).withIncomplete(!"COMPLETED".equalsIgnoreCase(mv.getStatus()) ? z.getIncomplete() + mv.getNumber() : z.getIncomplete()),
+                                (z1, z2) -> z1.withTotal(z1.getTotal() + z2.getTotal()).withIncomplete(z1.getIncomplete() + z2.getIncomplete())))
+                .collect(Collectors.toList());
 
         System.out.println(lst);
     }
@@ -204,12 +213,12 @@ public class ShiroTest {
 
     public static int findMaxIndex(final List<String> names) {
         return Optional.ofNullable(names).orElse(ImmutableList.of())
-            .stream()
-            .filter(s -> s.contains("-"))
-            .map(s -> s.substring(s.lastIndexOf('-') + 1))
-            .mapToInt(s -> Try.of(() -> Integer.parseInt(s)).getOrElse(0))
-            .max()
-            .orElse(0);
+                .stream()
+                .filter(s -> s.contains("-"))
+                .map(s -> s.substring(s.lastIndexOf('-') + 1))
+                .mapToInt(s -> Try.of(() -> Integer.parseInt(s)).getOrElse(0))
+                .max()
+                .orElse(0);
     }
 
     @Test
