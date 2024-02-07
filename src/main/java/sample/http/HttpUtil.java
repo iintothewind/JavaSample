@@ -5,6 +5,7 @@ import io.netty.handler.codec.http.HttpStatusClass;
 import io.vavr.CheckedFunction1;
 import io.vavr.control.Try;
 
+import java.net.HttpURLConnection;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -78,7 +79,7 @@ public class HttpUtil {
                 final Request newReq = request.newBuilder().url(redirectedUrl).build();
                 final Response newResp = Try.of(() -> client.newCall(newReq).execute())
                         .onFailure(t -> log.error("failed to execute redirected url: {} ", redirectedUrl, t))
-                        .getOrElse(new Response.Builder().protocol(Protocol.HTTP_1_0).request(request).code(500).message(String.format("failed to execute request with redirectUrl: %s", redirectedUrl)).build());
+                        .getOrElse(new Response.Builder().protocol(Protocol.HTTP_1_0).request(request).code(HttpURLConnection.HTTP_INTERNAL_ERROR).message(String.format("failed to execute request with redirectUrl: %s", redirectedUrl)).build());
                 return handleRedirect(client, newResp, newReq, maxRedirect - 1);
             }
         }
