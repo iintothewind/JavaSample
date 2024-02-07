@@ -33,6 +33,29 @@ public class TranslatorTest {
     final TestBean bean = TestBean.builder().a("aaaa").b("sfsdfsdfsdfbbbb").build();
     System.out.println(bean.getB());
   }
+  
+  @Test
+  public void testExecuteRequest() {
+    String fromLanguage;
+    final Request request = new Request.Builder()
+            .url(new HttpUrl.Builder()
+                    .scheme("https")
+                    .host("translate.googleapis.com")
+                    .addPathSegment("translate_a")
+                    .addPathSegment("single")
+                    .addQueryParameter("dt", "t")
+                    .addQueryParameter("dj", "1")
+                    .addQueryParameter("client", "gtx")
+                    .addQueryParameter("sl", Translator.Language.Automatic.getCode())
+                    .addQueryParameter("tl", Translator.Language.ChineseSimplified.getCode())
+                    .addEncodedQueryParameter("q", "This is a test")
+                    .build())
+            .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
+            .get()
+            .build();
+
+    HttpUtil.executeRequest(request);
+  }
 
   @Test
   public void testWebHook() {
