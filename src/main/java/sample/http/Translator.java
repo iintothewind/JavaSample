@@ -44,7 +44,7 @@ public class Translator {
 
     final String trans = HttpUtil
         .sendRequest(request, r -> JsonUtil
-            .load(r.peekBody(Long.MAX_VALUE).string(), new TypeReference<Translation>() {
+            .load(HttpUtil.peekResponse(r), new TypeReference<Translation>() {
             })
             .map(t -> t.getSentences().stream().findFirst().map(Sentence::getTrans).orElse(""))
             .orElse(""));
