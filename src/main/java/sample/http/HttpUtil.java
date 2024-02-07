@@ -124,6 +124,7 @@ public class HttpUtil {
           }
         })
         .onFailure(t -> log.error("error while sending request: {}", request, t))
+        .andThenTry(Response::close)
         .map(Response::isSuccessful)
         .getOrElse(false);
   }

@@ -60,8 +60,7 @@ public class TranslatorTest {
             "    }\n" +
             "}", MediaType.parse("application/json")))
         .build();
-    final String resp = HttpUtil.sendRequest(request, r -> r.peekBody(Long.MAX_VALUE).string());
-    System.out.println(resp);
+    HttpUtil.executeRequest(request);
   }
 
   @Test
