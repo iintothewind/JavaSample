@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -62,11 +63,19 @@ public class CompletedOrdersTest {
                 .withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow((Supplier<RuntimeException>) RuntimeException::new),
                         sql)
                 .fetch(record -> Tuple.of(record.getValue("readableName", String.class), record.getValue("routeCloseDate", LocalDateTime.class), record.getValue("settlementSnapshot", String.class)));
-        final List<Tuple3<String, LocalDateTime, String>> driverRoutes = routes.stream().filter(t -> JsonUtil.load(t._3, new TypeReference<List<DriverSettlementSnapshot>>() {
-        }).orElse(ImmutableList.of()).stream().anyMatch(s -> s.getDriverId() == 1834)).collect(Collectors.toList());
+        final List<Tuple3<String, LocalDateTime, String>> driverRoutes = routes.stream()
+                .filter(t -> Optional
+                        .ofNullable(JsonUtil.load(t._3, new TypeReference<List<DriverSettlementSnapshot>>() {
+                        }))
+                        .orElse(ImmutableList.of())
+                        .stream().anyMatch(s -> s.getDriverId() == 1834))
+                .collect(Collectors.toList());
         System.out.println(driverRoutes);
-        final List<DriverSettlementSnapshot> snapshots = routes.stream().flatMap(t -> JsonUtil.load(t._3, new TypeReference<List<DriverSettlementSnapshot>>() {
-        }).orElse(ImmutableList.of()).stream()).collect(Collectors.toList());
+        final List<DriverSettlementSnapshot> snapshots = routes.stream()
+                .flatMap(t -> Optional.ofNullable(JsonUtil.load(t._3, new TypeReference<List<DriverSettlementSnapshot>>() {
+                        })).orElse(ImmutableList.of())
+                        .stream())
+                .toList();
         System.out.println(snapshots.stream().filter(s -> s.getDriverId() == 1834).collect(Collectors.toList()));
         final int total = snapshots.stream().mapToInt(DriverSettlementSnapshot::getCompleted).sum();
         System.out.println(total);

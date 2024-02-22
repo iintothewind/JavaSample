@@ -5,19 +5,23 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.vavr.control.Try;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 
-import java.util.Optional;
 
+@Slf4j
+public class JsonUtil {
+    private final static ObjectMapper objectMapper = new ObjectMapper()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-public interface JsonUtil {
-    ObjectMapper objectMapper = new ObjectMapper()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-
-    public static <T> Optional<T> load(@NonNull final String source, @NonNull TypeReference<T> typeRef) {
-        return Try.of(() -> objectMapper.readValue(source, typeRef)).toJavaOptional();
+    public static <T> T load(@NonNull final String source, @NonNull TypeReference<T> typeRef) {
+        return Try.of(() -> objectMapper.readValue(source, typeRef))
+                .onFailure(t -> log.error("failed to load from source: {}", source, t))
+                .getOrNull();
     }
 
     public static String dump(final Object obj) {
-        return Try.of(() -> objectMapper.writeValueAsString(obj)).getOrElseThrow(t -> new IllegalStateException(t));
+        return Try.of(() -> objectMapper.writeValueAsString(obj))
+                .onFailure(t -> log.error("failed to dump object: {}", obj, t))
+                .getOrNull();
     }
 }
