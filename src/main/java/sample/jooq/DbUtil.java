@@ -1,9 +1,12 @@
 package sample.jooq;
 
 import com.google.common.collect.ImmutableList;
-import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.sql.Connection;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Record;
@@ -11,16 +14,12 @@ import org.jooq.TransactionalCallable;
 import org.jooq.TransactionalRunnable;
 import org.jooq.impl.DSL;
 
-import java.sql.Connection;
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Function;
-
 /**
  * to support mysql 5.7, jooq 3.9.6 is required
  */
 @Slf4j
 public class DbUtil {
+
   static {
     System.setProperty("org.jooq.no-logo", "true");
   }
