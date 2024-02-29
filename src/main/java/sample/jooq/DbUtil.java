@@ -3,9 +3,11 @@ package sample.jooq;
 import com.google.common.collect.ImmutableList;
 import io.vavr.control.Option;
 import io.vavr.control.Try;
+import java.util.Objects;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jooq.Record;
+import org.jooq.TransactionalCallable;
 import org.jooq.TransactionalRunnable;
 import org.jooq.impl.DSL;
 
@@ -17,10 +19,8 @@ import java.util.function.Function;
 /**
  * to support mysql 5.7, jooq 3.9.6 is required
  */
-
 @Slf4j
 public class DbUtil {
-
   static {
     System.setProperty("org.jooq.no-logo", "true");
   }
@@ -46,6 +46,29 @@ public class DbUtil {
     return new DbUtil(connection, sql, null);
   }
 
+  public static <T> T callTrx(@NonNull final Connection connection, @NonNull final TransactionalCallable<T> callable) {
+    final T t = Try.of(() -> DSL.using(connection))
+        .mapTry(dslContext -> callable.run(dslContext.configuration()))
+        .andFinallyTry(connection::close)
+        .onFailure(e -> log.error("failed to callTransaction: ", e))
+        .getOrNull();
+    return t;
+  }
+
+  public static <T> T callTrx(@NonNull final TransactionalCallable<T> callable) {
+    return callTrx(DataSourceUtil.getConnection(), callable);
+  }
+
+  public static void execTrx(@NonNull final Connection connection, @NonNull final TransactionalRunnable runnable) {
+    Try.run(() -> runnable.run(DSL.using(connection).configuration()))
+        .andFinallyTry(connection::close)
+        .onFailure(e -> log.error("failed to execTransaction: ", e));
+  }
+
+  public static void execTrx(@NonNull final TransactionalRunnable runnable) {
+    execTrx(DataSourceUtil.getConnection(), runnable);
+  }
+
   /**
    * fetch with default db connection
    *
@@ -55,9 +78,11 @@ public class DbUtil {
     return withSql(DataSourceUtil.getConnection(), sql);
   }
 
+
   public DbUtil withBindings(@NonNull final Object... bindings) {
     return new DbUtil(connection, sql, bindings);
   }
+
 
   /**
    * execute sql to fetch result as a list use mapper to convert Record to T type Empty list will be returned if any exception occurs
@@ -72,7 +97,7 @@ public class DbUtil {
   public <T> List<T> fetch(@NonNull Function<? super Record, T> mapper) {
     return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> Option.of(bindings).map(b -> dslContext.fetch(sql, b)).getOrElse(() -> dslContext.fetch(sql))))
+        .mapTry(dslContext -> Try.of(() -> bindings).filter(Objects::nonNull).mapTry(objs -> dslContext.fetch(sql, objs)).getOrElse(() -> dslContext.fetch(sql)))
         .andFinallyTry(connection::close)
         .mapTry(result -> result.map(mapper::apply))
         .onFailure(t -> log.error("failed to fetch records with sql : {}", sql, t))
@@ -92,18 +117,11 @@ public class DbUtil {
   public <T> Optional<T> fetchSingle(@NonNull Function<? super Record, T> mapper) {
     return Try
         .of(() -> DSL.using(connection))
-        .flatMapTry(dslContext -> Try.of(() -> Option.of(bindings).map(b -> dslContext.fetchOptional(sql, b)).getOrElse(() -> dslContext.fetchOptional(sql))))
+        .mapTry(dslContext -> Try.of(() -> bindings).filter(Objects::nonNull).mapTry(objs -> dslContext.fetchSingle(sql, objs)).getOrElse(() -> dslContext.fetchSingle(sql)))
         .andFinallyTry(connection::close)
-        .mapTry(r -> r.map(mapper))
+        .mapTry(mapper::apply)
         .onFailure(t -> log.error("failed to fetch records with sql: {}", sql, t))
-        .getOrElse(Optional.empty());
-  }
-
-  private void executeInTransaction(TransactionalRunnable transaction) {
-    Try.of(() -> DSL.using(connection))
-        .andThenTry(dslContext -> transaction.run(dslContext.configuration()))
-        .andFinallyTry(connection::close)
-        .onFailure(t -> log.error("execute transaction with sql: {}", sql, t));
+        .toJavaOptional();
   }
 
   /**
@@ -115,9 +133,10 @@ public class DbUtil {
    * @return number of rows affected, -1 when any exception occurs
    */
   public void execute() {
-    executeInTransaction(cfg -> Option
-        .of(bindings)
-        .map(b -> DSL.using(cfg).execute(sql, bindings))
+    execTrx(connection, cfg -> Try
+        .success(bindings)
+        .filter(Objects::nonNull)
+        .map(b -> DSL.using(cfg).execute(sql, b))
         .getOrElse(() -> DSL.using(cfg).execute(sql)));
   }
 }
