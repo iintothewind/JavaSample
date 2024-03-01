@@ -1,7 +1,10 @@
 package sample.basic;
 
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.primitives.Ints;
 import io.vavr.collection.Vector;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +16,10 @@ public class StringSample {
   public void testString() {
     System.out.println(String.join("-", "2014", "1", "1"));
     System.out.println(String.join("-", ImmutableList.of("2014", "1", "1")));
+
+    final String s = "1028_roy_tony";
+    final String ss = s.substring(s.indexOf("_")+1);
+    System.out.println(ss);
   }
 
   @Test
@@ -51,6 +58,16 @@ public class StringSample {
   public void extractDriverIdSuffix() {
     System.out.println(StringUtils.substring("test_test_test_test_", 0, 18));
     System.out.println(StringUtils.substring("test", 0, 1));
+    System.out.println( Splitter.on("_").splitToList("1028_Roy-Tony").stream().findFirst().map(Ints::tryParse).orElse(0));
+  }
+
+  @Test
+  public void testD1D2() {
+    final List<String> d1 = ImmutableList.copyOf(ResourceUtil.readResource("classpath:d1.txt").split("\r\n"));
+    final List<String> d2 = ImmutableList.copyOf(ResourceUtil.readResource("classpath:d2.txt").split("\r\n"));
+    final List<String> activeDs = d1.stream().filter(d -> d2.contains(d)).collect(Collectors.toList());
+    System.out.println(String.join(",", activeDs));
+    System.out.println(LocalDateTime.now().getDayOfWeek().getValue());
   }
 
 }
