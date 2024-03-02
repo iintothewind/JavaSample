@@ -35,7 +35,7 @@ public class H2Sample {
     @Test
     public void testDbUtil() {
         final List<Tuple2<String, String>> lst = DbUtil
-                .withSql(Try.of(() -> dataSource.getConnection()).getOrElseThrow(() -> new RuntimeException()), "SELECT * FROM INFORMATION_SCHEMA.settings")
+                .withSql(DataSourceUtil.getConnection(dataSource), "SELECT * FROM INFORMATION_SCHEMA.settings")
                 .fetch(record -> Tuple.of(record.getValue("SETTING_NAME", String.class), record.getValue("SETTING_VALUE", String.class)));
         lst.forEach(t -> log.info("settingName: {}, settingValue: {}", t._1, t._2));
     }
