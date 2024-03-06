@@ -30,10 +30,22 @@ public class JsonUtil {
             .getOrNull();
     }
 
+    /**
+     * helper method for <code>java.net.http.HttpRequest.BodyPublisher</code>
+     *
+     * @param obj any object
+     * @return a StringBodyPublisher for input object
+     */
     public static <T> BodyPublisher publisherOf(final T obj) {
         return BodyPublishers.ofString(dump(obj));
     }
 
+    /**
+     * helper method for <code>java.net.http.HttpResponse.BodyHandler</code>
+     *
+     * @param typeRef the json TypeReference for to be deserialized
+     * @return a BodyHandler to deserialize http response into the typeRef type
+     */
     public static <T> BodyHandler<T> handlerOf(@NonNull TypeReference<T> typeRef) {
         return responseInfo -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
             .onFailure(e -> log.error("failed to load response: ", e))

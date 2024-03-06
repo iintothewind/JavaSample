@@ -25,13 +25,11 @@ public class HttpClientTest {
             .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))
             .build();
 
-        try(final HttpClient client = HttpClient.newBuilder().build()) {
+        try (final HttpClient client = HttpClient.newBuilder().build()) {
             final HttpResponse<TrackResponse> resp = client.send(request, JsonUtil.handlerOf(new TypeReference<TrackResponse>() {
             }));
-
             log.info("resp: {}", resp.body());
-
-        };
+        }
 
     }
 
