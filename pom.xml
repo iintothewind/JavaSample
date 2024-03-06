@@ -47,6 +47,11 @@
             <version>${jackson.version}</version>
         </dependency>
         <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.codehaus.woodstox</groupId>
             <artifactId>woodstox-core-asl</artifactId>
             <version>4.4.1</version>
@@ -207,27 +212,27 @@
         </dependency>
     </dependencies>
 
-    <repositories>
-        <repository>
-            <id>ulala.public</id>
-            <url>http://ec2-54-165-238-83.compute-1.amazonaws.com:8081/repository/maven-public/</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>ulala.public</id>-->
+<!--            <url>http://ec2-54-165-238-83.compute-1.amazonaws.com:8081/repository/maven-public/</url>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--    </repositories>-->
 
 
-    <distributionManagement>
-        <repository>
-            <id>ulala.release</id>
-            <url>http://ec2-54-165-238-83.compute-1.amazonaws.com:8081/repository/maven-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>ulala.snapshot</id>
-            <url>http://ec2-54-165-238-83.compute-1.amazonaws.com:8081/repository/maven-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
+<!--    <distributionManagement>-->
+<!--        <repository>-->
+<!--            <id>ulala.release</id>-->
+<!--            <url>http://ec2-54-165-238-83.compute-1.amazonaws.com:8081/repository/maven-releases/</url>-->
+<!--        </repository>-->
+<!--        <snapshotRepository>-->
+<!--            <id>ulala.snapshot</id>-->
+<!--            <url>http://ec2-54-165-238-83.compute-1.amazonaws.com:8081/repository/maven-snapshots/</url>-->
+<!--        </snapshotRepository>-->
+<!--    </distributionManagement>-->
 
     <build>
         <resources>

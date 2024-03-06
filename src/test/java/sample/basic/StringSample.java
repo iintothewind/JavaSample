@@ -49,7 +49,7 @@ public class StringSample {
 
     final List<String> newIds = ImmutableList.copyOf(driverIds.split("\n"))
         .stream()
-        .map(s -> Vector.of(s.replaceAll("[\\\\(\\\\)\\.\\-_&%@\\[\\]]", " ").split("\\s+")).last())
+        .map(s -> Vector.of(s.replaceAll("[\\\\().\\-_&%@\\[\\]]", " ").split("\\s+")).last())
         .collect(Collectors.toList());
     System.out.println(newIds);
   }
@@ -65,7 +65,7 @@ public class StringSample {
   public void testD1D2() {
     final List<String> d1 = ImmutableList.copyOf(ResourceUtil.readResource("classpath:d1.txt").split("\r\n"));
     final List<String> d2 = ImmutableList.copyOf(ResourceUtil.readResource("classpath:d2.txt").split("\r\n"));
-    final List<String> activeDs = d1.stream().filter(d -> d2.contains(d)).collect(Collectors.toList());
+    final List<String> activeDs = d1.stream().filter(d2::contains).collect(Collectors.toList());
     System.out.println(String.join(",", activeDs));
     System.out.println(LocalDateTime.now().getDayOfWeek().getValue());
   }

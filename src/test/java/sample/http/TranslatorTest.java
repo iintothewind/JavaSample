@@ -95,7 +95,6 @@ public class TranslatorTest {
     String regex = "^0+(?!$)"; // remove the leading zeros in zipcode
     String cleanedPostalCode = postCode.replaceAll(regex, "");
     System.out.println(cleanedPostalCode);
-
   }
 
 }
