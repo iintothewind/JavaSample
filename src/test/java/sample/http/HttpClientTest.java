@@ -26,7 +26,7 @@ public class HttpClientTest {
             .build();
 
         try (final HttpClient client = HttpClient.newBuilder().build()) {
-            final HttpResponse<TrackResponse> resp = client.send(request, JsonUtil.handlerOf(new TypeReference<TrackResponse>() {
+            final HttpResponse<TrackResponse> resp = client.send(request, JsonUtil.handlerOf(new TypeReference<>() {
             }));
             log.info("resp: {}", resp.body());
         }
