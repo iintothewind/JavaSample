@@ -2,14 +2,24 @@ package sample.basic;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Multimap;
+import com.google.common.collect.Table;
 import com.google.common.primitives.Ints;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.Tuple3;
 import io.vavr.collection.Vector;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.stream.Collectors;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
+import sample.csv.bean.ManifestBrief;
 
+@Slf4j
 public class StringSample {
 
     @Test
@@ -73,11 +83,41 @@ public class StringSample {
     @Test
     public void testExtractEarFileName() {
         final String s = "jar:file:/C:/tools/payara41/glassfish/domains/domain1/applications/echobase-ear/echobase-web_war/WEB-INF/lib/echobase-ejb-0.0.2-SNAPSHOT.jar!/regions.json";
-        int a1 = StringUtils.indexOf(s, "applications/");
-        int a2 = StringUtils.indexOf(s, "/echobase-web");
-        final String subStr = StringUtils.substring(s, a1 + "applications/".length(), a2);
+        int a1 = StringUtils.indexOf(s, "echobase-ear");
+        int a2 = StringUtils.indexOf(s.substring(a1), "/");
+        final String subStr = StringUtils.substring(s.substring(a1), 0, a2);
         System.out.println(subStr);
-
     }
 
+    @Test
+    public void testReminder() {
+        log.info("reminder: {}", 0 % ((int) Math.pow(10, 3)));
+    }
+
+
+    @Test
+    public void testManifestBrief() {
+        final ManifestBrief m1 = ManifestBrief.builder().manifest("YEG-24031212").route(13640).driver(2670).number(97).build();
+        final ManifestBrief m2 = ManifestBrief.builder().manifest("YEG-24031212").route(13640).driver(2671).number(58).build();
+        final ManifestBrief m3 = ManifestBrief.builder().manifest("YUL-24031310").route(13660).driver(2302).number(33).build();
+        final ManifestBrief m4 = ManifestBrief.builder().manifest("YUL-24031310").route(13663).driver(2409).number(22).build();
+
+        final List<ManifestBrief> manifests = ImmutableList.of(m1, m2, m3, m4);
+        final Map<String, Integer> routeMap = manifests.stream()
+            .collect(Collectors.toMap(m -> Tuple.of(m.getManifest(), m.getRoute()), m -> 1, (l, r) -> l))
+            .entrySet().stream()
+            .collect(Collectors.toMap(kv -> kv.getKey()._1, Entry::getValue, Integer::sum));
+        System.out.println(routeMap);
+        final Map<String, Integer> driverMap = manifests.stream()
+            .collect(Collectors.toMap(m -> Tuple.of(m.getManifest(), m.getDriver()), m -> 1, (l, r) -> l))
+            .entrySet().stream()
+            .collect(Collectors.toMap(kv -> kv.getKey()._1, kv -> kv.getValue(), (l, r) -> l + r));
+        System.out.println(driverMap);
+
+
+        final List<Tuple3<String, Integer, Integer>> manifestBriefs = routeMap.keySet().stream().map(k -> Tuple.of(k, routeMap.getOrDefault(k, 0), driverMap.getOrDefault(k, 0))).collect(Collectors.toList());
+        System.out.println(String.format("manifestBriefs: %s", manifestBriefs));
+//        final Map<String, Integer> driverMap = manifests.stream().collect(Collectors.toMap(ManifestBrief::getManifest, m -> m.getNumber(), Integer::sum));
+
+    }
 }

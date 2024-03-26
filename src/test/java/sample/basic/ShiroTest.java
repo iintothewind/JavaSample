@@ -50,7 +50,7 @@ public class ShiroTest {
     final String pwd2 = generatePassword("Password@2", "U85lI0yQMNPY7h1iqePQOw==");
     System.out.println(pwd2);
 
-    final String pwd3 = generatePassword("p#hxwmeQ47", "UlseZIcX6rtuQqHBnjOyzQ==");
+    final String pwd3 = generatePassword("admin", "852E9fedQIG0Rq3iAM5TUQ==");
     System.out.println(pwd3);
   }
 
