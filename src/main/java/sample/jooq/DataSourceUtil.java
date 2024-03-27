@@ -31,6 +31,10 @@ public class DataSourceUtil {
         this(null, null, null);
     }
 
+    public static DataSource getDataSource() {
+        return InstanceHolder.instance.dataSource;
+    }
+
     public static Connection getConnection() {
         return Try
                 .of(InstanceHolder.instance.dataSource::getConnection)

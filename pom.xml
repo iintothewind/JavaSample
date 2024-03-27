@@ -170,6 +170,16 @@
             <version>3.14.9</version>
         </dependency>
         <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-vavr</artifactId>
+            <version>3.45.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-guava</artifactId>
+            <version>3.45.1</version>
+        </dependency>
+        <dependency>
             <groupId>com.nurkiewicz.asyncretry</groupId>
             <artifactId>asyncretry</artifactId>
             <version>0.0.7</version>
