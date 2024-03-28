@@ -77,11 +77,6 @@
             <version>5.3.14</version>
         </dependency>
         <dependency>
-            <groupId>au.com.bytecode</groupId>
-            <artifactId>opencsv</artifactId>
-            <version>2.4</version>
-        </dependency>
-        <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
             <version>[2.7,)</version>
@@ -171,11 +166,6 @@
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
-            <artifactId>jdbi3-vavr</artifactId>
-            <version>3.45.1</version>
-        </dependency>
-        <dependency>
-            <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-guava</artifactId>
             <version>3.45.1</version>
         </dependency>
@@ -216,14 +206,14 @@
             <version>1.10.0</version>
         </dependency>
         <dependency>
+            <groupId>org.simpleflatmapper</groupId>
+            <artifactId>sfm-csv</artifactId>
+            <version>8.2.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.shiro</groupId>
             <artifactId>shiro-core</artifactId>
             <version>1.5.3</version>
-        </dependency>
-        <dependency>
-            <groupId>com.tangocard</groupId>
-            <artifactId>tangocard-java-api-sdk</artifactId>
-            <version>2.0.0</version>
         </dependency>
     </dependencies>
 

@@ -1,42 +1,19 @@
 package sample.csv.bean;
 
-public class Country implements Comparable<Country> {
-  private int id;
-  private String code;
-  private String name;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-  public Country(int id, String name, String code) {
-    this.id = id;
-    this.name = name;
-    this.code = code;
-  }
+@Builder
+@Getter
+@ToString
+@NoArgsConstructor
+@AllArgsConstructor
+public class Country {
 
-  public int getId() {
-    return id;
-  }
-
-  public void setId(int id) {
-    this.id = id;
-  }
-
-  public String getCode() {
-    return code;
-  }
-
-  public void setCode(String code) {
-    this.code = code;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public void setName(String name) {
-    this.name = name;
-  }
-
-  @Override
-  public int compareTo(Country o) {
-    return 0;
-  }
+    private int id;
+    private String code;
+    private String name;
 }
