@@ -1,4 +1,4 @@
-package sample.jooq;
+package sample.db;
 
 
 import io.vavr.Tuple;

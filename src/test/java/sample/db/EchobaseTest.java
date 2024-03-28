@@ -1,4 +1,4 @@
-package sample.jooq;
+package sample.db;
 
 import java.util.Optional;
 import java.util.function.Supplier;

@@ -1,16 +1,13 @@
-package sample.jooq;
+package sample.db;
 
 import com.zaxxer.hikari.HikariDataSource;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
 
 
 @Slf4j

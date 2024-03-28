@@ -1,4 +1,4 @@
-package sample.jooq;
+package sample.db;
 
 import org.junit.Before;
 import com.zaxxer.hikari.HikariDataSource;

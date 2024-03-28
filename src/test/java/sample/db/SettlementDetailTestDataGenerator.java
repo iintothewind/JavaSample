@@ -1,4 +1,4 @@
-package sample.jooq;
+package sample.db;
 
 import com.google.common.collect.ImmutableList;
 import java.time.LocalDate;

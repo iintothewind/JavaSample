@@ -1,4 +1,4 @@
-package sample.jooq;
+package sample.db;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableList;
