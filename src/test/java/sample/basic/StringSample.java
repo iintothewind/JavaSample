@@ -2,22 +2,28 @@ package sample.basic;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Table;
 import com.google.common.primitives.Ints;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.Tuple3;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 import sample.csv.bean.ManifestBrief;
+import sample.http.JsonUtil;
 
 @Slf4j
 public class StringSample {
@@ -116,8 +122,36 @@ public class StringSample {
 
 
         final List<Tuple3<String, Integer, Integer>> manifestBriefs = routeMap.keySet().stream().map(k -> Tuple.of(k, routeMap.getOrDefault(k, 0), driverMap.getOrDefault(k, 0))).collect(Collectors.toList());
-        System.out.println(String.format("manifestBriefs: %s", manifestBriefs));
+        System.out.printf("manifestBriefs: %s%n", manifestBriefs);
 //        final Map<String, Integer> driverMap = manifests.stream().collect(Collectors.toMap(ManifestBrief::getManifest, m -> m.getNumber(), Integer::sum));
 
     }
+
+    @Test
+    public void testRegexMatch001() {
+        final boolean result = Pattern.matches("^[\\d,]+$", "999");
+        System.out.println(result);
+
+    }
+
+    @Test
+    public void testLocalTime() {
+        final LocalTime localTime = LocalTime.of(6, 0, 0);
+        final Map<String, LocalTime> map = HashMap.of("time", localTime).toJavaMap();
+        JsonUtil.dump(map);
+    }
+
+    @Test
+    public void testTake() {
+        final List<Integer> lst = Stream.from(0).take(0).toJavaList();
+        System.out.println(lst);
+    }
+
+    @Test
+    public void testValueOfEnum() {
+        TestEnum.valueOf("aaa");
+    }
+
+
+
 }

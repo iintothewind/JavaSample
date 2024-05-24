@@ -1,6 +1,7 @@
 package sample.concurrent;
 
 import com.google.common.collect.Maps;
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.junit.After;
@@ -61,10 +62,11 @@ public class LocksSample {
   }
 
   @Test
+  @SneakyThrows
   public void testTryLock() {
     this.pool.submit(() -> {
       try {
-        reentrantLock.tryLock(100, TimeUnit.MILLISECONDS);
+        reentrantLock.tryLock(1, TimeUnit.SECONDS);
         TimeUnit.SECONDS.sleep(1);
       } catch (InterruptedException e) {
         log.warn(e.getMessage());
@@ -73,11 +75,36 @@ public class LocksSample {
       }
     });
 
+//    this.pool.submit(() -> {
+//      log.info("Locked: {}", reentrantLock.isLocked());
+//      log.info("Held by me: {}", reentrantLock.isHeldByCurrentThread());
+//      //this.pool.
+//      log.info("Lock acquired: {}", reentrantLock.tryLock());
+//
+//    });
+
+    this.pool.submit(() -> {
+      try {
+        reentrantLock.lockInterruptibly();
+        log.info("Locked: {}", reentrantLock.isLocked());
+        log.info("Held by me: {}", reentrantLock.isHeldByCurrentThread());
+        //this.pool.
+        log.info("Lock acquired: {}", reentrantLock.tryLock());
+        TimeUnit.SECONDS.sleep(1);
+      } catch (InterruptedException e) {
+        log.warn(e.getMessage());
+      } finally {
+        reentrantLock.unlock();
+      }
+    });
+
+    TimeUnit.SECONDS.sleep(3);
+
     this.pool.submit(() -> {
       log.info("Locked: {}", reentrantLock.isLocked());
-      log.info("Held by me: {}", reentrantLock.isHeldByCurrentThread());
       //this.pool.
       log.info("Lock acquired: {}", reentrantLock.tryLock());
+      log.info("Held by me: {}", reentrantLock.isHeldByCurrentThread());
 
     });
   }

@@ -41,7 +41,7 @@ public class SubLst {
 
   @Test
   public void testSum() {
-    log.info(Lists.newArrayList(1, 2, 3).stream().reduce((sum, num) -> sum + num).orElse(0));
+    log.info(Lists.newArrayList(1, 2, 3).stream().reduce(Integer::sum).orElse(0));
   }
 
   @Test
