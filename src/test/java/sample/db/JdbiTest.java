@@ -1,6 +1,7 @@
 package sample.db;
 
 
+import com.google.common.collect.ImmutableList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import java.util.Optional;
@@ -32,8 +33,8 @@ public class JdbiTest {
             .create(DataSourceUtil.getDataSource())
             .withHandle(handle -> handle
                 .setSqlLogger(new Slf4JSqlLogger(log))
-                .createQuery("SELECT * FROM INFORMATION_SCHEMA.collations c where c.COLLATION_CATALOG = :catalog and c.LANGUAGE_TAG is not null")
-                .bind("catalog", "TEST")
+                .createQuery("SELECT * FROM INFORMATION_SCHEMA.collations c where c.COLLATION_CATALOG in (<catalogs>) and c.LANGUAGE_TAG is not null")
+                .bindList("catalogs", ImmutableList.of("TEST"))
                 .map(r -> Tuple.of(r.getColumn("COLLATION_NAME", String.class), r.getColumn("LANGUAGE_TAG", String.class)))
                 .findFirst());
 
