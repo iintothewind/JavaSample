@@ -4,6 +4,7 @@ import org.junit.Test;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;
+import sample.http.ResourceUtil;
 
 public class SimpleJavaMailTest {
 
@@ -21,6 +22,7 @@ public class SimpleJavaMailTest {
                 .to("ivarchen@gmail.com")
                 .withSubject("test")
                 .withPlainText("this is a test")
+                .withAttachment("img.png", ResourceUtil.loadResource("classpath:ProjectScheduleNetworkDiagram.png").getInputStream().readAllBytes(), "image/png")
                 .buildEmail());
 
         } catch (Exception e) {
