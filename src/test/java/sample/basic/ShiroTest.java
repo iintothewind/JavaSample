@@ -41,7 +41,7 @@ public class ShiroTest {
 
   @Test
   public void testGenPasswd() {
-    final String pwd = generatePassword("admin", "vDK3TtZoyepuoqh8SWxLhQ==");
+    final String pwd = generatePassword("admin", "lfcdwHlPIlGZDeKwqzYG8Q==");
     System.out.println(pwd);
 
     final String pwd1 = generatePassword("Password@1", "vDK3TtZoyepuoqh8SWxLhQ==");
@@ -233,6 +233,12 @@ public class ShiroTest {
     final String fsa = extractFsa("V5J");
 
     System.out.println(fsa);
+  }
+
+  @Test
+  public void testMapForeach() {
+    final ImmutableMap<Integer, ImmutableList<String>> map = ImmutableMap.of(1, ImmutableList.of("a", "b", "c"), 2, ImmutableList.of("c", "d", "e"));
+    map.forEach((k,v)-> System.out.println(k + "=" + v));
   }
 
 }
