@@ -47,9 +47,12 @@ public class SymEncUtil {
         }
     }
 
-    private static class InstanceHolder {
+    private SymEncUtil() {
+        this(masterKey);
+    }
 
-        private static final SymEncUtil INSTANCE = new SymEncUtil(masterKey);
+    private static class InstanceHolder {
+        private static final SymEncUtil INSTANCE = new SymEncUtil();
     }
 
     public String encrypt(String input) {
