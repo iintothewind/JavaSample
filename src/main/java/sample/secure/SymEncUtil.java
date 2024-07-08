@@ -42,7 +42,7 @@ public class SymEncUtil {
             cipher = Cipher.getInstance("AES");
             lock = new ReentrantLock();
         } catch (NoSuchPaddingException | NoSuchAlgorithmException e) {
-            log.error("Failed to init cipher: ", e);
+            log.error("failed to init cipher: ", e);
             throw new RuntimeException(e);
         }
     }
