@@ -63,4 +63,11 @@ public class SymEncUtilTest {
         Assertions.assertThat(SymEncUtil.enc(SymEncUtil.enc(SymEncUtil.enc(enced)))).isEqualTo(enced);
         Assertions.assertThat(SymEncUtil.dec(SymEncUtil.dec(SymEncUtil.enc(SymEncUtil.enc(enced))))).isEqualTo(input);
     }
+
+    @Test
+    public void testSymEncUtilEnc09() {
+        final String input = "#{}#";
+        final String deced = SymEncUtil.dec(input);
+        Assertions.assertThat(deced).isEmpty();
+    }
 }
