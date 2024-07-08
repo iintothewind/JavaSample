@@ -1,0 +1,5 @@
+#if ($field.modifiers.contains("private"))
+public ${field.type} get${field.capName}() {
+return this.${field.name};
+}
+#end
