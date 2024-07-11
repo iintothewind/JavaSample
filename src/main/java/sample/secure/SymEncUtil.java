@@ -52,6 +52,7 @@ public class SymEncUtil {
     }
 
     private static class InstanceHolder {
+
         private static final SymEncUtil INSTANCE = new SymEncUtil();
     }
 
@@ -101,6 +102,10 @@ public class SymEncUtil {
             }
         }
         return input;
+    }
+
+    public static Boolean isEncrypted(String input) {
+        return StringUtils.isNotEmpty(input) && p.matcher(input).matches();
     }
 
     public static String enc(String input) {
