@@ -1,5 +1,6 @@
 package sample.secure;
 
+import io.vavr.collection.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 

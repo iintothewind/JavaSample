@@ -105,7 +105,15 @@ public class SymEncUtil {
     }
 
     public static Boolean isEncrypted(String input) {
-        return StringUtils.isNotEmpty(input) && p.matcher(input).matches();
+        if (StringUtils.isNotEmpty(input)) {
+            final Matcher matcher = p.matcher(input);
+            if (matcher.find()) {
+                final String base62Encoded = matcher.group(1);
+                final boolean isBase62 = base62.isBase62Encoding(base62Encoded.getBytes());
+                return isBase62;
+            }
+        }
+        return false;
     }
 
     public static String enc(String input) {
