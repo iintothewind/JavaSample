@@ -1,6 +1,5 @@
 package sample.secure;
 
-import io.vavr.collection.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -10,16 +9,16 @@ public class SymEncUtilTest {
     public void testSymEncUtilEnc01() {
         final String input = null;
         final String enced = SymEncUtil.enc(input);
-        final String denced = SymEncUtil.dec(enced);
-        Assertions.assertThat(denced).isEqualTo(input);
+        final String deced = SymEncUtil.dec(enced);
+        Assertions.assertThat(deced).isEqualTo(input);
     }
 
     @Test
     public void testSymEncUtilEnc02() {
         final String input = "";
         final String enced = SymEncUtil.enc(input);
-        final String denced = SymEncUtil.dec(enced);
-        Assertions.assertThat(denced).isEqualTo(input);
+        final String deced = SymEncUtil.dec(enced);
+        Assertions.assertThat(deced).isEqualTo(input);
     }
 
 
@@ -27,16 +26,16 @@ public class SymEncUtilTest {
     public void testSymEncUtilEnc03() {
         final String input = "                 ";
         final String enced = SymEncUtil.enc(input);
-        final String denced = SymEncUtil.dec(enced);
-        Assertions.assertThat(denced).isEqualTo(input);
+        final String deced = SymEncUtil.dec(enced);
+        Assertions.assertThat(deced).isEqualTo(input);
     }
 
     @Test
     public void testSymEncUtilEnc04() {
         final String input = "A transformation is a string that describes the operation (or set of operations) to be performed on the given input, to produce some output.";
         final String enced = SymEncUtil.enc(input);
-        final String denced = SymEncUtil.dec(enced);
-        Assertions.assertThat(denced).isEqualTo(input);
+        final String deced = SymEncUtil.dec(enced);
+        Assertions.assertThat(deced).isEqualTo(input);
     }
 
     @Test
