@@ -2,12 +2,18 @@ package sample.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.io.Files;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import io.netty.handler.codec.http.HttpResponseStatus;
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.Objects;
 import lombok.SneakyThrows;
@@ -25,7 +31,7 @@ public class HttpClientTest {
     public void testGet() {
         final HttpRequest request = HttpRequest
             .newBuilder()
-            .uri(URI.create("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/track"))
+            .uri(URI.create("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/shippingLabel"))
             .GET()
             .header("Content-Type", HttpHeaderValues.APPLICATION_JSON.toString())
             .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))
@@ -36,6 +42,52 @@ public class HttpClientTest {
             }));
             log.info("resp: {}", resp.body());
         }
+    }
+
+    public Path download(final String url, final String parentDir) {
+        final File parent = new File(parentDir);
+        final File file = new File(parent, url.substring(url.lastIndexOf("/") + 1));
+        final HttpRequest request = HttpRequest
+            .newBuilder()
+            .uri(URI.create(url))
+            .GET()
+            .build();
+        try (final HttpClient client = HttpClient.newBuilder().build()) {
+            final HttpResponse<Path> resp = client.send(request, BodyHandlers.ofFile(file.toPath()));
+            return resp.body();
+        } catch (final Exception e) {
+            log.error("download failed", e);
+            return null;
+        }
+    }
+
+    public byte[] download(final String url) {
+        final HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+        try (final HttpClient client = HttpClient.newBuilder().build()) {
+            final HttpResponse<byte[]> resp = client.send(request, BodyHandlers.ofByteArray());
+            if (resp.statusCode() > 299) {
+                throw new IllegalStateException(String.format("download failed, response: %s", resp));
+            }
+            return resp.body();
+        } catch (final Exception e) {
+            log.error("download failed", e);
+            return new byte[0];
+        }
+    }
+
+    @Test
+    @SneakyThrows
+    public void testDownload() {
+        final File f = new File("C:\\Users\\ivar\\code\\JavaSample\\target");
+        final byte[] bytes = download("https://s3.us-west-1.wasabisys.com/echobase-photos/ulala/ULALA/e6de6a16-9535-43e8-9b26-401418d8809b.pdf");
+        System.out.println(new String(bytes));
+        Files.write(bytes, new File(f, "test.pdf"));
+    }
+
+    @Test
+    public void testUri() {
+        final Path name = Path.of(URI.create("https://s3.us-west-1.wasabisys.com/echobase-photos/ulala/ULALA/e6de6a16-9535-43e8-9b26-401418d8809b.pdf")).getFileName();
+        System.out.println(name);
     }
 
     @Test

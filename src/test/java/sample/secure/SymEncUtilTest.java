@@ -1,5 +1,7 @@
 package sample.secure;
 
+import java.time.ZoneId;
+import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
 
@@ -69,5 +71,21 @@ public class SymEncUtilTest {
         final String input = "#{}#";
         final String deced = SymEncUtil.dec(input);
         Assertions.assertThat(deced).isEmpty();
+    }
+
+    public enum SignatureType {
+        BASIC,
+        ADULT
+    }
+
+    @Test
+    public void testEnumLoad() {
+        SignatureType.valueOf("test");
+    }
+
+    @Test
+    public void testGetAvailableZoneIds() {
+        Set<String> zoneIds = ZoneId.getAvailableZoneIds();
+        System.out.println(zoneIds);
     }
 }

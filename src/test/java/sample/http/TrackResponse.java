@@ -25,4 +25,7 @@ public class TrackResponse {
     Boolean signatureNeeded;
 
     String trackNumber;
+    String message;
+    String result;
+    Integer status;
 }
