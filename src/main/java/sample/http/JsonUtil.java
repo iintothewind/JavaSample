@@ -8,6 +8,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodySubscribers;
+import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -47,8 +48,12 @@ public class JsonUtil {
      * @return a BodyHandler to deserialize http response into the typeRef type
      */
     public static <T> BodyHandler<T> handlerOf(@NonNull TypeReference<T> typeRef) {
-        return responseInfo -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
-            .onFailure(e -> log.error("failed to load response: ", e))
-            .getOrNull());
+        return responseInfo -> Optional
+            .ofNullable(responseInfo)
+            .filter(r -> r.statusCode() < 299)
+            .map(r -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
+                .onFailure(e -> log.error("failed to load response: ", e))
+                .getOrNull()))
+            .orElse(null);
     }
 }

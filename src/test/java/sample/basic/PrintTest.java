@@ -1,14 +1,18 @@
 package sample.basic;
 
+import com.google.common.collect.ImmutableList;
+import io.vavr.collection.Vector;
+import io.vavr.control.Try;
 import java.awt.print.PrinterJob;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
-import java.util.Scanner;
+import java.util.Objects;
+import java.util.Optional;
 import javax.print.Doc;
 import javax.print.DocFlavor;
-import javax.print.DocFlavor.BYTE_ARRAY;
 import javax.print.DocFlavor.INPUT_STREAM;
 import javax.print.DocPrintJob;
 import javax.print.PrintException;
@@ -18,13 +22,23 @@ import javax.print.SimpleDoc;
 import javax.print.attribute.HashPrintRequestAttributeSet;
 import javax.print.attribute.PrintRequestAttributeSet;
 import javax.print.attribute.standard.Copies;
+import javax.print.attribute.standard.MediaPrintableArea;
+import javax.print.attribute.standard.MediaSize;
+import javax.print.attribute.standard.MediaSizeName;
+import javax.print.attribute.standard.OrientationRequested;
+import javax.print.attribute.standard.PageRanges;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.pdmodel.PDPage;
+import org.apache.pdfbox.pdmodel.common.PDRectangle;
 import org.apache.pdfbox.printing.PDFPageable;
+import org.apache.pdfbox.printing.PDFPrintable;
+import org.apache.pdfbox.printing.Scaling;
 import org.junit.Test;
 import org.springframework.core.io.Resource;
-import sample.http.HttpUtil;
 
+@Slf4j
 public class PrintTest {
 
     @Test
@@ -80,28 +94,82 @@ public class PrintTest {
         inputStream.close();
     }
 
-    private static PrintService findPrintService(String printerName) {
-        PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
-        for (PrintService printService : printServices) {
-            if (printService.getName().trim().equals(printerName)) {
-                return printService;
-            }
+    public static PrintService findPrintService(final String printerName) {
+        final PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
+        final PrintService printService = Vector.of(printServices)
+            .find(s -> Optional
+                .ofNullable(s)
+                .map(PrintService::getName)
+                .filter(n -> n.toLowerCase().contains(printerName.toLowerCase()))
+                .isPresent())
+            .getOrNull();
+        if (Objects.isNull(printService)) {
+            log.error("unable to find printer: {}", printerName);
         }
-        return null;
+
+        return printService;
+    }
+
+    public static byte[] convertToA4(final byte[] content) {
+        try (final PDDocument doc = PDDocument.load(content);
+//        try (final PDDocument doc = PDDocument.load(content);
+            final PDDocument newDoc = new PDDocument()) {
+            if (Objects.nonNull(doc)) {
+                Optional.ofNullable(doc)
+                    .map(PDDocument::getPages)
+                    .map(ImmutableList::copyOf)
+                    .orElse(ImmutableList.of())
+                    .stream()
+                    .map(page -> {
+                        final PDPage newPage = new PDPage(PDRectangle.A4);
+                        newPage.setContents(Try.of(page::getContentStreams).filter(Objects::nonNull).map(ImmutableList::copyOf).getOrNull());
+                        return newPage;
+                    })
+                    .forEach(newDoc::addPage);
+                final File tempFile = Files.createTempFile("ulala", ".pdf").toFile();
+                newDoc.save(tempFile);
+                final byte[] bytes = Files.readAllBytes(tempFile.toPath());
+                return bytes;
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        return new byte[0];
     }
 
     @Test
     @SneakyThrows
     public void testPrintService03() {
         final File file = new File("C:\\Users\\ivar\\code\\JavaSample\\src\\test\\resources\\label001.pdf");
-        PDDocument document = PDDocument.load(file);
+        PDDocument document = PDDocument.load(Files.readAllBytes(file.toPath()));
+
+//        PrintRequestAttributeSet attr = new HashPrintRequestAttributeSet();
+//        attr.add(MediaSizeName.ISO_A4);
+//        attr.add(OrientationRequested.PORTRAIT);
+//        attr.add(new MediaPrintableArea(0f, 0f, MediaSize.ISO.A4.getX(MediaSize.INCH), MediaSize.ISO.A4.getY(MediaSize.INCH), MediaSize.INCH));
+//        attr.add(new PageRanges(1, document.getNumberOfPages()));
+
+
+        // Define 4x6 inches paper size
+        float widthInches = 4f;
+        float heightInches = 6f;
+        float marginInches = 0f;
+
+        // Convert inches to points (1 inch = 72 points)
+        float widthPoints = widthInches * 72;
+        float heightPoints = heightInches * 72;
+
+        PrintRequestAttributeSet attr = new HashPrintRequestAttributeSet();
+        attr.add(new MediaPrintableArea(marginInches, marginInches, widthInches, heightInches, MediaSize.INCH));
+        attr.add(OrientationRequested.PORTRAIT); // Typically portrait for shipping labels
+        attr.add(new PageRanges(1, document.getNumberOfPages()));
 
         //takes standard printer defined by OS
-        PrintService myPrintService = PrintServiceLookup.lookupDefaultPrintService();
+        PrintService myPrintService = findPrintService("7900");
         PrinterJob job = PrinterJob.getPrinterJob();
-        job.setPageable(new PDFPageable(document));
+        job.setPrintable(new PDFPrintable(document, Scaling.SHRINK_TO_FIT));
         job.setPrintService(myPrintService);
-        job.print();
+        job.print(attr);
     }
 
     @Test
