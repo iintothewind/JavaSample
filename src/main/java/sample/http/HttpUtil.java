@@ -12,6 +12,7 @@ import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -29,7 +30,18 @@ import okhttp3.Response;
 
 
 @Slf4j
-public class HttpUtil {
+public abstract class HttpUtil {
+
+    private HttpUtil() {
+    }
+
+    static {
+        System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
+    }
+
+    public final static long connectTimeoutSeconds = 15L;
+    public final static long readTimeoutSeconds = 30L;
+    public final static long writeTimeoutSeconds = 30L;
 
     private static final X509TrustManager x509TrustManager = new X509TrustManager() {
         @Override
@@ -67,9 +79,9 @@ public class HttpUtil {
 
     public static OkHttpClient buildTrustAllSslClient(final Long connectTimeout, final Long readTimeout, final Long writeTimeout) {
         final OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(Optional.ofNullable(connectTimeout).filter(t -> t > 0).orElse(15L), TimeUnit.SECONDS)
-            .readTimeout(Optional.ofNullable(readTimeout).filter(t -> t > 0).orElse(30L), TimeUnit.SECONDS)
-            .writeTimeout(Optional.ofNullable(writeTimeout).filter(t -> t > 0).orElse(30L), TimeUnit.SECONDS)
+            .connectTimeout(Optional.ofNullable(connectTimeout).filter(t -> t > 0).orElse(connectTimeoutSeconds), TimeUnit.SECONDS)
+            .readTimeout(Optional.ofNullable(readTimeout).filter(t -> t > 0).orElse(readTimeoutSeconds), TimeUnit.SECONDS)
+            .writeTimeout(Optional.ofNullable(writeTimeout).filter(t -> t > 0).orElse(writeTimeoutSeconds), TimeUnit.SECONDS)
             .connectionPool(new ConnectionPool())
             .sslSocketFactory(trustAllSslSocketFactory, x509TrustManager)
             .hostnameVerifier((hostname, session) -> true)
@@ -128,7 +140,11 @@ public class HttpUtil {
     }
 
     public static <T> T sendRequest(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
-        try (final HttpClient client = HttpClient.newBuilder().build()) {
+        try (final HttpClient client = HttpClient
+            .newBuilder()
+            .sslContext(trustAllSslContext)
+            .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
+            .build()) {
             final HttpResponse<T> resp = client.send(request, responseBodyHandler);
             return resp.body();
         } catch (Exception e) {
