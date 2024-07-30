@@ -142,18 +142,20 @@ public abstract class HttpUtil {
     }
 
     /**
-     * send a single HttpRequest and return a handled response, If you would like to reuse HttpClient, then you should create and maintain HttpClient in your own context.
+     * send a single HttpRequest and return a handled response. If you would like to reuse HttpClient, then you should create and maintain HttpClient in your own context.
      */
     public static <T> T sendRequest(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
-        try (final HttpClient client = HttpClient
-            .newBuilder()
-            .sslContext(trustAllSslContext)
-            .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
-            .build()) {
-            final HttpResponse<T> resp = client.send(request, responseBodyHandler);
-            return resp.body();
-        } catch (Exception e) {
-            log.error("failed to sendRequest", e);
+        if (Objects.nonNull(request) && Objects.nonNull(responseBodyHandler)) {
+            try (final HttpClient client = HttpClient
+                .newBuilder()
+                .sslContext(trustAllSslContext)
+                .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
+                .build()) {
+                final HttpResponse<T> resp = client.send(request, responseBodyHandler);
+                return resp.body();
+            } catch (Exception e) {
+                log.error("failed to sendRequest", e);
+            }
         }
         return null;
     }
