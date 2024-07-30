@@ -5,6 +5,9 @@ import io.netty.handler.codec.http.HttpStatusClass;
 import io.vavr.CheckedFunction1;
 import io.vavr.control.Try;
 import java.net.HttpURLConnection;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -122,5 +125,15 @@ public class HttpUtil {
 
     public static boolean executeRequest(@NonNull final Request request) {
         return Optional.ofNullable(sendRequest(request, Response::isSuccessful)).orElse(false);
+    }
+
+    public static <T> T sendRequest(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
+        try (final HttpClient client = HttpClient.newBuilder().build()) {
+            final HttpResponse<T> resp = client.send(request, responseBodyHandler);
+            return resp.body();
+        } catch (Exception e) {
+            log.error("failed to sendRequest", e);
+        }
+        return null;
     }
 }
