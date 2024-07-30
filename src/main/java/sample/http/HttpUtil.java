@@ -36,7 +36,9 @@ public abstract class HttpUtil {
     }
 
     static {
+        // see java.net.http.module-info
         System.setProperty("jdk.internal.httpclient.disableHostnameVerification", "true");
+        System.setProperty("jdk.httpclient.keepalive.timeout", "30");
     }
 
     public final static long connectTimeoutSeconds = 15L;
@@ -139,6 +141,9 @@ public abstract class HttpUtil {
         return Optional.ofNullable(sendRequest(request, Response::isSuccessful)).orElse(false);
     }
 
+    /**
+     * send a single HttpRequest and return a handled response, If you would like to reuse HttpClient, then you should create and maintain HttpClient in your own context.
+     */
     public static <T> T sendRequest(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
         try (final HttpClient client = HttpClient
             .newBuilder()
