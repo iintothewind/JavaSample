@@ -8,6 +8,8 @@ import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodySubscribers;
+import java.net.http.HttpResponse.ResponseInfo;
+import java.nio.charset.Charset;
 import java.util.Optional;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -51,9 +53,13 @@ public class JsonUtil {
         return responseInfo -> Optional
             .ofNullable(responseInfo)
             .filter(r -> r.statusCode() < 299)
-            .map(r -> BodySubscribers.mapping(BodySubscribers.ofByteArray(), bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
-                .onFailure(e -> log.error("failed to load response: ", e))
-                .getOrNull()))
-            .orElse(null);
+            .map(r -> BodySubscribers.mapping(BodySubscribers.ofByteArray(),
+                bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
+                    .onFailure(e -> log.error("failed to load response: ", e))
+                    .getOrNull()))
+            .orElse(BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), error -> {
+                log.error("failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
+                return null;
+            }));
     }
 }
