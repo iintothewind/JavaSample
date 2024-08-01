@@ -149,6 +149,8 @@ public class StringSample {
 
     @Test
     public void testValueOfEnum() {
+        final boolean result = ImmutableList.of(1, 2, 3).contains(null);
+        System.out.println(result);
         TestEnum.valueOf("aaa");
     }
 

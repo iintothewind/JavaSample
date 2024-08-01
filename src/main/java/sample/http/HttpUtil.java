@@ -6,6 +6,7 @@ import io.vavr.CheckedFunction1;
 import io.vavr.control.Try;
 import java.net.HttpURLConnection;
 import java.net.http.HttpClient;
+import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.security.KeyManagementException;
@@ -148,6 +149,7 @@ public abstract class HttpUtil {
         if (Objects.nonNull(request) && Objects.nonNull(responseBodyHandler)) {
             try (final HttpClient client = HttpClient
                 .newBuilder()
+                .followRedirects(Redirect.ALWAYS)
                 .sslContext(trustAllSslContext)
                 .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
                 .build()) {
