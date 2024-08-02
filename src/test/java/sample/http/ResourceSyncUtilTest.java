@@ -40,7 +40,7 @@ public class ResourceSyncUtilTest {
 
     @Test
     public void testLoadResource02() {
-        final String content = Try.of(() -> ResourceUtil.readString("cfg.xml")).getOrElse("");
+        final String content =  ResourceUtil.readString("fsa/yul.txt");
         System.out.println(content);
     }
 }
