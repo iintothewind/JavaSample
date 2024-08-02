@@ -1,6 +1,8 @@
 package sample.basic;
 
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.core.io.Resource;
@@ -17,14 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class ResourceUtil {
+
     private final static ResourcePatternResolver resourcePatternResolver = new PathMatchingResourcePatternResolver();
 
     /**
      * load resources according to given location pattern
      *
-     * @param locationPattern
-     *     e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt
-     *     Mor details, please refer PathMatchingResourcePatternResolver
+     * @param locationPattern e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt Mor details, please refer PathMatchingResourcePatternResolver
      * @return
      */
     public static List<Resource> loadResources(final String locationPattern) {
@@ -39,9 +40,7 @@ public class ResourceUtil {
     /**
      * load the first matching resource according to given pattern:
      *
-     * @param locationPattern
-     *     e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt
-     *     Mor details, please refer PathMatchingResourcePatternResolver
+     * @param locationPattern e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt Mor details, please refer PathMatchingResourcePatternResolver
      * @return
      */
     public static Resource loadResource(final String locationPattern) {
@@ -54,9 +53,7 @@ public class ResourceUtil {
     /**
      * load all resources as Strings according to given pattern
      *
-     * @param locationPattern
-     *     e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt
-     *     Mor details, please refer PathMatchingResourcePatternResolver
+     * @param locationPattern e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt Mor details, please refer PathMatchingResourcePatternResolver
      * @return
      */
     public static List<String> readResources(final String locationPattern) {
@@ -73,9 +70,7 @@ public class ResourceUtil {
     /**
      * load the first matching resource as string according to given pattern
      *
-     * @param locationPattern
-     *     e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt
-     *     Mor details, please refer PathMatchingResourcePatternResolver
+     * @param locationPattern e.g: classpath:META-INF/spring.factories, META-INF/spring.factories, classpath*:META-INF/spring.factories, file:d:/*.txt Mor details, please refer PathMatchingResourcePatternResolver
      * @return
      */
     public static String readResource(final String locationPattern) {
@@ -83,5 +78,10 @@ public class ResourceUtil {
             .stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException(String.format("unable to read resource of pattern: %s", locationPattern)));
+    }
+
+    public static String readString(final String file) {
+        return Try.of(() -> Files.readString(Paths.get(ClassLoader.getSystemResource(file).toURI())))
+            .getOrElseThrow(t -> new IllegalStateException(String.format("unable to read file: %s", file), t));
     }
 }

@@ -2,6 +2,7 @@ package sample.http;
 
 import java.nio.charset.Charset;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -88,6 +89,11 @@ public class ResourceUtil {
             .stream()
             .findFirst()
             .orElseThrow(() -> new IllegalStateException(String.format("unable to read resource of pattern: %s", locationPattern)));
+    }
+
+    public static String readString(final String file) {
+        return Try.of(() -> Files.readString(Paths.get(ClassLoader.getSystemResource(file).toURI())))
+            .getOrElseThrow(t -> new IllegalStateException(String.format("unable to read file: %s", file), t));
     }
 
     public static List<String> readLines(final String locationPattern) {
