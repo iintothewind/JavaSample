@@ -9,9 +9,11 @@ import java.util.stream.Stream;
 public class StateMachine<TState, TContext> {
 
     private final List<Transition<TState, TContext>> transitions;
+    private final Boolean isDefaultAllowed;
 
-    private StateMachine(final List<Transition<TState, TContext>> transitions) {
+    private StateMachine(final List<Transition<TState, TContext>> transitions, final Boolean allowDefaultTransition) {
         this.transitions = transitions;
+        this.isDefaultAllowed = Optional.ofNullable(allowDefaultTransition).orElse(Boolean.FALSE);
     }
 
     public boolean testTransition(final TState fromState, final TState toState, final TContext context) {
@@ -19,25 +21,25 @@ public class StateMachine<TState, TContext> {
             .ofNullable(transitions)
             .orElse(List.of())
             .stream()
-            .anyMatch(t -> Objects.equals(t.getFromState(), fromState) && Objects.equals(t.getToState(), toState) && t.check(context));
+            .filter(t -> Objects.equals(t.getFromState(), fromState) && Objects.equals(t.getToState(), toState))
+            .findAny()
+            .map(t -> t.check(context))
+            .orElse(isDefaultAllowed);
         return isAllowed;
     }
 
     public static class Builder<TState, TContext> {
 
         private final List<Transition<TState, TContext>> transitions;
+        private final Boolean isDefaultAllowed;
 
-        private Builder(final List<Transition<TState, TContext>> transitions) {
-            this.transitions = transitions;
+        private Builder(final List<Transition<TState, TContext>> transitions, final Boolean allowDefaultTransition) {
+            this.transitions = Optional.ofNullable(transitions).orElse(List.of());
+            this.isDefaultAllowed = Optional.ofNullable(allowDefaultTransition).orElse(Boolean.FALSE);
         }
-
-        public static <TState, TContext> StateMachine<TState, TContext> withTransitions(final List<Transition<TState, TContext>> transitions) {
-            return new StateMachine<>(transitions);
-        }
-
 
         public static <TState, TContext> Builder<TState, TContext> typeOf(final Class<TState> stateClass, final Class<TContext> contextClass) {
-            return new Builder<>(List.of());
+            return new Builder<>(List.of(), false);
         }
 
         public Builder<TState, TContext> withTransition(final TState from, final TState to, final Predicate<TContext> check) {
@@ -49,12 +51,16 @@ public class StateMachine<TState, TContext> {
                         existingTransitions.stream(),
                         Stream.of(Transition.Builder.<TState, TContext>from(from).to(to).build(check)))
                     .toList();
-                return new Builder<>(lst);
+                return new Builder<>(lst, isDefaultAllowed);
             }
         }
 
+        public Builder<TState, TContext> defaultAllow(final Boolean allowDefaultTransition) {
+            return new Builder<>(transitions, allowDefaultTransition);
+        }
+
         public StateMachine<TState, TContext> build() {
-            return new StateMachine<>(transitions);
+            return new StateMachine<>(transitions, isDefaultAllowed);
         }
     }
 }
