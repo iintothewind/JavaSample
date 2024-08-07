@@ -22,6 +22,23 @@ public abstract class Transition<TState, TContext> {
         return toState;
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final Transition<?, ?> that = (Transition<?, ?>) o;
+        return Objects.equals(fromState, that.fromState) && Objects.equals(toState, that.toState);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(fromState, toState);
+    }
+
     public abstract boolean check(TContext context);
 
     public static class Builder<TState, TContext> {
