@@ -48,7 +48,11 @@ public abstract class Transition<TState, TContext> {
             return new Transition<>(fromState, toState) {
                 @Override
                 public boolean check(final TContext context) {
-                    return condition.test(context);
+//                    try {
+                        return condition.test(context);
+//                    } catch (Exception e) {
+//                        return false;
+//                    }
                 }
             };
         }

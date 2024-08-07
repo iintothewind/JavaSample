@@ -18,9 +18,9 @@ public class StateMachineTest {
             .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o.getId()))
             .build();
 
-        final boolean result = sm.testTransition(null, Status.CREATED, Order.builder().build());
+        final boolean result = sm.testTransition(null, Status.CREATED, null);
         System.out.println(result);
-        final boolean result1 = sm.testTransition(Status.CREATED, Status.TO_DO, Order.builder().build());
+        final boolean result1 = sm.testTransition(Status.CREATED, Status.TO_DO, null);
         System.out.println(result1);
     }
 
