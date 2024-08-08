@@ -295,14 +295,14 @@ public class CompletableFutureSample {
     final CompletableFuture<String> cancellable2 = TimeoutSupportFuture.within(future, Duration.ofMillis(200));
     cancellable1.whenComplete((s, throwable) -> {
       if (s != null) {
-        log.info("s == {}", s);
+        log.info("cancellable1: {}", s);
       } else {
         log.info(throwable.getMessage());
       }
     });
     cancellable2.whenComplete((s, throwable) -> {
       if (s != null) {
-        log.info("s == {}", s);
+        log.info("cancellable2 {}", s);
       } else {
         log.info(throwable.getMessage());
       }
