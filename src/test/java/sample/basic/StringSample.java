@@ -12,6 +12,7 @@ import io.vavr.Tuple3;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
+import io.vavr.control.Option;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -120,7 +121,6 @@ public class StringSample {
             .collect(Collectors.toMap(kv -> kv.getKey()._1, kv -> kv.getValue(), (l, r) -> l + r));
         System.out.println(driverMap);
 
-
         final List<Tuple3<String, Integer, Integer>> manifestBriefs = routeMap.keySet().stream().map(k -> Tuple.of(k, routeMap.getOrDefault(k, 0), driverMap.getOrDefault(k, 0))).collect(Collectors.toList());
         System.out.printf("manifestBriefs: %s%n", manifestBriefs);
 //        final Map<String, Integer> driverMap = manifests.stream().collect(Collectors.toMap(ManifestBrief::getManifest, m -> m.getNumber(), Integer::sum));
@@ -154,6 +154,13 @@ public class StringSample {
         TestEnum.valueOf("aaa");
     }
 
+    @Test
+    public void testOption() {
+        // Option.map() may produce NPE, because Option.Some(null) is accepted
+        // final Integer r = Option.of(Tuple.<Integer, Integer, Integer>of(1, null, null)).map(t ->t._2).map(i -> i * 2).getOrElse(0);
+        final Integer r = Option.of(Tuple.<Integer, Integer, Integer>of(1, null, null)).flatMap(t -> Option.of(t._2)).map(i -> i * 2).getOrElse(0);
+        System.out.println(r);
+    }
 
 
 }
