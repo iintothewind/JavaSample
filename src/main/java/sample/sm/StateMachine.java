@@ -119,7 +119,10 @@ public class StateMachine<TState, TContext, TResult> {
             return withTransitions(fromStates, to, c -> true, function);
         }
 
-        public Builder<TState, TContext, TResult> withTransitions(final TState from, final Set<TState> toStates, final Predicate<TContext> predicate, final Function<TContext, TResult> function) {
+        /**
+         * better keep this private, because there is no scenario that transitions from same state to multiple states that will use same function
+         */
+        private Builder<TState, TContext, TResult> withTransitions(final TState from, final Set<TState> toStates, final Predicate<TContext> predicate, final Function<TContext, TResult> function) {
             final List<Transition<TState, TContext, TResult>> transitions = Optional.ofNullable(toStates).orElse(Set.of())
                 .stream()
                 .map(to -> Transition.Builder.<TState, TContext>from(from).to(to).build(predicate, function))

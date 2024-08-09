@@ -99,24 +99,24 @@ public class StateMachineTest {
             .build();
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void testStateMachine09() {
-        final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
-            .withTransitions(Status.CREATED, Set.of(Status.TO_DO), o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
-            .build();
-    }
-
-
-    @Test(expected = IllegalArgumentException.class)
-    public void testStateMachine10() {
-        final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
-            .withTransitions(Status.CREATED, Set.of(Status.CLOSED, Status.TO_DO), o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
-            .build();
-    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testStateMachine09() {
+//        final StateMachine<Status, Order, Order> sm = Builder
+//            .typeOf(Status.class, Order.class, Order.class)
+//            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
+//            .withTransitions(Status.CREATED, Set.of(Status.TO_DO), o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
+//            .build();
+//    }
+//
+//
+//    @Test(expected = IllegalArgumentException.class)
+//    public void testStateMachine10() {
+//        final StateMachine<Status, Order, Order> sm = Builder
+//            .typeOf(Status.class, Order.class, Order.class)
+//            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
+//            .withTransitions(Status.CREATED, Set.of(Status.CLOSED, Status.TO_DO), o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
+//            .build();
+//    }
 
     @Test
     public void testOrder01() {
