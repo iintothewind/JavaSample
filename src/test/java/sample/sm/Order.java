@@ -16,7 +16,8 @@ public class Order {
     private String name;
     private Status status;
 
-    private final static StateMachine<Status, Order, Order> sm = StateMachine.Builder
+    private final static StateMachine<Status, Order, Order> sm = StateMachine
+        .Builder
         .typeOf(Status.class, Order.class, Order.class)
         .withTransition(null, Status.CREATED,
             o -> Objects.nonNull(o) && Objects.isNull(o.getStatus()),
