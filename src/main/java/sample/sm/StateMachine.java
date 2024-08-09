@@ -16,6 +16,12 @@ public class StateMachine<TState, TContext, TResult> {
         this.transitions = transitions;
     }
 
+    /**
+     * check if the state transition is allowed based on input context
+     *
+     * @param context input context
+     * @return true if state transition is allowed based on input context, false if state transition is allowed based on input context
+     */
     public boolean testTransition(final TState fromState, final TState toState, final TContext context) {
         final boolean isAllowed = Optional
             .ofNullable(transitions)
@@ -28,6 +34,12 @@ public class StateMachine<TState, TContext, TResult> {
         return isAllowed;
     }
 
+    /**
+     * make state transition if input context has satisfied the predicate check, and convert context to result type according to the matching transition. <br> If the state transition is not allowed, then return null as result.
+     *
+     * @param context input context
+     * @return converted result by given function of matched transition if transition is allowed, or null if transition is not allowed
+     */
     public TResult mkTransition(final TState fromState, final TState toState, final TContext context) {
         final TResult result = Optional.ofNullable(transitions).orElse(List.of())
             .stream()

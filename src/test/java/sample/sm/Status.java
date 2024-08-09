@@ -6,7 +6,7 @@ public enum Status {
     TO_DO("todo",1),
     IN_PROGRESS("inProgress",2),
     TEST("test",3),
-    DONE("done",4);
+    CLOSED("closed",4);
 
     private final String name;
     private final Integer code;
