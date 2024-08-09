@@ -5,7 +5,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public abstract class Transition<TState, TContext, TResult> {
+abstract class Transition<TState, TContext, TResult> {
 
     private final TState fromState;
     private final TState toState;
@@ -63,7 +63,7 @@ public abstract class Transition<TState, TContext, TResult> {
         }
 
 
-        public <TResult> Transition<TState, TContext, TResult> build(final Predicate<TContext> predicate, final Function<? super TContext, ? extends TResult> function) {
+        <TResult> Transition<TState, TContext, TResult> build(final Predicate<TContext> predicate, final Function<? super TContext, ? extends TResult> function) {
             Objects.requireNonNull(predicate, "condition is required");
             Objects.requireNonNull(function, "function is required");
             return new Transition<>(fromState, toState) {
@@ -79,12 +79,12 @@ public abstract class Transition<TState, TContext, TResult> {
             };
         }
 
-        public Transition<TState, TContext, TContext> build(final Predicate<TContext> predicate) {
+        Transition<TState, TContext, TContext> build(final Predicate<TContext> predicate) {
             Objects.requireNonNull(predicate, "condition is required");
             return build(predicate, Function.identity());
         }
 
-        public <TResult> Transition<TState, TContext, TResult> build(final Function<TContext, TResult> function) {
+        <TResult> Transition<TState, TContext, TResult> build(final Function<TContext, TResult> function) {
             Objects.requireNonNull(function, "function is required");
             return build(t -> true, function);
         }
