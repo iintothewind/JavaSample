@@ -2,9 +2,10 @@ package sample.sm;
 
 
 import java.util.Objects;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
-public abstract class Transition<TState, TContext> {
+public abstract class Transition<TState, TContext, TResult> {
 
     private final TState fromState;
     private final TState toState;
@@ -30,7 +31,7 @@ public abstract class Transition<TState, TContext> {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        final Transition<?, ?> that = (Transition<?, ?>) o;
+        final Transition<?, ?, ?> that = (Transition<?, ?, ?>) o;
         return Objects.equals(fromState, that.fromState) && Objects.equals(toState, that.toState);
     }
 
@@ -40,6 +41,8 @@ public abstract class Transition<TState, TContext> {
     }
 
     public abstract boolean check(TContext context);
+
+    public abstract TResult apply(final TContext context);
 
     public static class Builder<TState, TContext> {
 
@@ -60,18 +63,30 @@ public abstract class Transition<TState, TContext> {
         }
 
 
-        public Transition<TState, TContext> build(Predicate<TContext> condition) {
-            Objects.requireNonNull(condition);
+        public <TResult> Transition<TState, TContext, TResult> build(final Predicate<TContext> predicate, final Function<? super TContext, ? extends TResult> function) {
+            Objects.requireNonNull(predicate, "condition is required");
+            Objects.requireNonNull(function, "function is required");
             return new Transition<>(fromState, toState) {
                 @Override
                 public boolean check(final TContext context) {
-//                    try {
-                        return condition.test(context);
-//                    } catch (Exception e) {
-//                        return false;
-//                    }
+                    return predicate.test(context);
+                }
+
+                @Override
+                public TResult apply(final TContext context) {
+                    return function.apply(context);
                 }
             };
+        }
+
+        public Transition<TState, TContext, TContext> build(final Predicate<TContext> predicate) {
+            Objects.requireNonNull(predicate, "condition is required");
+            return build(predicate, Function.identity());
+        }
+
+        public <TResult> Transition<TState, TContext, TResult> build(final Function<TContext, TResult> function) {
+            Objects.requireNonNull(function, "function is required");
+            return build(t -> true, function);
         }
     }
 }
