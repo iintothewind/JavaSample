@@ -12,9 +12,9 @@ import lombok.With;
 @Builder
 public class Order {
 
-    private Integer id;
-    private String name;
-    private Status status;
+    Integer id;
+    String name;
+    Status status;
 
     private final static StateMachine<Status, Order, Order> sm = StateMachine
         .Builder
