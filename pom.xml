@@ -15,6 +15,7 @@
         <assertj.version>2.9.5</assertj.version>
         <vertx.version>4.4.2</vertx.version>
         <lombok.version>1.18.30</lombok.version>
+        <jdbi.version>3.44.1</jdbi.version>
         <auto-value.version>1.11.0</auto-value.version>
         <auto-service.version>1.1.1</auto-service.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -169,12 +170,17 @@
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-guava</artifactId>
-            <version>3.45.1</version>
+            <version>${jdbi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jdbi</groupId>
+            <artifactId>jdbi3-guava-cache</artifactId>
+            <version>${jdbi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.jdbi</groupId>
             <artifactId>jdbi3-vavr</artifactId>
-            <version>3.45.1</version>
+            <version>${jdbi.version}</version>
         </dependency>
         <dependency>
             <groupId>com.nurkiewicz.asyncretry</groupId>
