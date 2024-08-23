@@ -2,6 +2,7 @@ package sample.sm;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import lombok.Builder;
 import lombok.Value;
@@ -40,7 +41,7 @@ public class Order {
         .build();
 
     public Order updateStatus(Status toStatus) {
-        final Order updatedOrder = sm.mkTransition(getStatus(), toStatus, this);
+        final Order updatedOrder = Optional.ofNullable(sm.mkTransition(getStatus(), toStatus, this)).orElse(this);
         return updatedOrder;
     }
 }
