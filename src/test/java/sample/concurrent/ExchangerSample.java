@@ -3,8 +3,8 @@ package sample.concurrent;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -13,8 +13,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.*;
 
+@Slf4j
 public class ExchangerSample {
-  private final Logger log = LogManager.getLogger();
   Properties prop = new Properties();
   private Map<String, String> map;
   private Exchanger<String> exchanger;
@@ -44,8 +44,8 @@ public class ExchangerSample {
   }
 }
 
+@Slf4j
 final class Publisher implements Runnable {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final Exchanger<String> exchanger;
   private final Map<String, String> map;
 
@@ -80,8 +80,8 @@ final class Publisher implements Runnable {
   }
 }
 
+@Slf4j
 final class Talker implements Runnable {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final Exchanger<String> exchanger;
   private final Map<String, String> map;
 

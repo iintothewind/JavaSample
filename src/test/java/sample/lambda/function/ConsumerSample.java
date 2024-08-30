@@ -1,15 +1,14 @@
 package sample.lambda.function;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import sample.lambda.bean.Person;
 
 import java.util.function.Consumer;
 
+@Slf4j
 public class ConsumerSample {
-  private Logger log = LogManager.getLogger();
   private Consumer<Person> grow = person -> person.setAge(person.getAge() + 1);
   private Consumer<Person> nameChange = person -> person.setName("");
 

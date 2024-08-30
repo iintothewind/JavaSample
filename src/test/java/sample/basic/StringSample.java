@@ -13,6 +13,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
 import io.vavr.control.Option;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -160,6 +161,27 @@ public class StringSample {
         // final Integer r = Option.of(Tuple.<Integer, Integer, Integer>of(1, null, null)).map(t ->t._2).map(i -> i * 2).getOrElse(0);
         final Integer r = Option.of(Tuple.<Integer, Integer, Integer>of(1, null, null)).flatMap(t -> Option.of(t._2)).map(i -> i * 2).getOrElse(0);
         System.out.println(r);
+    }
+
+    public static Duration getRemainingDay() {
+        return Duration.between(LocalDateTime.now(),LocalDateTime.now().withHour(23).withMinute(59).withSecond(59));
+    }
+
+    public static Duration getRemainingMinute() {
+        return Duration.between(LocalDateTime.now(),LocalDateTime.now().withSecond(59));
+    }
+
+    @Test
+    public void testGetRemainingDuration() {
+        final Duration dayRemaining = getRemainingDay();
+        System.out.println(dayRemaining.getSeconds());
+        final Duration minRemaining = getRemainingMinute();
+        System.out.println(minRemaining.getSeconds());
+
+        final String s = String.join(":", ImmutableList.of("1", "2", "3", "4"));
+        System.out.println(s);
+
+
     }
 
 

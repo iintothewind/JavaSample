@@ -5,13 +5,13 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Ordering;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.util.Random;
 import java.util.concurrent.*;
 
+@Slf4j
 public class CyclicBarrierSample {
   @Test
   public void testRace() {
@@ -24,8 +24,8 @@ public class CyclicBarrierSample {
   }
 }
 
+@Slf4j
 final class CarRace implements Runnable {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final int numberOfCars = Runtime.getRuntime().availableProcessors();
   private final BlockingQueue<Car> fleet;
   private final int trackLength;
@@ -71,8 +71,8 @@ final class CarRace implements Runnable {
 
 }
 
+@Slf4j
 final class Car implements Runnable, Comparable<Car> {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final String name;
   private final Integer speed;
   private final CarRace carRace;

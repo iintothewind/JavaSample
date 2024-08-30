@@ -2,8 +2,7 @@ package sample.concurrent;
 
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,8 +17,8 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.concurrent.locks.StampedLock;
 
+@Slf4j
 public class LocksSample {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final Random random = new Random();
   private Map<String, String> map = null;
   private ExecutorService pool = null;

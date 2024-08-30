@@ -1,7 +1,6 @@
 package sample.concurrent;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.util.Random;
@@ -9,8 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
+@Slf4j
 public class SemaphoreSample {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final BoundedSet<String> boundedSet = new BoundedSet<>(5);
 
   @Test

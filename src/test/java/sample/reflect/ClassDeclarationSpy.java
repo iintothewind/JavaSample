@@ -1,16 +1,14 @@
 package sample.reflect;
 
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class ClassDeclarationSpy {
-  private final Logger log = LogManager.getLogger();
   private final Class<?> clazz;
 
   public ClassDeclarationSpy(Class<?> clazz) {

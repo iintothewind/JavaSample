@@ -4,8 +4,7 @@ import com.google.common.collect.ImmutableList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import io.vavr.collection.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import sample.lambda.bean.Person;
@@ -14,8 +13,8 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 public class StreamSample {
-  private final Logger log = LogManager.getLogger();
   Person ivar, ashley, sara, jim, leon;
   private List<Tuple2<Integer, String>> lst = ImmutableList.of(Tuple.of(1, "a"), Tuple.of(1, "b"), Tuple.of(2, "c"), Tuple.of(2, "d"), Tuple.of(3, "e"));
 

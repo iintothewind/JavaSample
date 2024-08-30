@@ -6,8 +6,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ComparisonChain;
 import com.google.common.collect.Lists;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -15,8 +14,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
 
+@Slf4j
 public class CompletionServiceSample {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final Integer numberOfHorses = 9;
   private final Long trackLength = Long.valueOf(20000L);
   private ExecutorService pool;
@@ -40,8 +39,8 @@ public class CompletionServiceSample {
 
 }
 
+@Slf4j
 final class Horse implements Callable<Horse>, Comparable<Horse> {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final String name;
   private final Integer speed;
   private final Long distance;
@@ -91,8 +90,8 @@ final class Horse implements Callable<Horse>, Comparable<Horse> {
 
 }
 
+@Slf4j
 final class HorseRace {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final CompletionService<Horse> completionService;
   private List<Horse> horses;
 

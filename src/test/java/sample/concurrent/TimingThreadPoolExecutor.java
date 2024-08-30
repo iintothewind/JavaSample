@@ -1,13 +1,12 @@
 package sample.concurrent;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 public class TimingThreadPoolExecutor extends ThreadPoolExecutor {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final AtomicLong numTasks = new AtomicLong();
   private final AtomicLong totalTime = new AtomicLong();
   private final ThreadLocalStopWatch watch = ThreadLocalStopWatch.createUnstarted();

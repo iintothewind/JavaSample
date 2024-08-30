@@ -1,0 +1,102 @@
+# 数据源配置
+dataSources:
+  w_db:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:13306/ulala_main?useSSL=false&allowPublicKeyRetrieval=true
+    username: ulala
+    password: ula123$
+    hikari:
+      connectionTimeout: 30000     # 等待连接池分配链接的最大时长（毫秒），超过这个时长还没有可用的连接则发生 SQLException，默认：30 秒
+      minimumIdle: 2               # 最小空闲连接数
+      maximumPoolSize: 10          # 最大连接数
+      autoCommit: true             # 自动提交
+      idleTimeout: 600000          # 连接超时的最大时长（毫秒），超时则被释放（retired），默认：10 分钟
+      maxLifetime: 1800000         # 连接的生命时长（毫秒），超时而且没被使用则被释放（retired），默认： 30 分钟
+      connectionTestQuery: SELECT 1
+      poolName: MakuHikariCP1
+  r_db:
+    dataSourceClassName: com.zaxxer.hikari.HikariDataSource
+    driverClassName: com.mysql.cj.jdbc.Driver
+    jdbcUrl: jdbc:mysql://localhost:13306/ulala_main?useSSL=false&allowPublicKeyRetrieval=true
+    username: ulala
+    password: ula123$
+    hikari:
+      connectionTimeout: 30000     # 等待连接池分配链接的最大时长（毫秒），超过这个时长还没有可用的连接则发生 SQLException，默认：30 秒
+      minimumIdle: 2               # 最小空闲连接数
+      maximumPoolSize: 10          # 最大连接数
+      autoCommit: true             # 自动提交
+      idleTimeout: 600000          # 连接超时的最大时长（毫秒），超时则被释放（retired），默认：10 分钟
+      maxLifetime: 1800000         # 连接的生命时长（毫秒），超时而且没被使用则被释放（retired），默认： 30 分钟
+      connectionTestQuery: SELECT 1
+      poolName: MakuHikariCP2
+
+# 规则配置
+rules:
+  - !READWRITE_SPLITTING
+    dataSources:
+      rw_ds:
+        writeDataSourceName: w_db
+        readDataSourceNames:
+          - r_db
+        transactionalReadQueryStrategy: PRIMARY
+        loadBalancerName: alg_random
+    # 算法配置
+    loadBalancers:
+      alg_random:
+        type: RANDOM
+  - !SINGLE
+    tables:
+      - "*.*"
+  - !SHARDING
+    tables:
+      # 逻辑表名
+      de_delivery_item:
+        actualDataNodes: rw_ds.de_delivery_item_${202406..202408}
+        # 分库策略
+        tableStrategy:
+          standard:
+            # 分片列名称
+            shardingColumn: create_time
+            # 分片算法名称
+            shardingAlgorithmName: interval_delivery_item
+      or_order:
+        actualDataNodes: rw_ds.or_order_${202406..202408}
+        # 分库策略
+        tableStrategy:
+          standard:
+            # 分片列名称
+            shardingColumn: create_time
+            # 分片算法名称
+            shardingAlgorithmName: interval_delivery_item
+      or_sort_task_item:
+        actualDataNodes: rw_ds.or_sort_task_item_${202406..202408}
+        # 分库策略
+        tableStrategy:
+          standard:
+            # 分片列名称
+            shardingColumn: create_time
+            # 分片算法名称
+            shardingAlgorithmName: interval_delivery_item
+    # 分片算法配置
+    shardingAlgorithms:
+      # 标准分片算法-行表达式分片算法
+      interval_delivery_item:
+        # 基于行表达式的分片算法
+        type: INTERVAL
+        props:
+          #分片键的时间戳格式，必须遵循 Java DateTimeFormatter 的格式。例如：yyyy-MM-dd HH:mm:ss，yyyy-MM-dd 或 HH:mm:ss 等。
+          datetime-pattern: "yyyyMM"
+          #时间分片下界值：起始时间
+          datetime-lower: "202406"
+          #时间分片上界值：结束时间
+          datetime-upper: "209912"
+          #对应数据库表后缀名202211
+          sharding-suffix-pattern: "yyyyMM"
+          #间隔类型：DAYS、MONTHS
+          datetime-interval-unit: "MONTHS"
+          #间隔一天/月分表，根据上面datetime-interval-unit的类型去分表
+          datetime-interval-amount: 1
+# 属性配置
+props:
+  sql-show: true

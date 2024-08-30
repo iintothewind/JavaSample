@@ -3,8 +3,7 @@ package sample.concurrent;
 import com.google.common.base.*;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import sample.lambda.bean.Person;
@@ -13,8 +12,8 @@ import java.util.ArrayList;
 import java.util.concurrent.*;
 
 
+@Slf4j
 public class FutureTaskSample {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
 
   private Person studentJohn = null;
   private Person yongPeter = null;

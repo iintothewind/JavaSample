@@ -1,8 +1,7 @@
 package sample.concurrent;
 
 import io.vavr.control.Try;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.After;
 import org.junit.Before;
@@ -25,8 +24,8 @@ class SubTask implements Callable<String> {
   }
 }
 
+@Slf4j
 public class ThreadStarvationLock {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private ExecutorService pool = null;
 
   @Before

@@ -2,16 +2,14 @@ package sample.concurrent;
 
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
 
 import java.util.List;
 import java.util.concurrent.*;
 
+@Slf4j
 public class CountDownLatchSample {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
-
   private final CountDownLatch branchLatchB = new CountDownLatch(1);
   private final CountDownLatch branchLatchC = new CountDownLatch(2);
   private final CountDownLatch branchLatchD = new CountDownLatch(1);
@@ -60,8 +58,8 @@ public class CountDownLatchSample {
   }
 }
 
+@Slf4j
 final class Activity implements Runnable {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final String name;
   private final int duration;
   private final CountDownLatch start;

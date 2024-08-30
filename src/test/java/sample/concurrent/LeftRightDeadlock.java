@@ -1,7 +1,6 @@
 package sample.concurrent;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -14,6 +13,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 @Ignore
+@Slf4j
 public class LeftRightDeadlock {
   private ExecutorService pool;
 
@@ -80,8 +80,8 @@ public class LeftRightDeadlock {
   }
 }
 
+@Slf4j
 final class ReentrantDeadLock {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final Lock left = new ReentrantLock();
   private final Lock right = new ReentrantLock();
 
@@ -131,8 +131,8 @@ final class ReentrantDeadLock {
   }
 }
 
+@Slf4j
 final class IntrinsicDeadlock {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final Object left = new Object();
   private final Object right = new Object();
 

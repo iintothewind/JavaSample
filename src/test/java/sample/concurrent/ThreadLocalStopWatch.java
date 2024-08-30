@@ -3,17 +3,16 @@ package sample.concurrent;
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Objects;
 import com.google.common.base.Ticker;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import java.util.concurrent.TimeUnit;
+import lombok.extern.slf4j.Slf4j;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.*;
 
+@Slf4j
 public final class ThreadLocalStopWatch {
-  private final Logger log = LogManager.getLogger(this.getClass().getName());
   private final Ticker ticker;
   private final ThreadLocal<Boolean> isRunning = new ThreadLocal<>();
   private final ThreadLocal<Long> elapsedNanos = new ThreadLocal<>();
