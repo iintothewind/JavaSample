@@ -3,7 +3,7 @@ dataSources:
   w_db:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://localhost:13306/ulala_main?useSSL=false&allowPublicKeyRetrieval=true
+    jdbcUrl: jdbc:mysql://localhost:13306/ulala_main?useSSL=false&serverTimezone=America/Vancouver&allowPublicKeyRetrieval=true
     username: ulala
     password: ula123$
     hikari:
@@ -18,7 +18,7 @@ dataSources:
   r_db:
     dataSourceClassName: com.zaxxer.hikari.HikariDataSource
     driverClassName: com.mysql.cj.jdbc.Driver
-    jdbcUrl: jdbc:mysql://localhost:13306/ulala_main?useSSL=false&allowPublicKeyRetrieval=true
+    jdbcUrl: jdbc:mysql://localhost:13306/ulala_main?useSSL=false&serverTimezone=America/Vancouver&allowPublicKeyRetrieval=true
     username: ulala
     password: ula123$
     hikari:
