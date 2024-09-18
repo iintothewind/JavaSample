@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 public class JsonUtil {
 
     private final static ObjectMapper objectMapper = new ObjectMapper()
+        .findAndRegisterModules()
         .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
         .setSerializationInclusion(Include.NON_NULL);
