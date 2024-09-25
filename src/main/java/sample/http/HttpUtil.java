@@ -128,9 +128,9 @@ public abstract class HttpUtil {
             .filter(Objects::nonNull)
             .andThenTry(response -> {
                 if (response.isSuccessful()) {
-                    log.info("request succeeded with response code: {}, body: {}", response.code(), peekResponse(response));
+                    log.info("request: {} succeeded with response code: {}, body: {}", request, response.code(), peekResponse(response));
                 } else {
-                    log.warn("request failed with response code: {}, body: {}", response.code(), peekResponse(response));
+                    log.warn("request: {} failed with response code: {}, body: {}", request, response.code(), peekResponse(response));
                 }
             })
             .flatMapTry(createHandler(handler))
