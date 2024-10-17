@@ -1,7 +1,9 @@
 package sample.http;
 
+import com.google.common.collect.ImmutableList;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpStatusClass;
+import io.vavr.API;
 import io.vavr.CheckedFunction1;
 import io.vavr.control.Try;
 import java.net.HttpURLConnection;
@@ -14,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -74,7 +77,7 @@ public abstract class HttpUtil {
 
     private static final SSLSocketFactory trustAllSslSocketFactory = trustAllSslContext.getSocketFactory();
 
-    public static final OkHttpClient trustAllSslClient = buildTrustAllSslClient(15L, 30L, 30L);
+    public static final OkHttpClient trustAllSslClient = buildTrustAllSslClient(1L, 1L, 1L);
 
     public static SSLContext getSslContext() {
         return trustAllSslContext;
@@ -121,7 +124,7 @@ public abstract class HttpUtil {
         return Try.of(() -> response.peekBody(Long.MAX_VALUE).string()).getOrElse("");
     }
 
-    public static <T> T sendRequest(@NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler) {
+    public static <T> T sendRequest(@NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
         log.info("sendRequest url: {}", request.url());
         return Try.of(() -> trustAllSslClient.newCall(request).execute())
             .mapTry(response -> handleRedirect(trustAllSslClient, response, request, 5))
@@ -134,12 +137,19 @@ public abstract class HttpUtil {
                 }
             })
             .flatMapTry(createHandler(handler))
-            .onFailure(t -> log.error("error while sending request: {}", request, t))
+            .onFailure(throwable -> Arrays.asList(exceptions).forEach(ex -> {
+                    if (ex.isInstance(throwable)) {
+                        throw new RuntimeException(throwable);
+                    } else {
+                        log.error("error while sending request: {}", request, throwable);
+                    }
+                }
+            ))
             .getOrNull();
     }
 
-    public static boolean executeRequest(@NonNull final Request request) {
-        return Optional.ofNullable(sendRequest(request, Response::isSuccessful)).orElse(false);
+    public static boolean executeRequest(@NonNull final Request request, final Class<?>... exceptions) {
+        return Optional.ofNullable(sendRequest(request, Response::isSuccessful, exceptions)).orElse(false);
     }
 
     /**

@@ -6,7 +6,9 @@ import com.google.common.io.Files;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import java.io.File;
+import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -18,7 +20,9 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
+import okhttp3.MediaType;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import org.junit.Test;
 
 @Slf4j
@@ -103,6 +107,18 @@ public class HttpClientTest {
         }));
 
         System.out.println(trackResponse);
+    }
+
+    @Test
+    public void testGet02() {
+        final Request request = new Request.Builder()
+            .url(Objects.requireNonNull(
+                HttpUrl.parse("http://3hlssssssrn.shipper.d.veryk.com1/api?action=service&format=json&id=294&sign=Rp8WT%2FjBegYGWBVfNm9oEDfl%2FvQ%2FAyZD83WmS9Q5T8E%3D&timestamp=1729186925")))
+            .headers(Headers.of(ImmutableMap.of()))
+            .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
+            .get()
+            .build();
+        HttpUtil.sendRequest(request, resp -> HttpUtil.peekResponse(resp), UnknownHostException.class, SocketTimeoutException.class);
     }
 
 }

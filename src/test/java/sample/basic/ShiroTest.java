@@ -44,10 +44,10 @@ public class ShiroTest {
     final String pwd = generatePassword("admin", "lfcdwHlPIlGZDeKwqzYG8Q==");
     System.out.println(pwd);
 
-    final String pwd1 = generatePassword("Password@1", "oU2apSDtOJ2PR3v7VU3H0g==");
+    final String pwd1 = generatePassword("Password@1", "vDK3TtZoyepuoqh8SWxLhQ==");
     System.out.println(pwd1);
 
-    final String pwd2 = generatePassword("mHp@3TUd", "s4U3L/IgzrNHk6liPNlecA==");
+    final String pwd2 = generatePassword("mHp@3TUd", "vDK3TtZoyepuoqh8SWxLhQ==");
     System.out.println(pwd2);
 
     final String pwd3 = generatePassword("mHp@3TUd", "iA2JTFU584VMu7EReP0LEg==");
@@ -239,6 +239,10 @@ public class ShiroTest {
   public void testMapForeach() {
     final ImmutableMap<Integer, ImmutableList<String>> map = ImmutableMap.of(1, ImmutableList.of("a", "b", "c"), 2, ImmutableList.of("c", "d", "e"));
     map.forEach((k,v)-> System.out.println(k + "=" + v));
+  }
+
+  public static void strs(final String... ss) {
+    System.out.println(ImmutableList.copyOf(ss));
   }
 
 }
