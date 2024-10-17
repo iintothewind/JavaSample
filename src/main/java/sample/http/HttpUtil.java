@@ -77,7 +77,7 @@ public abstract class HttpUtil {
 
     private static final SSLSocketFactory trustAllSslSocketFactory = trustAllSslContext.getSocketFactory();
 
-    public static final OkHttpClient trustAllSslClient = buildTrustAllSslClient(1L, 1L, 1L);
+    public static final OkHttpClient trustAllSslClient = buildTrustAllSslClient(30L, 15L, 15L);
 
     public static SSLContext getSslContext() {
         return trustAllSslContext;
