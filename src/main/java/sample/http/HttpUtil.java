@@ -1,9 +1,7 @@
 package sample.http;
 
-import com.google.common.collect.ImmutableList;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpStatusClass;
-import io.vavr.API;
 import io.vavr.CheckedFunction1;
 import io.vavr.control.Try;
 import java.net.HttpURLConnection;
