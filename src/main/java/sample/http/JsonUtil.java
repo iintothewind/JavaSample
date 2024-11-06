@@ -27,13 +27,13 @@ public class JsonUtil {
 
     public static <T> T load(final String source, @NonNull TypeReference<T> typeRef) {
         return Try.of(() -> objectMapper.readValue(source, typeRef))
-            .onFailure(t -> log.error("failed to load from source: {}", source, t))
+            .onFailure(t -> log.error("JsonUtil.load, failed to load from source: {}", source, t))
             .getOrNull();
     }
 
     public static String dump(final Object obj) {
         return Try.of(() -> objectMapper.writeValueAsString(obj))
-            .onFailure(t -> log.error("failed to dump object: {}", obj, t))
+            .onFailure(t -> log.error("JsonUtil.dump, failed to dump object: {}", obj, t))
             .getOrNull();
     }
 
@@ -59,10 +59,10 @@ public class JsonUtil {
             .filter(r -> r.statusCode() < 299)
             .map(r -> BodySubscribers.mapping(BodySubscribers.ofByteArray(),
                 bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
-                    .onFailure(e -> log.error("failed to load response: ", e))
+                    .onFailure(e -> log.error("JsonUtil.handlerOf, failed to load response: ", e))
                     .getOrNull()))
             .orElse(BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), error -> {
-                log.error("failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
+                log.error("JsonUtil.handlerOf, failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
                 return null;
             }));
     }
