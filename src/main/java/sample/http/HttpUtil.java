@@ -96,11 +96,11 @@ public abstract class HttpUtil {
     private static Response handleRedirect(@NonNull final OkHttpClient client, final Response tempResponse, @NonNull final Request request, @NonNull final Integer maxRedirect) {
         if (Objects.nonNull(tempResponse) && HttpStatusClass.REDIRECTION.contains(tempResponse.code()) && maxRedirect > 0) {
             final String redirectedUrl = tempResponse.header(HttpHeaderNames.LOCATION.toString());
-            log.info("handle redirection with url: {}", redirectedUrl);
+            log.info("handleRedirect, redirectedUrl: {}", redirectedUrl);
             if (Objects.nonNull(redirectedUrl)) {
                 final Request newReq = request.newBuilder().url(redirectedUrl).build();
                 final Response newResp = Try.of(() -> client.newCall(newReq).execute())
-                    .onFailure(t -> log.error("failed to execute redirected url: {} ", redirectedUrl, t))
+                    .onFailure(t -> log.error("handleRedirect failed, redirectedUrl: {} ", redirectedUrl, t))
                     .getOrElse(new Response.Builder().protocol(Protocol.HTTP_1_0).request(request).code(HttpURLConnection.HTTP_INTERNAL_ERROR).message(String.format("failed to execute request with redirectUrl: %s", redirectedUrl)).build());
                 return handleRedirect(client, newResp, newReq, maxRedirect - 1);
             }
@@ -123,15 +123,15 @@ public abstract class HttpUtil {
     }
 
     public static <T> T sendRequest(@NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
-        log.info("sendRequest url: {}", request.url());
+        log.info("sendRequest, request: {}", request);
         return Try.of(() -> trustAllSslClient.newCall(request).execute())
             .mapTry(response -> handleRedirect(trustAllSslClient, response, request, 5))
             .filter(Objects::nonNull)
             .andThenTry(response -> {
                 if (response.isSuccessful()) {
-                    log.info("request: {} succeeded with response code: {}, body: {}", request, response.code(), peekResponse(response));
+                    log.info("sendRequest succeeded, request: {}, response code: {}, body: {}", request, response.code(), peekResponse(response));
                 } else {
-                    log.warn("request: {} failed with response code: {}, body: {}", request, response.code(), peekResponse(response));
+                    log.warn("sendRequest failed, request: {}, response code: {}, body: {}", request, response.code(), peekResponse(response));
                 }
             })
             .flatMapTry(createHandler(handler))
@@ -139,7 +139,7 @@ public abstract class HttpUtil {
                     if (ex.isInstance(throwable)) {
                         throw new RuntimeException(throwable);
                     } else {
-                        log.error("error while sending request: {}", request, throwable);
+                        log.error("sendRequest failed, request: {}, with exception", request, throwable);
                     }
                 }
             ))
@@ -154,6 +154,7 @@ public abstract class HttpUtil {
      * send a single HttpRequest and return a handled response. If you would like to reuse HttpClient, then you should create and maintain HttpClient in your own context.
      */
     public static <T> T sendRequest(HttpRequest request, HttpResponse.BodyHandler<T> responseBodyHandler) {
+        log.info("sendRequest, request: {}", request);
         if (Objects.nonNull(request) && Objects.nonNull(responseBodyHandler)) {
             try (final HttpClient client = HttpClient
                 .newBuilder()
@@ -164,7 +165,7 @@ public abstract class HttpUtil {
                 final HttpResponse<T> resp = client.send(request, responseBodyHandler);
                 return resp.body();
             } catch (Exception e) {
-                log.error("failed to sendRequest", e);
+                log.error("sendRequest failed, request: {}, with exception", request, e);
             }
         }
         return null;

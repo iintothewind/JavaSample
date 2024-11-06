@@ -16,13 +16,17 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.SneakyThrows;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
-import okhttp3.MediaType;
 import okhttp3.Request;
-import okhttp3.RequestBody;
 import org.junit.Test;
 
 @Slf4j
@@ -79,7 +83,7 @@ public class HttpClientTest {
 
     @Test
     @SneakyThrows
-    public void testDownload() {
+    public void testDownload01() {
         final File f = new File("C:\\Users\\ivar\\code\\JavaSample\\target");
         final byte[] bytes = download("https://s3.us-west-1.wasabisys.com/echobase-photos/ulala/ULALA/e6de6a16-9535-43e8-9b26-401418d8809b.pdf");
         System.out.println(new String(bytes));
