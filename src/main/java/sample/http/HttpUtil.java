@@ -123,10 +123,10 @@ public abstract class HttpUtil {
         return Try.of(() -> response.peekBody(Long.MAX_VALUE).string()).getOrElse("");
     }
 
-    public static <T> T sendRequest(@NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
+    public static <T> T sendRequest(@NonNull final OkHttpClient client, @NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
         log.info("sendRequest, request: {}", request);
-        return Try.of(() -> trustAllSslClient.newCall(request).execute())
-            .mapTry(response -> handleRedirect(trustAllSslClient, response, request, 5))
+        return Try.of(() -> client.newCall(request).execute())
+            .mapTry(response -> handleRedirect(client, response, request, 5))
             .filter(Objects::nonNull)
             .andThenTry(response -> {
                 final String respContentType = response.header("Content-Type");
@@ -149,8 +149,16 @@ public abstract class HttpUtil {
             .getOrNull();
     }
 
+    public static <T> T sendRequest(@NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
+        return sendRequest(trustAllSslClient, request, handler, exceptions);
+    }
+
+    public static boolean executeRequest(@NonNull final OkHttpClient client, @NonNull final Request request, final Class<?>... exceptions) {
+        return Optional.ofNullable(sendRequest(client, request, Response::isSuccessful, exceptions)).orElse(false);
+    }
+
     public static boolean executeRequest(@NonNull final Request request, final Class<?>... exceptions) {
-        return Optional.ofNullable(sendRequest(request, Response::isSuccessful, exceptions)).orElse(false);
+        return Optional.ofNullable(sendRequest(trustAllSslClient, request, Response::isSuccessful, exceptions)).orElse(false);
     }
 
     /**
