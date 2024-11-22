@@ -29,6 +29,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
+import org.apache.commons.lang3.StringUtils;
 
 
 @Slf4j
@@ -75,7 +76,7 @@ public abstract class HttpUtil {
 
     private static final SSLSocketFactory trustAllSslSocketFactory = trustAllSslContext.getSocketFactory();
 
-    public static final OkHttpClient trustAllSslClient = buildTrustAllSslClient(30L, 15L, 15L);
+    public static final OkHttpClient trustAllSslClient = buildTrustAllSslClient(60L, 120L, 120L);
 
     public static SSLContext getSslContext() {
         return trustAllSslContext;
@@ -128,10 +129,12 @@ public abstract class HttpUtil {
             .mapTry(response -> handleRedirect(trustAllSslClient, response, request, 5))
             .filter(Objects::nonNull)
             .andThenTry(response -> {
+                final String respContentType = response.header("Content-Type");
+                final boolean isTextResp = StringUtils.containsIgnoreCase(respContentType, "text") || StringUtils.containsIgnoreCase(respContentType, "json");
                 if (response.isSuccessful()) {
-                    log.info("sendRequest succeeded, request: {}, response code: {}, body: {}", request, response.code(), peekResponse(response));
+                    log.info("sendRequest succeeded, request: {}, response code: {}, body: {}", request, response.code(), isTextResp ? peekResponse(response) : String.format("non-text response body, content-type: %s", respContentType));
                 } else {
-                    log.warn("sendRequest failed, request: {}, response code: {}, body: {}", request, response.code(), peekResponse(response));
+                    log.warn("sendRequest failed, request: {}, response code: {}, body: {}", request, response.code(), isTextResp ? peekResponse(response) : String.format("non-text response body, content-type: %s", respContentType));
                 }
             })
             .flatMapTry(createHandler(handler))

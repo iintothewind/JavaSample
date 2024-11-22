@@ -19,6 +19,7 @@ import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -164,11 +165,11 @@ public class StringSample {
     }
 
     public static Duration getRemainingDay() {
-        return Duration.between(LocalDateTime.now(),LocalDateTime.now().withHour(23).withMinute(59).withSecond(59));
+        return Duration.between(LocalDateTime.now(), LocalDateTime.now().withHour(23).withMinute(59).withSecond(59));
     }
 
     public static Duration getRemainingMinute() {
-        return Duration.between(LocalDateTime.now(),LocalDateTime.now().withSecond(59));
+        return Duration.between(LocalDateTime.now(), LocalDateTime.now().withSecond(59));
     }
 
     @Test
@@ -180,8 +181,13 @@ public class StringSample {
 
         final String s = String.join(":", ImmutableList.of("1", "2", "3", "4"));
         System.out.println(s);
+    }
 
-
+    @Test
+    public void testUniq01() {
+        final List<String> ltianFsas = List.of();
+        final Set<String> uniqFsas = ltianFsas.stream().collect(Collectors.toSet());
+        log.info("lstSize: {}, uniqSize: {}", ltianFsas.size(), uniqFsas.size());
     }
 
 

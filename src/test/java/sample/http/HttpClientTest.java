@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Files;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import io.vavr.control.Try;
 import java.io.File;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -16,8 +17,8 @@ import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -27,6 +28,9 @@ import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Request;
+import okhttp3.Request.Builder;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.junit.Test;
 
 @Slf4j
@@ -123,6 +127,22 @@ public class HttpClientTest {
             .get()
             .build();
         HttpUtil.sendRequest(request, resp -> HttpUtil.peekResponse(resp), UnknownHostException.class, SocketTimeoutException.class);
+    }
+
+    public static byte[] downloadUrl(final String url) {
+        final byte[] bytes = HttpUtil.sendRequest(new Builder().url(url).get().build(), resp -> Try
+            .success(resp)
+            .filter(r -> Objects.nonNull(r) && r.isSuccessful())
+            .map(Response::body)
+            .mapTry(ResponseBody::bytes)
+            .getOrNull());
+        return bytes;
+    }
+
+    @Test
+    public void testGet03() {
+        final byte[] bytes = downloadUrl("https://shipease.oss-cn-hangzhou.aliyuncs.com/pdfs/2024-11-21/MSK41102248.pdf");
+        System.out.println(bytes.length);
     }
 
 }
