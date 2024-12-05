@@ -24,6 +24,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.Test;
 import sample.csv.bean.ManifestBrief;
 import sample.http.JsonUtil;
@@ -190,5 +191,13 @@ public class StringSample {
         log.info("lstSize: {}, uniqSize: {}", ltianFsas.size(), uniqFsas.size());
     }
 
+    @Test
+    public void testCheckPOBox01() {
+        final Pattern pxPattern = Pattern.compile("p[.,。\\s]*[0o][#@&/.,。\\s]*b[0o]x");
+        final Pattern boxPattern = Pattern.compile("b[0o]x#*\\d+");
+        final List<String> poboxes = ImmutableList.of("pobox", "p0box", "pob0x", "p0b0x", "po.box", "p0.box", "po.b0x", "p0.b0x", "po。box", "p0。box", "po。b0x", "p0。b0x", "po/box", "p0/box", "po/b0x", "p0/b0x", "pobox", "p0box", "pob0x", "p0b0x", "po&box", "p0&box", "po&b0x", "p0&b0x", "po@box", "p0@box", "po@b0x", "p0@b0x", "po#box", "p0#box", "po#b0x", "p0#b0x", "p.obox", "p.0box", "p.ob0x", "p.0b0x", "p,obox", "p,0b0x", "p,ob0x", "p,0b0x", "p。obox", "p。0box", "p。ob0x", "p。0b0x", "p.o.box", "p.0.box", "p.o.b0x", "p.0.b0x", "p,o.box", "p,0.box", "p,o.b0x", "p,0.b0x", "p.o,box", "p.0,box", "p.o,b0x", "p.0,b0x", "p,o,box", "p,0.box", "p,o,b0x", "p,0,b0x", "p。o.box", "p。0.box", "p。o.b0x", "p。0.b0x", "p.o。box", "p.0。box", "p.o。b0x", "p.0。b0x", "p。o。box", "p。0.box", "p。o。b0x", "p。0。b0x", "box1", "b0x2", "box#3", "b0x#4");
+        final boolean result = poboxes.stream().map(s -> String.format("%s %s %s", "prefix", s, "suffix")).allMatch(s -> pxPattern.matcher(s).find() || boxPattern.matcher(s).find());
+        Assertions.assertThat(result).isTrue();
+    }
 
 }

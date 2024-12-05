@@ -2,7 +2,6 @@ package sample.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.io.Files;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vavr.control.Try;
@@ -14,6 +13,7 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Objects;
@@ -91,7 +91,6 @@ public class HttpClientTest {
         final File f = new File("C:\\Users\\ivar\\code\\JavaSample\\target");
         final byte[] bytes = download("https://s3.us-west-1.wasabisys.com/echobase-photos/ulala/ULALA/e6de6a16-9535-43e8-9b26-401418d8809b.pdf");
         System.out.println(new String(bytes));
-        Files.write(bytes, new File(f, "test.pdf"));
     }
 
     @Test
@@ -143,6 +142,21 @@ public class HttpClientTest {
     public void testGet03() {
         final byte[] bytes = downloadUrl("https://shipease.oss-cn-hangzhou.aliyuncs.com/pdfs/2024-11-21/MSK41102248.pdf");
         System.out.println(bytes.length);
+    }
+
+    @Test
+    public void testCompare01() {
+        final double d = 0.0d;
+        System.out.println(d <= 0d);
+    }
+
+    @Test
+    @SneakyThrows
+    public void testLoadPod() {
+        final byte[] bytes = Files.readAllBytes(ResourceUtil.loadResource("classpath:ul88083.jpg").getFile().toPath());
+        final String base64Content = Base64.getEncoder().encodeToString(bytes);
+        System.out.println(base64Content);
+
     }
 
 }
