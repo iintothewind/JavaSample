@@ -12,7 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import sample.model.GhOptimizeResp.RateLimit;
 
 @Slf4j
 public class RateLimitTest {
