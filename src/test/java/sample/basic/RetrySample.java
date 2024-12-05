@@ -1,5 +1,7 @@
 package sample.basic;
 
+import static io.vavr.API.$;
+
 import com.nurkiewicz.asyncretry.AsyncRetryExecutor;
 import com.nurkiewicz.asyncretry.RetryExecutor;
 import io.github.resilience4j.core.functions.CheckedFunction;
@@ -7,16 +9,8 @@ import io.github.resilience4j.core.functions.CheckedSupplier;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
 import io.vavr.API;
-import io.vavr.CheckedFunction0;
-import io.vavr.CheckedFunction1;
 import io.vavr.Predicates;
 import io.vavr.control.Try;
-import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.Duration;
 import java.util.Optional;
 import java.util.concurrent.Executors;
@@ -24,8 +18,11 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
-
-import static io.vavr.API.$;
+import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 @Slf4j
 public class RetrySample {
