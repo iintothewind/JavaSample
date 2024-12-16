@@ -5,15 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import io.vavr.concurrent.Future;
 import io.vavr.control.Try;
-import java.util.stream.IntStream;
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.assertj.core.api.Assertions;
-import org.assertj.core.data.Offset;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -33,6 +24,14 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.assertj.core.api.Assertions;
+import org.assertj.core.data.Offset;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 @Slf4j
 public class CompletableFutureSample {
