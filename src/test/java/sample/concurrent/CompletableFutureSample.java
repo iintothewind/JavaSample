@@ -48,7 +48,7 @@ public class CompletableFutureSample {
     }
 
     @After
-    public void tearDown() throws InterruptedException {
+    public void tearDown() {
         Optional.ofNullable(pool).ifPresent((p) -> Try.of(() -> p.awaitTermination(5, TimeUnit.SECONDS)));
     }
 
@@ -190,19 +190,16 @@ public class CompletableFutureSample {
 
     @Test
     public void testThenAcceptBoth() {
+        // consume (A, B) in BiConsumer after both A and B completed
         CompletableFuture.supplyAsync(() -> ImmutableMap.of("name", "Sid"), this.pool)
-            .thenAcceptBoth(CompletableFuture.supplyAsync(() -> "name"), (map, key) -> Assertions.assertThat(map.get(key)).isEqualTo("Sids"))
-            .handle((v, e) -> {
-                if (Objects.nonNull(e)) {
-                    System.out.println(e.getMessage());
-                }
-                return v;
-            });
+            .thenAcceptBoth(CompletableFuture.supplyAsync(() -> "name"),
+                (map, key) -> Assertions.assertThat(map.get(key)).isEqualTo("Sid"));
     }
 
     @Test
     public void testAcceptEither() {
-        Random random = new Random();
+        // accept the first completed task then consume it
+        final ThreadLocalRandom random = ThreadLocalRandom.current();
         CompletableFuture.supplyAsync(() -> {
             try {
                 TimeUnit.MILLISECONDS.sleep(random.nextInt(100));
@@ -217,11 +214,12 @@ public class CompletableFutureSample {
                 Throwables.throwIfUnchecked(e);
             }
             return "Re";
-        }), System.out::println);
+        }, this.pool), System.out::println);
     }
 
     @Test
     public void testApplyToEither() throws ExecutionException, InterruptedException {
+        // accept the first completed task then apply its result in a function
         CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
             try {
                 TimeUnit.MILLISECONDS.sleep(ThreadLocalRandom.current().nextInt(100));
@@ -254,6 +252,7 @@ public class CompletableFutureSample {
 
     @Test
     public void testAllOf() {
+        // wait for all completableFutures to be completed
         CompletableFuture.allOf(this.sing("Do"), this.sing("Re"), this.sing("Mi")).join();
     }
 
