@@ -364,7 +364,7 @@ public class CompletableFutureSample {
 
     public static <T> CompletableFuture<T> retry(@NonNull final CompletableFuture<T> task, @NonNull final Integer retries, @NonNull final Duration duration) {
         return task.handle((result, ex) -> {
-            if (ex == null) {
+            if (Objects.isNull(ex)) {
                 return CompletableFuture.completedFuture(result);
             }
             if (retries > 0) {
