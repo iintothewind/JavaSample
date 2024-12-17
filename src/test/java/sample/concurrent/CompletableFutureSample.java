@@ -22,6 +22,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -283,6 +284,15 @@ public class CompletableFutureSample {
         System.out.println("ForkJoinPool.getCommonPoolParallelism() == " + ForkJoinPool.getCommonPoolParallelism());
     }
 
+    static <T> CompletableFuture<T> within(CompletableFuture<T> completableFuture, Duration duration) {
+        Objects.requireNonNull(completableFuture, "completableFuture is required");
+        Objects.requireNonNull(duration, "duration is required");
+        final CompletableFuture<T> promiseFailed = CompletableFuture.supplyAsync(() -> {
+            throw new RuntimeException(new TimeoutException("timeout for future task execution"));
+        }, CompletableFuture.delayedExecutor(TimeUnit.MILLISECONDS.convert(duration), TimeUnit.MILLISECONDS));
+        return completableFuture.applyToEither(promiseFailed, Function.identity());
+    }
+
     @Test
     public void testCancellableFuture() {
         final CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
@@ -294,8 +304,8 @@ public class CompletableFutureSample {
             return "this is a message";
         }, this.pool);
 
-        final CompletableFuture<String> cancellable1 = TimeoutSupportFuture.within(future, Duration.ofMillis(50));
-        final CompletableFuture<String> cancellable2 = TimeoutSupportFuture.within(future, Duration.ofMillis(200));
+        final CompletableFuture<String> cancellable1 = within(future, Duration.ofMillis(50));
+        final CompletableFuture<String> cancellable2 = within(future, Duration.ofMillis(200));
         cancellable1.whenComplete((s, throwable) -> {
             if (s != null) {
                 log.info("cancellable1: {}", s);
