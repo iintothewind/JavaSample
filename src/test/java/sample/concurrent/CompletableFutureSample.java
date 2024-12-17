@@ -16,6 +16,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,8 +25,10 @@ import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -288,7 +291,7 @@ public class CompletableFutureSample {
         Objects.requireNonNull(completableFuture, "completableFuture is required");
         Objects.requireNonNull(duration, "duration is required");
         final CompletableFuture<T> promiseFailed = CompletableFuture.supplyAsync(() -> {
-            throw new RuntimeException(new TimeoutException("timeout for future task execution"));
+            throw new CompletionException(new TimeoutException("timeout for future task execution"));
         }, CompletableFuture.delayedExecutor(TimeUnit.MILLISECONDS.convert(duration), TimeUnit.MILLISECONDS));
         return completableFuture.applyToEither(promiseFailed, Function.identity());
     }
@@ -327,7 +330,7 @@ public class CompletableFutureSample {
         return CompletableFuture.supplyAsync(() -> {
             log.info("execute {} start", i);
             if (i > 5) {
-                throw new IllegalArgumentException(String.format("%s is not acceptable", i));
+                throw new CompletionException(new IllegalArgumentException(String.format("%s is not acceptable", i)));
             }
             Try.run(() -> TimeUnit.SECONDS.sleep(1L));
             return i * 2;
@@ -356,6 +359,30 @@ public class CompletableFutureSample {
         );
 
         final String result = String.valueOf(reduced.getOrElse(-1));
+        log.info("result: {}", result);
+    }
+
+    public static <T> CompletableFuture<T> retry(@NonNull final CompletableFuture<T> task, @NonNull final Integer retries, @NonNull final Duration duration) {
+        return task.handle((result, ex) -> {
+            if (ex == null) {
+                return CompletableFuture.completedFuture(result);
+            }
+            if (retries > 0) {
+                return CompletableFuture
+                    .supplyAsync(() -> null, CompletableFuture.delayedExecutor(TimeUnit.MILLISECONDS.convert(duration), TimeUnit.MILLISECONDS))
+                    .thenCompose(ignored -> retry(task, retries - 1, duration));
+            } else {
+                throw new CompletionException("out of retries", ex);
+            }
+        }).thenCompose(Function.identity());
+    }
+
+    @Test
+    public void testRetry01() {
+        final CompletableFuture<Integer> future = retry(CompletableFuture.supplyAsync(() -> {
+            throw new RuntimeException("error");
+        }), 5, Duration.ofSeconds(1));
+        final Integer result = Future.fromCompletableFuture(future).getOrElse(-1);
         log.info("result: {}", result);
     }
 
