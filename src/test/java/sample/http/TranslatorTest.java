@@ -21,6 +21,7 @@ public class TranslatorTest {
   @Test
   public void testTrans() {
     final String trn = Translator.translate(Translator.Language.Automatic.getCode(), Translator.Language.ChineseSimplified.getCode(), "This is a test.");
+    log.info("trn: {}", trn);
   }
 
   @Test
