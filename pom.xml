@@ -18,6 +18,7 @@
         <jdbi.version>3.44.1</jdbi.version>
         <auto-value.version>1.11.0</auto-value.version>
         <auto-service.version>1.1.1</auto-service.version>
+        <auto-common.version>1.2.2</auto-common.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <argLine>-Dfile.encoding=UTF-8</argLine>
@@ -238,7 +239,12 @@
             <groupId>com.google.auto.service</groupId>
             <artifactId>auto-service</artifactId>
             <version>${auto-service.version}</version>
-            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.auto</groupId>
+            <artifactId>auto-common</artifactId>
+            <version>${auto-common.version}</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>io.seruco.encoding</groupId>

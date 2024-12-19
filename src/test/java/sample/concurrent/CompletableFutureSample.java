@@ -112,7 +112,7 @@ public class CompletableFutureSample {
     public void testRunAsync() {
         CompletableFuture.runAsync(() -> System.getenv()
                 .entrySet().stream().filter(entry -> "Path".equalsIgnoreCase(entry.getKey()))
-                .collect(Collectors.toList())
+                .toList()
                 .forEach(entry -> System.out.println(String.format("%s = %s", entry.getKey(), entry.getValue()))), this.pool)
             .thenRun(() -> System.out.println("Done"));
     }
@@ -380,7 +380,7 @@ public class CompletableFutureSample {
     public void testRetry01() {
         final CompletableFuture<Integer> future = retry(CompletableFuture.supplyAsync(() -> {
             throw new RuntimeException("error");
-        }), 5, Duration.ofSeconds(1));
+        }), 5, Duration.ofMillis(100));
         final Integer result = Future.fromCompletableFuture(future).getOrElse(-1);
         log.info("result: {}", result);
     }

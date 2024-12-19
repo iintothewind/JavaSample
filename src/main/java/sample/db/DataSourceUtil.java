@@ -16,8 +16,8 @@ public class DataSourceUtil {
     public DataSourceUtil(final String url, final String userName, final String password) {
         dataSource = Try.of(() -> {
                     final HikariDataSource hikari = new HikariDataSource();
-                    hikari.setJdbcUrl(Optional.ofNullable(url).orElse("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;MODE=POSTGRESQL"));
-                    hikari.setUsername(Optional.ofNullable(userName).orElse("postgres"));
+                    hikari.setJdbcUrl(Optional.ofNullable(url).orElse("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;DB_CLOSE_ON_EXIT=FALSE;MODE=MYSQL"));
+                    hikari.setUsername(Optional.ofNullable(userName).orElse("admin"));
                     hikari.setPassword(Optional.ofNullable(password).orElse("admin"));
                     hikari.setMaximumPoolSize(5);
                     return hikari;
