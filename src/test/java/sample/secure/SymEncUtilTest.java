@@ -73,16 +73,6 @@ public class SymEncUtilTest {
         Assertions.assertThat(deced).isEmpty();
     }
 
-    public enum SignatureType {
-        BASIC,
-        ADULT
-    }
-
-    @Test
-    public void testEnumLoad() {
-        SignatureType.valueOf("test");
-    }
-
     @Test
     public void testGetAvailableZoneIds() {
         Set<String> zoneIds = ZoneId.getAvailableZoneIds();
