@@ -129,6 +129,6 @@ public class StateMachineTest {
     public void testOrder02() {
         final Order order = Order.builder().id(1).build();
         final Order updatedOrder = order.updateStatus(Status.TEST);
-        Assertions.assertThat(updatedOrder).isNull();
+        Assertions.assertThat(updatedOrder).isEqualTo(order);
     }
 }
