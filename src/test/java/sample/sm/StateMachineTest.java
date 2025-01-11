@@ -18,9 +18,9 @@ public class StateMachineTest {
             .withTransition(null, Status.TO_DO, o -> Objects.isNull(o.getStatus()), o -> o.withStatus(Status.TO_DO))
             .build();
 
-        final boolean result = sm.testTransition(null, Status.CREATED, null);
+        final boolean result = sm.test(null, Status.CREATED, null);
         Assertions.assertThat(result).isFalse();
-        final Order updatedOrder = sm.mkTransition(null, Status.TO_DO, Order.builder().id(1).build());
+        final Order updatedOrder = sm.change(null, Status.TO_DO, Order.builder().id(1).build());
         Assertions.assertThat(updatedOrder.getStatus()).isEqualTo(Status.TO_DO);
     }
 
@@ -31,7 +31,7 @@ public class StateMachineTest {
             .withTransition(null, Status.TO_DO, o -> Objects.isNull(o.getStatus()), o -> o.withStatus(Status.TO_DO))
             .build();
 
-        final boolean result = sm.testTransition(null, Status.CREATED, null);
+        final boolean result = sm.test(null, Status.CREATED, null);
         Assertions.assertThat(result).isFalse();
     }
 
@@ -42,7 +42,7 @@ public class StateMachineTest {
             .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
             .build();
 
-        final boolean result = sm.testTransition(Status.CREATED, Status.CREATED, null);
+        final boolean result = sm.test(Status.CREATED, Status.CREATED, null);
         Assertions.assertThat(result).isFalse();
     }
 
@@ -54,7 +54,7 @@ public class StateMachineTest {
             .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
             .build();
 
-        final boolean result = sm.testTransition(Status.CREATED, Status.TO_DO, Order.builder().status(Status.CREATED).build());
+        final boolean result = sm.test(Status.CREATED, Status.TO_DO, Order.builder().status(Status.CREATED).build());
         Assertions.assertThat(result).isTrue();
     }
 
@@ -68,11 +68,11 @@ public class StateMachineTest {
                 o -> o.withStatus(Status.TO_DO))
             .build();
 
-        final boolean result1 = sm.testTransition(Status.CREATED, Status.TO_DO, Order.builder().status(Status.CREATED).build());
+        final boolean result1 = sm.test(Status.CREATED, Status.TO_DO, Order.builder().status(Status.CREATED).build());
         Assertions.assertThat(result1).isTrue();
-        final boolean result2 = sm.testTransition(Status.TEST, Status.TO_DO, Order.builder().status(Status.CREATED).id(1).build());
+        final boolean result2 = sm.test(Status.TEST, Status.TO_DO, Order.builder().status(Status.CREATED).id(1).build());
         Assertions.assertThat(result2).isFalse();
-        final boolean result3 = sm.testTransition(Status.IN_PROGRESS, Status.TO_DO, Order.builder().id(1).status(Status.CREATED).build());
+        final boolean result3 = sm.test(Status.IN_PROGRESS, Status.TO_DO, Order.builder().id(1).status(Status.CREATED).build());
         Assertions.assertThat(result3).isFalse();
     }
 

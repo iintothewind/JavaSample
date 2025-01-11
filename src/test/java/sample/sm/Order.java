@@ -41,7 +41,7 @@ public class Order {
         .build();
 
     public Order updateStatus(Status toStatus) {
-        final Order updatedOrder = Optional.ofNullable(sm.mkTransition(getStatus(), toStatus, this)).orElse(this);
+        final Order updatedOrder = Optional.ofNullable(sm.change(getStatus(), toStatus, this)).orElse(this);
         return updatedOrder;
     }
 }

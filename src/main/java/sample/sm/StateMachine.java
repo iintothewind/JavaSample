@@ -22,7 +22,7 @@ public class StateMachine<TState, TContext, TResult> {
      * @param context input context
      * @return true if state transition is allowed based on input context, false if state transition is allowed based on input context
      */
-    public boolean testTransition(final TState fromState, final TState toState, final TContext context) {
+    public boolean test(final TState fromState, final TState toState, final TContext context) {
         final boolean isAllowed = Optional
             .ofNullable(transitions)
             .orElse(List.of())
@@ -40,7 +40,7 @@ public class StateMachine<TState, TContext, TResult> {
      * @param context input context
      * @return converted result by given function of matched transition if transition is allowed, or null if transition is not allowed
      */
-    public TResult mkTransition(final TState fromState, final TState toState, final TContext context) {
+    public TResult change(final TState fromState, final TState toState, final TContext context) {
         final TResult result = Optional.ofNullable(transitions).orElse(List.of())
             .stream()
             .filter(t -> Objects.equals(t.getFromState(), fromState) && Objects.equals(t.getToState(), toState))
