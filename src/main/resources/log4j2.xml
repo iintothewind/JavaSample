@@ -3,11 +3,20 @@
   <appenders>
     <Console name="Console" target="SYSTEM_OUT">
       <PatternLayout pattern="%d{yyyy.MM.dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+      <Filters>
+        <RegexFilter regex=".*(HADOOP_HOME|hadoop|sql03).*" onMatch="DENY" onMismatch="NEUTRAL"/>
+      </Filters>
     </Console>
   </appenders>
   <loggers>
-    <root level="trace">
+    <root level="info">
       <appender-ref ref="Console"/>
     </root>
+    <logger name="org.apache.spark" level="warn">
+      <appender-ref ref="Console"/>
+    </logger>
+    <logger name="org.sparkproject" level="warn">
+      <appender-ref ref="Console"/>
+    </logger>
   </loggers>
 </configuration>

@@ -339,16 +339,6 @@
                             <artifactId>lombok</artifactId>
                             <version>${lombok.version}</version>
                         </path>
-<!--                        <path>-->
-<!--                            <groupId>com.google.auto.value</groupId>-->
-<!--                            <artifactId>auto-value</artifactId>-->
-<!--                            <version>${auto-value.version}</version>-->
-<!--                        </path>-->
-                        <path>
-                            <groupId>com.google.auto.service</groupId>
-                            <artifactId>auto-service</artifactId>
-                            <version>${auto-service.version}</version>
-                        </path>
                     </annotationProcessorPaths>
                 </configuration>
             </plugin>
