@@ -62,7 +62,7 @@ public class JobTest {
     }
 
 
-    public RoutePlanJob submitRoutePlanJob(@NonNull final Integer planId, @NonNull final Integer actionUser, @NonNull final GhOptimizeReq body) {
+    public RoutePlanJob submitRoutePlanJob(@NonNull final Long planId, @NonNull final Long actionUser, @NonNull final GhOptimizeReq body) {
         log.info("submitRoutePlanJob, planId: {}, actionUser: {}, body: {}", planId, actionUser, body);
         final RoutePlanJob job = Jdbi.create(dataSource).inTransaction(handle -> insert(handle, RoutePlanJob.builder()
             .jobType(GhOptimizeReq.isRouteOptimizeReq(body) ? RoutePlanJob.JOB_TYPE_ROUTE : RoutePlanJob.JOB_TYPE_CLUSTER)
@@ -90,7 +90,7 @@ public class JobTest {
         final Order order9 = Order.builder().id(1820099122071953410L).trackNumber("UL8358430208").lat(49.2970809937).lng(-122.7877731323).build();
 
         final List<Order> orders = List.of(order1, order2, order3, order4, order5, order6, order7, order8, order9);
-        submitRoutePlanJob(1, 1, GhOptimizeReq.mkRouteOptReqBody("route001", orders));
+        submitRoutePlanJob(1L, 1L, GhOptimizeReq.mkRouteOptReqBody("route001", orders));
     }
 
 
@@ -107,7 +107,7 @@ public class JobTest {
         final Order order9 = Order.builder().id(1820099122071953410L).trackNumber("UL8358430208").lat(49.2970809937).lng(-122.7877731323).build();
 
         final List<Order> orders = List.of(order1, order2, order3, order4, order5, order6, order7, order8, order9);
-        submitRoutePlanJob(1, 1, GhOptimizeReq.mkClusterReqBody(Map.of("route001", 4, "route002", 5), orders));
+        submitRoutePlanJob(1L, 1L, GhOptimizeReq.mkClusterReqBody(Map.of("route001", 4, "route002", 5), orders));
     }
 
     public static List<Order> findByIds(@NonNull final Handle handle, List<Long> orderIds) {

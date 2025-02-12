@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import lombok.extern.slf4j.Slf4j;
@@ -198,6 +199,18 @@ public class StringSample {
         final List<String> poboxes = ImmutableList.of("pobox", "p0box", "pob0x", "p0b0x", "po.box", "p0.box", "po.b0x", "p0.b0x", "po。box", "p0。box", "po。b0x", "p0。b0x", "po/box", "p0/box", "po/b0x", "p0/b0x", "pobox", "p0box", "pob0x", "p0b0x", "po&box", "p0&box", "po&b0x", "p0&b0x", "po@box", "p0@box", "po@b0x", "p0@b0x", "po#box", "p0#box", "po#b0x", "p0#b0x", "p.obox", "p.0box", "p.ob0x", "p.0b0x", "p,obox", "p,0b0x", "p,ob0x", "p,0b0x", "p。obox", "p。0box", "p。ob0x", "p。0b0x", "p.o.box", "p.0.box", "p.o.b0x", "p.0.b0x", "p,o.box", "p,0.box", "p,o.b0x", "p,0.b0x", "p.o,box", "p.0,box", "p.o,b0x", "p.0,b0x", "p,o,box", "p,0.box", "p,o,b0x", "p,0,b0x", "p。o.box", "p。0.box", "p。o.b0x", "p。0.b0x", "p.o。box", "p.0。box", "p.o。b0x", "p.0。b0x", "p。o。box", "p。0.box", "p。o。b0x", "p。0。b0x", "box1", "b0x2", "box#3", "b0x#4");
         final boolean result = poboxes.stream().map(s -> String.format("%s %s %s", "prefix", s, "suffix")).allMatch(s -> pxPattern.matcher(s).find() || boxPattern.matcher(s).find());
         Assertions.assertThat(result).isTrue();
+    }
+
+    @Test
+    public void testRegexGroup01() {
+        final Pattern p = Pattern.compile("^\\[([0-9,]*)]$");
+        final String input = "[1,33,34,35,580,716,481,1332,1347,1349,1351,1369,1462,1504,1506]";
+        final Matcher matcher = p.matcher(input);
+
+        if (matcher.find()) {
+            final String subString = matcher.group(1);
+            System.out.println(subString);
+        }
     }
 
 }

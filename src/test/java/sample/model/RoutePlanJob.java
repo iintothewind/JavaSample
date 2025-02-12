@@ -22,8 +22,8 @@ import lombok.With;
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class RoutePlanJob {
 
-    public final static Integer inProgressJobLimit = 5;
-    public final static Integer attemptLimit = 5;
+    public final static Integer attemptLimit = 10;
+    public final static Integer retryDelaySeconds = 180;
 
     public final static String JOB_TYPE_ROUTE = "route";
     public final static String JOB_TYPE_CLUSTER = "cluster";
@@ -45,21 +45,26 @@ public class RoutePlanJob {
     private String jobType = JOB_TYPE_ROUTE;
 
     @EqualsAndHashCode.Include
-    private Integer planId;
+    private Long planId;
 
     @EqualsAndHashCode.Include
     private String jobId;
+
+    @EqualsAndHashCode.Include
+    private String routeId;
 
     private String request;
 
     private String response;
 
-    private Integer actionUser;
+    private Long actionUser;
 
     private String status;
 
     @Builder.Default
     private Integer attempts = 0;
+
+    private LocalDateTime attemptTime;
 
     private LocalDateTime requestTime;
 
@@ -69,15 +74,13 @@ public class RoutePlanJob {
     private LocalDateTime createTime = LocalDateTime.now();
 
     public String parseStatus(final GhOptimizeResp resp) {
-        if (Objects.nonNull(attempts) && attempts > RoutePlanJob.attemptLimit) {
-            return RoutePlanJob.PLAN_JOB_STATUS_FAILED;
-        }
         if (Objects.nonNull(resp)) {
             final String status = API.Match(resp).of(
-                API.Case(API.$(r -> resp.isSuccessful()), PLAN_JOB_STATUS_OPTIMIZED),
-                API.Case(API.$(r -> resp.isPartiallySuccessful()), PLAN_JOB_STATUS_PARTIALLY_OPTIMIZED),
-                API.Case(API.$(r -> resp.isInProgress()), PLAN_JOB_STATUS_IN_PROGRESS),
-                API.Case(API.$(), this.status));
+                API.Case(API.$(r -> GhOptimizeResp.isSuccessful(resp)), PLAN_JOB_STATUS_OPTIMIZED),
+                API.Case(API.$(r -> GhOptimizeResp.isPartiallySuccessful(resp)), PLAN_JOB_STATUS_PARTIALLY_OPTIMIZED),
+                API.Case(API.$(r -> GhOptimizeResp.isInProgress(resp)), PLAN_JOB_STATUS_IN_PROGRESS),
+                API.Case(API.$(r -> GhOptimizeResp.isFailed(resp)), PLAN_JOB_STATUS_FAILED),
+                API.Case(API.$(), Objects.nonNull(attempts) && attempts >= RoutePlanJob.attemptLimit ? PLAN_JOB_STATUS_FAILED : this.status));
             return status;
         }
         return status;

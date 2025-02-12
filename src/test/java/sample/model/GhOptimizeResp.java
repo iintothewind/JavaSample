@@ -314,39 +314,40 @@ public class GhOptimizeResp {
         private Long reset;
     }
 
-    public boolean isRouteOptResp() {
-        return Objects.equals(STATUS_FINISHED, status) && Objects.nonNull(solution) && Objects.isNull(clusters);
+    public static boolean isRouteOptResp(final GhOptimizeResp resp) {
+        return Objects.nonNull(resp) && Objects.equals(resp.getCode(), 200) && Objects.equals(STATUS_FINISHED, resp.getStatus()) && Objects.nonNull(resp.getSolution()) && Objects.isNull(resp.getClusters());
     }
 
-    public boolean isClusterResp() {
-        return Objects.equals(STATUS_FINISHED, status) && Objects.isNull(solution) && Objects.nonNull(clusters);
+    public static boolean isClusterResp(final GhOptimizeResp resp) {
+        return Objects.nonNull(resp) && Objects.equals(resp.getCode(), 200) && Objects.equals(STATUS_FINISHED, resp.getStatus()) && Objects.isNull(resp.getSolution()) && Objects.nonNull(resp.getClusters());
     }
 
-    public boolean isSuccessful() {
-        if (isRouteOptResp()) {
-            final Integer numOfUnassigned = Optional.ofNullable(solution).map(Solution::getNumOfUnassigned).orElse(0);
+    public static boolean isSuccessful(final GhOptimizeResp resp) {
+        if (isRouteOptResp(resp)) {
+            final Integer numOfUnassigned = Optional.ofNullable(resp).map(GhOptimizeResp::getSolution).map(Solution::getNumOfUnassigned).orElse(0);
             return numOfUnassigned == 0;
         } else {
-            return isClusterResp();
+            return isClusterResp(resp);
         }
     }
 
-    public boolean isPartiallySuccessful() {
-        if (isRouteOptResp()) {
-            final Integer numOfUnassigned = Optional.ofNullable(solution).map(Solution::getNumOfUnassigned).orElse(0);
+    public static boolean isPartiallySuccessful(final GhOptimizeResp resp) {
+        if (isRouteOptResp(resp)) {
+            final Integer numOfUnassigned = Optional.ofNullable(resp).map(GhOptimizeResp::getSolution).map(Solution::getNumOfUnassigned).orElse(0);
             return numOfUnassigned > 0;
         }
         return false;
     }
 
-    public boolean isInProgress() {
-        return (Objects.nonNull(jobId) && Objects.isNull(status) && Objects.isNull(solution) && Objects.isNull(clusters))
-            || STATUS_PROCESSING.equalsIgnoreCase(status)
-            || STATUS_WAITING_IN_QUEUE.equalsIgnoreCase(status);
+    public static boolean isInProgress(final GhOptimizeResp resp) {
+        return Objects.nonNull(resp) && Objects.equals(resp.getCode(), 200) &&
+               ((Objects.nonNull(resp.getJobId()) && Objects.isNull(resp.getStatus()) && Objects.isNull(resp.getSolution()) && Objects.isNull(resp.getClusters()))
+                || STATUS_PROCESSING.equalsIgnoreCase(resp.getStatus())
+                || STATUS_WAITING_IN_QUEUE.equalsIgnoreCase(resp.getStatus()));
     }
 
-    public boolean isFailed() {
-        return !isSuccessful() && !isPartiallySuccessful() && !isInProgress();
+    public static boolean isFailed(final GhOptimizeResp resp) {
+        return Objects.nonNull(resp) && (!Objects.equals(resp.getCode(), 200) || (!isSuccessful(resp) && !isPartiallySuccessful(resp) && !isInProgress(resp)));
     }
 
     public static RateLimit buildRateLimit(final Response r) {
