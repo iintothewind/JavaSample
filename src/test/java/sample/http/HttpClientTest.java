@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vavr.control.Try;
+
 import java.io.File;
 import java.net.SocketTimeoutException;
 import java.net.URI;
@@ -18,12 +19,15 @@ import java.nio.file.Path;
 import java.util.Base64;
 import java.util.Objects;
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.SneakyThrows;
 import lombok.ToString;
+import lombok.With;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
@@ -40,12 +44,12 @@ public class HttpClientTest {
     @Test
     public void testGet() {
         final HttpRequest request = HttpRequest
-            .newBuilder()
-            .uri(URI.create("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/shippingLabel"))
-            .GET()
-            .header("Content-Type", HttpHeaderValues.APPLICATION_JSON.toString())
-            .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))
-            .build();
+                .newBuilder()
+                .uri(URI.create("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/shippingLabel"))
+                .GET()
+                .header("Content-Type", HttpHeaderValues.APPLICATION_JSON.toString())
+                .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))
+                .build();
 
         try (final HttpClient client = HttpClient.newBuilder().build()) {
             final HttpResponse<TrackResponse> resp = client.send(request, JsonUtil.handlerOf(new TypeReference<>() {
@@ -58,10 +62,10 @@ public class HttpClientTest {
         final File parent = new File(parentDir);
         final File file = new File(parent, url.substring(url.lastIndexOf("/") + 1));
         final HttpRequest request = HttpRequest
-            .newBuilder()
-            .uri(URI.create(url))
-            .GET()
-            .build();
+                .newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .build();
         try (final HttpClient client = HttpClient.newBuilder().build()) {
             final HttpResponse<Path> resp = client.send(request, BodyHandlers.ofFile(file.toPath()));
             return resp.body();
@@ -102,13 +106,13 @@ public class HttpClientTest {
     @Test
     public void testGet01() {
         final Request request = new Request.Builder()
-            .url(Objects.requireNonNull(
-                HttpUrl.parse("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/track")))
-            .headers(Headers.of(ImmutableMap.of()))
-            .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
-            .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))
-            .get()
-            .build();
+                .url(Objects.requireNonNull(
+                        HttpUrl.parse("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/track")))
+                .headers(Headers.of(ImmutableMap.of()))
+                .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
+                .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))
+                .get()
+                .build();
 
         final TrackResponse trackResponse = HttpUtil.sendRequest(request, resp -> JsonUtil.load(HttpUtil.peekResponse(resp), new TypeReference<TrackResponse>() {
         }));
@@ -119,22 +123,22 @@ public class HttpClientTest {
     @Test
     public void testGet02() {
         final Request request = new Request.Builder()
-            .url(Objects.requireNonNull(
-                HttpUrl.parse("http://3hlssssssrn.shipper.d.veryk.com1/api?action=service&format=json&id=294&sign=Rp8WT%2FjBegYGWBVfNm9oEDfl%2FvQ%2FAyZD83WmS9Q5T8E%3D&timestamp=1729186925")))
-            .headers(Headers.of(ImmutableMap.of()))
-            .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
-            .get()
-            .build();
+                .url(Objects.requireNonNull(
+                        HttpUrl.parse("http://3hlssssssrn.shipper.d.veryk.com1/api?action=service&format=json&id=294&sign=Rp8WT%2FjBegYGWBVfNm9oEDfl%2FvQ%2FAyZD83WmS9Q5T8E%3D&timestamp=1729186925")))
+                .headers(Headers.of(ImmutableMap.of()))
+                .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
+                .get()
+                .build();
         HttpUtil.sendRequest(request, resp -> HttpUtil.peekResponse(resp), UnknownHostException.class, SocketTimeoutException.class);
     }
 
     public static byte[] downloadUrl(final String url) {
         final byte[] bytes = HttpUtil.sendRequest(new Builder().url(url).get().build(), resp -> Try
-            .success(resp)
-            .filter(r -> Objects.nonNull(r) && r.isSuccessful())
-            .map(Response::body)
-            .mapTry(ResponseBody::bytes)
-            .getOrNull());
+                .success(resp)
+                .filter(r -> Objects.nonNull(r) && r.isSuccessful())
+                .map(Response::body)
+                .mapTry(ResponseBody::bytes)
+                .getOrNull());
         return bytes;
     }
 
@@ -157,6 +161,26 @@ public class HttpClientTest {
         final String base64Content = Base64.getEncoder().encodeToString(bytes);
         System.out.println(base64Content);
 
+    }
+
+    @With
+    @Getter
+    @Setter
+    @lombok.Builder
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+    public static class IpResp {
+        @EqualsAndHashCode.Include
+        private String origin;
+    }
+
+    @Test
+    public void testHandler01() {
+        final JsonUtil.RespWrapper<IpResp> resp = HttpUtil.sendRequest(HttpRequest.newBuilder().uri(URI.create("https://httpbin.org/ips")).GET().build(), JsonUtil.handlerOfWrapper(new TypeReference<JsonUtil.RespWrapper<IpResp>>() {
+        }));
+        System.out.println(resp);
     }
 
 }

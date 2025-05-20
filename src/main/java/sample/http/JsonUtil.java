@@ -8,6 +8,7 @@ import io.vavr.control.Try;
 import java.lang.reflect.Field;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
+import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodySubscribers;
 import java.net.http.HttpResponse.ResponseInfo;
@@ -16,8 +17,17 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.NonNull;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 
 
 @Slf4j
@@ -105,6 +115,48 @@ public class JsonUtil {
                 .orElse(BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), error -> {
                     log.error("JsonUtil.handlerOfString, failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
                     return null;
+                }));
+    }
+
+    @With
+    @Getter
+    @Setter
+    @Builder
+    @ToString
+    @NoArgsConstructor
+    @AllArgsConstructor
+    @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+    public static class RespWrapper<T> {
+        @EqualsAndHashCode.Include
+        private Integer code;
+        @EqualsAndHashCode.Include
+        private String msg;
+        @EqualsAndHashCode.Include
+        private T data;
+
+        public static boolean is2xx(final RespWrapper<?> wrapper) {
+            return Optional.ofNullable(wrapper).filter(w -> w.getCode() >= 200 && w.getCode() < 299).isPresent();
+        }
+
+        public static String extractMsg(final RespWrapper<?> wrapper) {
+            return Optional.ofNullable(wrapper).filter(w -> w.getCode() >= 400).map(RespWrapper::getMsg).orElse(null);
+        }
+
+        public static <T> T extractData(final RespWrapper<T> wrapper) {
+            return Optional.ofNullable(wrapper).filter(w -> w.getCode() >= 200 && w.getCode() < 299).map(RespWrapper::getData).orElse(null);
+        }
+    }
+
+    public static <T> HttpResponse.BodyHandler<RespWrapper<T>> handlerOfWrapper(@NonNull TypeReference<RespWrapper<T>> wrapper) {
+        return responseInfo -> Optional
+                .ofNullable(responseInfo)
+                .filter(r -> r.statusCode() < 299)
+                .map(r -> HttpResponse.BodySubscribers.mapping(HttpResponse.BodySubscribers.ofString(Charset.defaultCharset()),
+                        content -> JsonUtil.load(content, wrapper)))
+                .orElse(HttpResponse.BodySubscribers.mapping(HttpResponse.BodySubscribers.ofString(Charset.defaultCharset()), error -> {
+                    final Integer statusCode = Optional.ofNullable(responseInfo).map(HttpResponse.ResponseInfo::statusCode).orElse(HttpStatus.INTERNAL_SERVER_ERROR.value());
+                    log.error("JsonUtil.handlerOf, failed to handle non successful response, status: {}, body: {}", statusCode, error);
+                    return RespWrapper.<T>builder().code(statusCode).msg(error).build();
                 }));
     }
 }
