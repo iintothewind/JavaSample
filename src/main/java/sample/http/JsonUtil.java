@@ -14,6 +14,8 @@ import java.net.http.HttpResponse.ResponseInfo;
 import java.nio.charset.Charset;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Function;
+
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 
@@ -93,5 +95,16 @@ public class JsonUtil {
                 log.error("JsonUtil.handlerOf, failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
                 return null;
             }));
+    }
+
+    public static BodyHandler<String> handlerOfString() {
+        return responseInfo -> Optional
+                .ofNullable(responseInfo)
+                .filter(r -> r.statusCode() < 299)
+                .map(r -> BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), Function.identity()))
+                .orElse(BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), error -> {
+                    log.error("JsonUtil.handlerOfString, failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
+                    return null;
+                }));
     }
 }

@@ -4,9 +4,13 @@ import com.google.common.collect.ImmutableList;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Iterator;
 import io.vavr.collection.Vector;
+
+import java.security.SecureRandom;
 import java.util.Comparator;
 import java.util.Map.Entry;
 import java.util.Optional;
+
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.junit.Test;
@@ -16,11 +20,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
 
+@Slf4j
 public class LstTest {
 
   @Test
@@ -97,6 +103,13 @@ public class LstTest {
     System.out.println(extractFsa("V5xcccc"));
     System.out.println(extractFsa("V5"));
     System.out.println(extractFsa("x58f"));
+
+  }
+
+  @Test
+  public void testUuid01() {
+
+    log.info("uuid: {}", UUID.randomUUID());
 
   }
 }
