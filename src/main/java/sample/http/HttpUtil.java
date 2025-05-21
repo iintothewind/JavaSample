@@ -75,7 +75,7 @@ public abstract class HttpUtil {
         }
     };
 
-    private static final SSLContext trustAllSslContext;
+    public static final SSLContext trustAllSslContext;
 
     static {
         try {

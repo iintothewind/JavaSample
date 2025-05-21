@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
+
 import java.lang.reflect.Field;
 import java.net.http.HttpRequest.BodyPublisher;
 import java.net.http.HttpRequest.BodyPublishers;
@@ -27,6 +29,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.With;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.Response;
 import org.springframework.http.HttpStatus;
 
 
@@ -34,21 +37,21 @@ import org.springframework.http.HttpStatus;
 public class JsonUtil {
 
     private final static ObjectMapper objectMapper = new ObjectMapper()
-        .findAndRegisterModules()
-        .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-        .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
-        .setSerializationInclusion(Include.NON_NULL);
+            .findAndRegisterModules()
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            .configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true)
+            .setSerializationInclusion(Include.NON_NULL);
 
     public static <T> T load(final String source, @NonNull TypeReference<T> typeRef) {
         return Try.of(() -> objectMapper.readValue(source, typeRef))
-            .onFailure(t -> log.error("JsonUtil.load, failed to load from source: {}", source, t))
-            .getOrNull();
+                .onFailure(t -> log.error("JsonUtil.load, failed to load from source: {}", source, t))
+                .getOrNull();
     }
 
     public static String dump(final Object obj) {
         return Try.of(() -> objectMapper.writeValueAsString(obj))
-            .onFailure(t -> log.error("JsonUtil.dump, failed to dump object: {}", obj, t))
-            .getOrNull();
+                .onFailure(t -> log.error("JsonUtil.dump, failed to dump object: {}", obj, t))
+                .getOrNull();
     }
 
     public static <T> T diffObj(T oldObj, T newObj) {
@@ -90,31 +93,46 @@ public class JsonUtil {
     /**
      * helper method for <code>java.net.http.HttpResponse.BodyHandler</code>
      *
-     * @param typeRef the json TypeReference for to be deserialized
+     * @param typeRef      the json TypeReference for to be deserialized
+     * @param errorHandler the errorHandler to handle errors, keep in mind that responseInfo is nullable.
      * @return a BodyHandler to deserialize http response into the typeRef type
      */
-    public static <T> BodyHandler<T> handlerOf(@NonNull TypeReference<T> typeRef) {
+    public static <T> BodyHandler<T> handlerOf(@NonNull TypeReference<T> typeRef, Function<ResponseInfo, T> errorHandler) {
         return responseInfo -> Optional
-            .ofNullable(responseInfo)
-            .filter(r -> r.statusCode() < 299)
-            .map(r -> BodySubscribers.mapping(BodySubscribers.ofByteArray(),
-                bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
-                    .onFailure(e -> log.error("JsonUtil.handlerOf, failed to load response: ", e))
-                    .getOrNull()))
-            .orElse(BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), error -> {
-                log.error("JsonUtil.handlerOf, failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
-                return null;
-            }));
+                .ofNullable(responseInfo)
+                .filter(r -> r.statusCode() < 299)
+                .map(r -> BodySubscribers.mapping(BodySubscribers.ofByteArray(),
+                        bytes -> Try.of(() -> objectMapper.readValue(bytes, typeRef))
+                                .onFailure(e -> log.error("JsonUtil.handlerOf, failed to load response: ", e))
+                                .getOrNull()))
+                .orElse(BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), error -> {
+                    log.error("JsonUtil.handlerOf, failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
+                    final T recoveredValue = Option.of(errorHandler)
+                            .toTry()
+                            .mapTry(function -> function.apply(responseInfo))
+                            .onFailure(t -> log.error("failed to execute errorHandler", t))
+                            .getOrNull();
+                    return recoveredValue;
+                }));
     }
 
-    public static BodyHandler<String> handlerOfString() {
+    /**
+     * @param errorHandler the errorHandler to handle errors, keep in mind that responseInfo is nullable.
+     * @return a BodyHandler to deserialize http response into string
+     */
+    public static BodyHandler<String> handlerOfString(Function<ResponseInfo, String> errorHandler) {
         return responseInfo -> Optional
                 .ofNullable(responseInfo)
                 .filter(r -> r.statusCode() < 299)
                 .map(r -> BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), Function.identity()))
                 .orElse(BodySubscribers.mapping(BodySubscribers.ofString(Charset.defaultCharset()), error -> {
                     log.error("JsonUtil.handlerOfString, failed to handle non successful response, status: {}, body: {}", Optional.ofNullable(responseInfo).map(ResponseInfo::statusCode).orElse(-1), error);
-                    return null;
+                    final String errorMessage = Option.of(errorHandler)
+                            .toTry()
+                            .mapTry(function -> function.apply(responseInfo))
+                            .onFailure(t -> log.error("failed to execute errorHandler", t))
+                            .getOrNull();
+                    return errorMessage;
                 }));
     }
 
@@ -147,12 +165,12 @@ public class JsonUtil {
         }
     }
 
-    public static <T> HttpResponse.BodyHandler<RespWrapper<T>> handlerOfWrapper(@NonNull TypeReference<RespWrapper<T>> wrapper) {
+    public static <T> HttpResponse.BodyHandler<RespWrapper<T>> handlerOfWrapper(@NonNull TypeReference<RespWrapper<T>> typeRef) {
         return responseInfo -> Optional
                 .ofNullable(responseInfo)
                 .filter(r -> r.statusCode() < 299)
                 .map(r -> HttpResponse.BodySubscribers.mapping(HttpResponse.BodySubscribers.ofString(Charset.defaultCharset()),
-                        content -> JsonUtil.load(content, wrapper)))
+                        content -> JsonUtil.load(content, typeRef)))
                 .orElse(HttpResponse.BodySubscribers.mapping(HttpResponse.BodySubscribers.ofString(Charset.defaultCharset()), error -> {
                     final Integer statusCode = Optional.ofNullable(responseInfo).map(HttpResponse.ResponseInfo::statusCode).orElse(HttpStatus.INTERNAL_SERVER_ERROR.value());
                     log.error("JsonUtil.handlerOf, failed to handle non successful response, status: {}, body: {}", statusCode, error);

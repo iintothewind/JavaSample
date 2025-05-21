@@ -5,21 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
 import io.vavr.control.Try;
-
-import java.io.File;
-import java.net.SocketTimeoutException;
-import java.net.URI;
-import java.net.UnknownHostException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Base64;
-import java.util.Objects;
-import java.util.Optional;
-
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -37,6 +22,19 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.junit.Test;
 
+import java.io.File;
+import java.net.SocketTimeoutException;
+import java.net.URI;
+import java.net.UnknownHostException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.net.http.HttpResponse.BodyHandlers;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Base64;
+import java.util.Objects;
+
 @Slf4j
 public class HttpClientTest {
 
@@ -51,9 +49,9 @@ public class HttpClientTest {
                 .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))
                 .build();
 
-        try (final HttpClient client = HttpClient.newBuilder().build()) {
+        try (final HttpClient client = HttpClient.newBuilder().sslContext(HttpUtil.getSslContext()).build()) {
             final HttpResponse<TrackResponse> resp = client.send(request, JsonUtil.handlerOf(new TypeReference<>() {
-            }));
+            }, respInfo -> TrackResponse.builder().build()));
             log.info("resp: {}", resp.body());
         }
     }
