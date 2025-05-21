@@ -4,7 +4,9 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpStatusClass;
 import io.vavr.CheckedFunction1;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
+
 import java.net.HttpURLConnection;
 import java.net.http.HttpClient;
 import java.net.http.HttpClient.Redirect;
@@ -96,13 +98,13 @@ public abstract class HttpUtil {
 
     public static OkHttpClient buildTrustAllSslClient(final Long connectTimeout, final Long readTimeout, final Long writeTimeout) {
         final OkHttpClient client = new OkHttpClient.Builder()
-            .connectTimeout(Optional.ofNullable(connectTimeout).filter(t -> t > 0).orElse(connectTimeoutSeconds), TimeUnit.SECONDS)
-            .readTimeout(Optional.ofNullable(readTimeout).filter(t -> t > 0).orElse(readTimeoutSeconds), TimeUnit.SECONDS)
-            .writeTimeout(Optional.ofNullable(writeTimeout).filter(t -> t > 0).orElse(writeTimeoutSeconds), TimeUnit.SECONDS)
-            .connectionPool(new ConnectionPool())
-            .sslSocketFactory(trustAllSslSocketFactory, x509TrustManager)
-            .hostnameVerifier((hostname, session) -> true)
-            .build();
+                .connectTimeout(Optional.ofNullable(connectTimeout).filter(t -> t > 0).orElse(connectTimeoutSeconds), TimeUnit.SECONDS)
+                .readTimeout(Optional.ofNullable(readTimeout).filter(t -> t > 0).orElse(readTimeoutSeconds), TimeUnit.SECONDS)
+                .writeTimeout(Optional.ofNullable(writeTimeout).filter(t -> t > 0).orElse(writeTimeoutSeconds), TimeUnit.SECONDS)
+                .connectionPool(new ConnectionPool())
+                .sslSocketFactory(trustAllSslSocketFactory, x509TrustManager)
+                .hostnameVerifier((hostname, session) -> true)
+                .build();
         return client;
     }
 
@@ -113,8 +115,8 @@ public abstract class HttpUtil {
             if (Objects.nonNull(redirectedUrl)) {
                 final Request newReq = request.newBuilder().url(redirectedUrl).build();
                 final Response newResp = Try.of(() -> client.newCall(newReq).execute())
-                    .onFailure(t -> log.error("handleRedirect failed, redirectedUrl: {} ", redirectedUrl, t))
-                    .getOrElse(new Response.Builder().protocol(Protocol.HTTP_1_0).request(request).code(HttpURLConnection.HTTP_INTERNAL_ERROR).message(String.format("failed to execute request with redirectUrl: %s", redirectedUrl)).build());
+                        .onFailure(t -> log.error("handleRedirect failed, redirectedUrl: {} ", redirectedUrl, t))
+                        .getOrElse(new Response.Builder().protocol(Protocol.HTTP_1_0).request(request).code(HttpURLConnection.HTTP_INTERNAL_ERROR).message(String.format("failed to execute request with redirectUrl: %s", redirectedUrl)).build());
                 return handleRedirect(client, newResp, newReq, maxRedirect - 1);
             }
         }
@@ -138,27 +140,27 @@ public abstract class HttpUtil {
     public static <T> T sendRequest(@NonNull final OkHttpClient client, @NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
         log.info("sendRequest, request: {}", request);
         return Try.of(() -> client.newCall(request).execute())
-            .mapTry(response -> handleRedirect(client, response, request, 5))
-            .filter(Objects::nonNull)
-            .andThenTry(response -> {
-                final String respContentType = response.header("Content-Type");
-                final boolean isTextResp = StringUtils.containsIgnoreCase(respContentType, "text") || StringUtils.containsIgnoreCase(respContentType, "json");
-                if (response.isSuccessful()) {
-                    log.info("sendRequest succeeded, request: {}, response code: {}, body: {}", request, response.code(), isTextResp ? peekResponse(response) : String.format("non-text response body, content-type: %s", respContentType));
-                } else {
-                    log.warn("sendRequest failed, request: {}, response code: {}, body: {}", request, response.code(), isTextResp ? peekResponse(response) : String.format("non-text response body, content-type: %s", respContentType));
-                }
-            })
-            .flatMapTry(createHandler(handler))
-            .onFailure(throwable -> Arrays.asList(exceptions).forEach(ex -> {
-                    if (ex.isInstance(throwable)) {
-                        throw new RuntimeException(throwable);
+                .mapTry(response -> handleRedirect(client, response, request, 5))
+                .filter(Objects::nonNull)
+                .andThenTry(response -> {
+                    final String respContentType = response.header("Content-Type");
+                    final boolean isTextResp = StringUtils.containsIgnoreCase(respContentType, "text") || StringUtils.containsIgnoreCase(respContentType, "json");
+                    if (response.isSuccessful()) {
+                        log.info("sendRequest succeeded, request: {}, response code: {}, body: {}", request, response.code(), isTextResp ? peekResponse(response):String.format("non-text response body, content-type: %s", respContentType));
                     } else {
-                        log.error("sendRequest failed, request: {}, with exception", request, throwable);
+                        log.warn("sendRequest failed, request: {}, response code: {}, body: {}", request, response.code(), isTextResp ? peekResponse(response):String.format("non-text response body, content-type: %s", respContentType));
                     }
-                }
-            ))
-            .getOrNull();
+                })
+                .flatMapTry(createHandler(handler))
+                .onFailure(throwable -> Arrays.asList(exceptions).forEach(ex -> {
+                            if (ex.isInstance(throwable)) {
+                                throw new RuntimeException(throwable);
+                            } else {
+                                log.error("sendRequest failed, request: {}, with exception", request, throwable);
+                            }
+                        }
+                ))
+                .getOrNull();
     }
 
     public static <T> T sendRequest(@NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
@@ -180,13 +182,14 @@ public abstract class HttpUtil {
         log.info("sendRequest, request: {}", request);
         if (Objects.nonNull(request) && Objects.nonNull(responseBodyHandler)) {
             try (final HttpClient client = HttpClient
-                .newBuilder()
-                .followRedirects(Redirect.ALWAYS)
-                .sslContext(trustAllSslContext)
-                .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
-                .build()) {
+                    .newBuilder()
+                    .followRedirects(Redirect.ALWAYS)
+                    .sslContext(trustAllSslContext)
+                    .connectTimeout(Duration.ofSeconds(connectTimeoutSeconds))
+                    .build()) {
                 final HttpResponse<T> resp = client.send(request, responseBodyHandler);
-                return resp.body();
+                final T t = Option.of(resp).toTry().mapTry(HttpResponse::body).getOrNull();
+                return t;
             } catch (Exception e) {
                 log.error("sendRequest failed, request: {}, with exception", request, e);
             }
