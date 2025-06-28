@@ -13,6 +13,9 @@ import java.net.http.HttpClient.Redirect;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
@@ -42,6 +45,7 @@ import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 
@@ -137,6 +141,15 @@ public abstract class HttpUtil {
         return Try.of(() -> response.peekBody(Long.MAX_VALUE).string()).getOrElse("");
     }
 
+    public static String peekResponseIfSuccess(final Response response) {
+        final String respString = Option.of(response)
+                .filter(r -> Objects.nonNull(r) && r.isSuccessful())
+                .toTry()
+                .mapTry(r -> r.peekBody(Long.MAX_VALUE).toString())
+                .getOrNull();
+        return respString;
+    }
+
     public static <T> T sendRequest(@NonNull final OkHttpClient client, @NonNull final Request request, @NonNull final CheckedFunction1<? super Response, T> handler, final Class<?>... exceptions) {
         log.info("sendRequest, request: {}", request);
         return Try.of(() -> client.newCall(request).execute())
@@ -174,6 +187,28 @@ public abstract class HttpUtil {
     public static boolean executeRequest(@NonNull final Request request, final Class<?>... exceptions) {
         return Optional.ofNullable(sendRequest(trustAllSslClient, request, Response::isSuccessful, exceptions)).orElse(false);
     }
+
+    public static byte[] download(final String url) {
+        final Request request = new Request.Builder().url(url).get().build();
+        final byte[] bytes = sendRequest(request, resp -> Option.of(resp)
+                .filter(r -> r.code() < 299)
+                .toTry()
+                .mapTry(r -> r.peekBody(Integer.MAX_VALUE))
+                .mapTry(ResponseBody::bytes)
+                .onFailure(t -> log.error("failed to download, url: {}", url, t))
+                .getOrNull());
+        return bytes;
+    }
+
+    public static Path downloadAsTmpFile(final String url, final String prefix, final String suffix) {
+        final Path path = Try.of(() -> download(url))
+                .filter(Objects::nonNull)
+                .flatMapTry(bytes -> Try.of(() -> Files.createTempFile(prefix, suffix)).mapTry(p -> Files.write(p, bytes, StandardOpenOption.TRUNCATE_EXISTING)))
+                .onFailure(t -> log.error("failed to download, url: {}", url, t))
+                .getOrNull();
+        return path;
+    }
+
 
     /**
      * send a single HttpRequest and return a handled response. If you would like to reuse HttpClient, then you should create and maintain HttpClient in your own context.

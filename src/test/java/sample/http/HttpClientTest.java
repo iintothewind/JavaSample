@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.google.common.collect.ImmutableMap;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
+import io.vavr.control.Option;
 import io.vavr.control.Try;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -31,7 +32,9 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
+import java.nio.file.OpenOption;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Base64;
 import java.util.Objects;
 
@@ -87,12 +90,27 @@ public class HttpClientTest {
         }
     }
 
+    public static byte[] download02(final String url) {
+        final Request request = new Request.Builder().url(url).get().build();
+        final byte[] bytes = HttpUtil.sendRequest(request, resp -> Option.of(resp).filter(r -> r.code() < 299).toTry().mapTry(r -> r.peekBody(Integer.MAX_VALUE)).mapTry(ResponseBody::bytes).getOrNull());
+        return bytes;
+    }
+
+
     @Test
     @SneakyThrows
     public void testDownload01() {
         final File f = new File("C:\\Users\\ivar\\code\\JavaSample\\target");
         final byte[] bytes = download("https://s3.us-west-1.wasabisys.com/echobase-photos/ulala/ULALA/e6de6a16-9535-43e8-9b26-401418d8809b.pdf");
         System.out.println(new String(bytes));
+    }
+
+    @Test
+    @SneakyThrows
+    public void testDownload02() {
+        final File f = new File("./target/test_001.pdf");
+        final byte[] bytes = download02("https://shipease.oss-cn-hangzhou.aliyuncs.com/pdfs/2024-11-21/MSK41102248.pdf");
+        Files.write(f.toPath(), bytes, StandardOpenOption.CREATE_NEW);
     }
 
     @Test

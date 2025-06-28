@@ -5,7 +5,6 @@ import io.vavr.collection.Stream;
 import io.vavr.control.Try;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.Test;
-import org.simpleflatmapper.csv.CsvWriterBuilder;
 import org.simpleflatmapper.lightningcsv.ClosableCsvWriter;
 import org.simpleflatmapper.lightningcsv.CsvWriter;
 import sample.http.JsonUtil;
