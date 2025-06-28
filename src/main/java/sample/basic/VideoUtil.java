@@ -74,7 +74,7 @@ public class VideoUtil {
     public static Path concat(List<String> videoUrls) {
         if (Objects.nonNull(videoUrls) && !videoUrls.isEmpty()) {
             final List<Path> inputVideos = videoUrls
-                    .stream().map(url -> HttpUtil.downloadAsTmpFile(url, "ffmpeg_input_", ".mp4"))
+                    .parallelStream().map(url -> HttpUtil.downloadAsTmpFile(url, "ffmpeg_input_", ".mp4"))
                     .collect(Collectors.toList());
             final Path listFile = Try.of(() -> Files.write(Try.of(() -> Files.createTempFile("ffmpeg_list_", ".txt")).getOrNull(), inputVideos.stream().map(f -> String.format("file '%s'", f.toString())).collect(Collectors.toList())))
                     .onFailure(t -> log.error("failed to create concat list file", t))
