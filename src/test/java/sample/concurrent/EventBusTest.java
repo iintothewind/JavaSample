@@ -9,7 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-public class EventButTest {
+public class EventBusTest {
 
   @After
   public void tearDown() throws InterruptedException {
