@@ -1,4 +1,4 @@
-package sample.concurrent;
+package sample.pool;
 
 import io.vavr.CheckedFunction1;
 import io.vavr.Tuple;

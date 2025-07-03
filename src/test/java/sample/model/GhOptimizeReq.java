@@ -7,11 +7,13 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.ImmutableList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
+
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -100,6 +102,7 @@ public class GhOptimizeReq {
         private String vehicleId;
 
         @JsonProperty("type_id")
+        @Builder.Default
         private String typeId = VehicleType.defaultTypeId;
 
         @JsonProperty("start_address")
@@ -155,6 +158,7 @@ public class GhOptimizeReq {
          * assuming a maximum volume of 1000 and a maximum weight of 300.
          */
         // @formatter:on
+        @Builder.Default
         private List<Integer> capacity = ImmutableList.of(600);
 
         /**
@@ -163,6 +167,7 @@ public class GhOptimizeReq {
         @Builder.Default
         private String profile = routeProfile;
 
+        @Builder.Default
         @JsonProperty("consider_traffic")
         private Boolean considerTraffic = Boolean.FALSE;
     }
@@ -510,8 +515,8 @@ public class GhOptimizeReq {
         double dLat = Math.toRadians(lat2 - lat1);
         double dLng = Math.toRadians(lng2 - lng1);
         double a = Math.sin(dLat / 2) * Math.sin(dLat / 2)
-            + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
-            * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+                + Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2))
+                * Math.sin(dLng / 2) * Math.sin(dLng / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return earthRadiusMeters * c;
     }
@@ -526,20 +531,20 @@ public class GhOptimizeReq {
         Preconditions.checkArgument(Objects.nonNull(stops) && stops.size() >= 2, "findFarthestPoints requires at least two stops");
         final Cache<Tuple2<Address, Address>, Double> distanceMap = CacheBuilder.newBuilder().build();
         Optional.ofNullable(stops).orElse(ImmutableList.of())
-            .parallelStream()
-            .filter(o -> Objects.nonNull(o) && Objects.nonNull(o.getOrderId()) && Objects.nonNull(o.getLat()) && Objects.nonNull(o.getLon()))
-            .forEach(so1 -> {
-                Optional.ofNullable(stops).orElse(ImmutableList.of())
-                    .parallelStream()
-                    .filter(o -> Objects.nonNull(o) && Objects.nonNull(o.getOrderId()) && Objects.nonNull(o.getLat()) && Objects.nonNull(o.getLon()) && !Objects.equals(so1.getOrderId(), o.getOrderId()))
-                    .forEach(so2 -> {
-                        final Tuple2<Address, Address> key = mkEntryKey(so1, so2);
-                        if (Objects.isNull(distanceMap.getIfPresent(key))) {
-                            final Double distance = haversineDistance(so1.getLat(), so1.getLon(), so2.getLat(), so2.getLon());
-                            distanceMap.put(key, distance);
-                        }
-                    });
-            });
+                .parallelStream()
+                .filter(o -> Objects.nonNull(o) && Objects.nonNull(o.getOrderId()) && Objects.nonNull(o.getLat()) && Objects.nonNull(o.getLon()))
+                .forEach(so1 -> {
+                    Optional.ofNullable(stops).orElse(ImmutableList.of())
+                            .parallelStream()
+                            .filter(o -> Objects.nonNull(o) && Objects.nonNull(o.getOrderId()) && Objects.nonNull(o.getLat()) && Objects.nonNull(o.getLon()) && !Objects.equals(so1.getOrderId(), o.getOrderId()))
+                            .forEach(so2 -> {
+                                final Tuple2<Address, Address> key = mkEntryKey(so1, so2);
+                                if (Objects.isNull(distanceMap.getIfPresent(key))) {
+                                    final Double distance = haversineDistance(so1.getLat(), so1.getLon(), so2.getLat(), so2.getLon());
+                                    distanceMap.put(key, distance);
+                                }
+                            });
+                });
         return distanceMap.asMap().entrySet().stream().max(Map.Entry.comparingByValue()).map(Map.Entry::getKey).orElse(null);
     }
 
@@ -547,31 +552,31 @@ public class GhOptimizeReq {
         Preconditions.checkArgument(Objects.nonNull(routeName), "routeName is required");
         Preconditions.checkArgument(Objects.nonNull(orders) && orders.size() >= 2, "at least two orders are required");
         Preconditions.checkArgument(orders.stream().allMatch(o -> Objects.nonNull(o.getId()) && Objects.nonNull(o.getTrackNumber()) && Objects.nonNull(o.getLat()) && Objects.nonNull(o.getLng())),
-            "order id, trackNumber, lat, lng are required for all stops.");
+                "order id, trackNumber, lat, lng are required for all stops.");
         final List<Address> stops = orders.stream().map(o -> Address.builder()
-            .orderId(o.getId().toString())
-            .trackNumber(o.getTrackNumber())
-            .lat(o.getLat())
-            .lon(o.getLng())
-            .build()).toList();
+                .orderId(o.getId().toString())
+                .trackNumber(o.getTrackNumber())
+                .lat(o.getLat())
+                .lon(o.getLng())
+                .build()).toList();
         final Tuple2<Address, Address> points = findFarthestPoints(stops);
         final GhOptimizeReq req = GhOptimizeReq
-            .builder()
-            .configuration(Configuration.builder().routing(Routing.builder().calcPoints(true).build()).build())
-            .objectives(ImmutableList.of(Objective.builder().build()))
-            .vehicleTypes(ImmutableList.of(VehicleType.builder().build()))
-            .vehicles(ImmutableList.of(Vehicle.builder()
-                .vehicleId(routeName)
-                .startAddress(points._1)
-                .endAddress(points._2)
-                .build()))
-            .services(stops.stream()
-                .map(a -> Service.builder()
-                    .id(a.getTrackNumber())
-                    .name(a.getTrackNumber())
-                    .address(a).build())
-                .toList())
-            .build();
+                .builder()
+                .configuration(Configuration.builder().routing(Routing.builder().calcPoints(true).build()).build())
+                .objectives(ImmutableList.of(Objective.builder().build()))
+                .vehicleTypes(ImmutableList.of(VehicleType.builder().build()))
+                .vehicles(ImmutableList.of(Vehicle.builder()
+                        .vehicleId(routeName)
+                        .startAddress(points._1)
+                        .endAddress(points._2)
+                        .build()))
+                .services(stops.stream()
+                        .map(a -> Service.builder()
+                                .id(a.getTrackNumber())
+                                .name(a.getTrackNumber())
+                                .address(a).build())
+                        .toList())
+                .build();
         return req;
     }
 
@@ -579,29 +584,29 @@ public class GhOptimizeReq {
         Preconditions.checkArgument(Objects.nonNull(clusterConfig) && clusterConfig.size() >= 2, "number of clusters must be >= 2");
         Preconditions.checkArgument(clusterConfig.values().stream().allMatch(i -> Objects.nonNull(i) && i >= 2), "number of orders for each cluster must be >=2");
         Preconditions.checkArgument(orders.stream().allMatch(o -> Objects.nonNull(o.getId()) && Objects.nonNull(o.getTrackNumber()) && Objects.nonNull(o.getLat()) && Objects.nonNull(o.getLng())),
-            "order id, trackNumber, lat, lng are required for all stops.");
-        Preconditions.checkArgument(clusterConfig.values().stream().mapToInt(i -> i).sum() == orders.size(), "sum of order in cluster config must be equal to size of stops.");
+                "order id, trackNumber, lat, lng are required for all stops.");
+        Preconditions.checkArgument(clusterConfig.values().stream().mapToInt(i -> i).sum()==orders.size(), "sum of order in cluster config must be equal to size of stops.");
 
         final GhOptimizeReq req = GhOptimizeReq
-            .builder()
-            .configuration(Configuration.builder()
-                .routing(Routing.builder().profile(Routing.clusterProfile).costPerSec(0).costPerMeter(1).build())
-                .clustering(Clustering.builder()
-                    .numOfClusters(clusterConfig.size())
-                    .minQuantity(clusterConfig.values().stream().min(Comparator.comparingInt(i -> i)).orElse(null))
-                    .maxQuantity(clusterConfig.values().stream().max(Comparator.comparingInt(i -> i)).orElse(orders.size()))
-                    .build())
-                .build())
-            .clusters(clusterConfig.entrySet().stream()
-                .map(kv -> Cluster.builder().name(kv.getKey()).minQuantity(kv.getValue()).maxQuantity(kv.getValue()).build())
-                .toList())
-            .customers(orders.stream()
-                .map(o -> Customer.builder()
-                    .id(o.getId().toString())
-                    .address(Address.builder().lat(o.getLat()).lon(o.getLng()).build())
-                    .build())
-                .toList())
-            .build();
+                .builder()
+                .configuration(Configuration.builder()
+                        .routing(Routing.builder().profile(Routing.clusterProfile).costPerSec(0).costPerMeter(1).build())
+                        .clustering(Clustering.builder()
+                                .numOfClusters(clusterConfig.size())
+                                .minQuantity(clusterConfig.values().stream().min(Comparator.comparingInt(i -> i)).orElse(null))
+                                .maxQuantity(clusterConfig.values().stream().max(Comparator.comparingInt(i -> i)).orElse(orders.size()))
+                                .build())
+                        .build())
+                .clusters(clusterConfig.entrySet().stream()
+                        .map(kv -> Cluster.builder().name(kv.getKey()).minQuantity(kv.getValue()).maxQuantity(kv.getValue()).build())
+                        .toList())
+                .customers(orders.stream()
+                        .map(o -> Customer.builder()
+                                .id(o.getId().toString())
+                                .address(Address.builder().lat(o.getLat()).lon(o.getLng()).build())
+                                .build())
+                        .toList())
+                .build();
 
         return req;
     }
@@ -617,18 +622,18 @@ public class GhOptimizeReq {
             final Integer numOfVehicles = Optional.ofNullable(req).map(GhOptimizeReq::getVehicles).map(List::size).orElse(1);
             final Integer numOfStops = Optional.of(req).map(GhOptimizeReq::getServices).map(List::size).orElse(10);
             final Integer estimatedCost = numOfVehicles * numOfStops;
-            return estimatedCost > 10 ? estimatedCost : 10;
+            return estimatedCost > 10 ? estimatedCost:10;
         }
         if (GhOptimizeReq.isClusterOptimizeReq(req)) {
             final Integer numOfStops = Optional.ofNullable(req).map(GhOptimizeReq::getCustomers).map(List::size).orElse(1);
             final Integer unit = Optional.ofNullable(req)
-                .map(GhOptimizeReq::getConfiguration)
-                .map(Configuration::getRouting)
-                .filter(r -> Objects.equals(Routing.clusterProfile, r.getProfile()))
-                .map(r -> 1)
-                .orElse(10);
+                    .map(GhOptimizeReq::getConfiguration)
+                    .map(Configuration::getRouting)
+                    .filter(r -> Objects.equals(Routing.clusterProfile, r.getProfile()))
+                    .map(r -> 1)
+                    .orElse(10);
             final Integer estimatedCost = unit * numOfStops;
-            return estimatedCost > 10 ? estimatedCost : 10;
+            return estimatedCost > 10 ? estimatedCost:10;
         }
         throw new IllegalArgumentException(String.format("invalid request: %s", req));
     }
@@ -639,46 +644,46 @@ public class GhOptimizeReq {
 
     public static Request mkGetRouteSolutionReq(@NonNull final String jobId) {
         final Request request = new Request.Builder()
-            .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("vrp").addPathSegment("solution")
-                .addPathSegment(jobId).addQueryParameter("key", RoutePlanJob.key).build())
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .get()
-            .build();
+                .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("vrp").addPathSegment("solution")
+                        .addPathSegment(jobId).addQueryParameter("key", RoutePlanJob.key).build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .get()
+                .build();
         return request;
     }
 
     public static Request mkGetClusterSolutionReq(@NonNull final String jobId) {
         final Request request = new Request.Builder()
-            .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("cluster").addPathSegment("solution")
-                .addPathSegment(jobId).addQueryParameter("key", RoutePlanJob.key).build())
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .get()
-            .build();
+                .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("cluster").addPathSegment("solution")
+                        .addPathSegment(jobId).addQueryParameter("key", RoutePlanJob.key).build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .get()
+                .build();
         return request;
     }
 
 
     private static Request mkRouteOptimizeReq(@NonNull final GhOptimizeReq body) {
         final Request request = new Request.Builder()
-            .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("vrp").addPathSegment("optimize")
-                .addQueryParameter("key", RoutePlanJob.key).build())
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .post(RequestBody.create(JsonUtil.dump(body), okhttp3.MediaType.parse(MediaType.APPLICATION_JSON_VALUE)))
-            .build();
+                .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("vrp").addPathSegment("optimize")
+                        .addQueryParameter("key", RoutePlanJob.key).build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .post(RequestBody.create(JsonUtil.dump(body), okhttp3.MediaType.parse(MediaType.APPLICATION_JSON_VALUE)))
+                .build();
         return request;
     }
 
     private static Request mkClusterOptimizeReq(@NonNull final GhOptimizeReq body) {
         final Request request = new Request.Builder()
-            .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("cluster").addPathSegment("calculate")
-                .addQueryParameter("key", RoutePlanJob.key).build())
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-            .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
-            .post(RequestBody.create(JsonUtil.dump(body), okhttp3.MediaType.parse(MediaType.APPLICATION_JSON_VALUE)))
-            .build();
+                .url(new HttpUrl.Builder().scheme("https").host("graphhopper.com").addPathSegment("api").addPathSegment("1").addPathSegment("cluster").addPathSegment("calculate")
+                        .addQueryParameter("key", RoutePlanJob.key).build())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header(HttpHeaders.ACCEPT, MediaType.APPLICATION_JSON_VALUE)
+                .post(RequestBody.create(JsonUtil.dump(body), okhttp3.MediaType.parse(MediaType.APPLICATION_JSON_VALUE)))
+                .build();
         return request;
     }
 
