@@ -2,8 +2,10 @@ package sample.basic;
 
 import com.google.common.collect.ImmutableList;
 import lombok.extern.slf4j.Slf4j;
+import net.bramp.ffmpeg.probe.FFmpegFormat;
 import org.junit.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -18,5 +20,13 @@ public class VideoUtilTest {
 
         final Path outputVideo = VideoUtil.concat(inputFiles);
         log.info("output: {}", outputVideo);
+    }
+
+    @Test
+    public void testProbe01() {
+        final File f = new File("./target/kling.mp4");
+
+        final FFmpegFormat format = VideoUtil.probe(f.toPath().toString());
+        System.out.println(format);
     }
 }
