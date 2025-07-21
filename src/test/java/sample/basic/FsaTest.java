@@ -2,12 +2,13 @@ package sample.basic;
 
 import com.google.common.collect.ImmutableList;
 import io.vavr.collection.HashMap;
+import org.apache.commons.lang3.StringUtils;
+import org.junit.jupiter.api.Test;
+import sample.http.JsonUtil;
+
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-import org.apache.commons.lang3.StringUtils;
-import org.junit.Test;
-import sample.http.JsonUtil;
 
 public class FsaTest {
 

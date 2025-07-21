@@ -21,7 +21,7 @@ import okhttp3.Request;
 import okhttp3.Request.Builder;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.net.SocketTimeoutException;
@@ -32,7 +32,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.nio.file.Files;
-import java.nio.file.OpenOption;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.Base64;
@@ -122,8 +121,7 @@ public class HttpClientTest {
     @Test
     public void testGet01() {
         final Request request = new Request.Builder()
-                .url(Objects.requireNonNull(
-                        HttpUrl.parse("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/track")))
+                .url(Objects.requireNonNull(HttpUrl.parse("https://ulala.ca/echobase-web/rest/v1/orders/TEST225000013/track")))
                 .headers(Headers.of(ImmutableMap.of()))
                 .header(HttpHeaderNames.CONTENT_TYPE.toString(), HttpHeaderValues.APPLICATION_JSON.toString())
                 .header("Authorization", String.format("Basic %s", Base64.getEncoder().encodeToString("hre.api@ulala.ca:VwGCav3y2H".getBytes())))

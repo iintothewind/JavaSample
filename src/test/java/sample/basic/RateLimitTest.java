@@ -6,12 +6,13 @@ import io.github.resilience4j.ratelimiter.RateLimiterConfig;
 import io.vavr.Tuple;
 import io.vavr.collection.Stream;
 import io.vavr.control.Try;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
+
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
 
 @Slf4j
 public class RateLimitTest {

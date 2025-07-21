@@ -1,6 +1,20 @@
 package sample.db;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.zaxxer.hikari.HikariDataSource;
+import io.vavr.Tuple;
+import io.vavr.Tuple2;
+import io.vavr.Tuple3;
+import io.vavr.Tuple4;
+import io.vavr.Tuple5;
+import io.vavr.collection.HashMap;
+import io.vavr.control.Option;
+import io.vavr.control.Try;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import sample.http.JsonUtil;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -14,19 +28,6 @@ import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.LongStream;
 import java.util.stream.Stream;
-import org.junit.Before;
-import org.junit.Test;
-import com.google.common.base.Preconditions;
-import com.zaxxer.hikari.HikariDataSource;
-import io.vavr.Tuple;
-import io.vavr.Tuple2;
-import io.vavr.Tuple3;
-import io.vavr.Tuple4;
-import io.vavr.Tuple5;
-import io.vavr.collection.HashMap;
-import io.vavr.control.Option;
-import io.vavr.control.Try;
-import sample.http.JsonUtil;
 
 
 public class SettlementDetailTestDataGenerator {
@@ -36,7 +37,7 @@ public class SettlementDetailTestDataGenerator {
         "values " +
         "(?,      ?,               ?,      ?,     ?,     ?,   ?,           ?,           ?,           ?,           ?,           ?,   ?,         ?,     ?,     ?,     ?,          ?,                    ?,               ?,                ?,             ?,               ?,              ?,              ?,           ?)";
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/echobase?useSSL=false");

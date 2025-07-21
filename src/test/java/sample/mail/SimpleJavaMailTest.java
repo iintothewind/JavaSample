@@ -1,6 +1,6 @@
 package sample.mail;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.simplejavamail.api.mailer.Mailer;
 import org.simplejavamail.email.EmailBuilder;
 import org.simplejavamail.mailer.MailerBuilder;

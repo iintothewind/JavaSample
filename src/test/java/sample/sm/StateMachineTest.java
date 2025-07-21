@@ -1,12 +1,13 @@
 package sample.sm;
 
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+import sample.sm.StateMachine.Builder;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
-import org.assertj.core.api.Assertions;
-import org.junit.Test;
-import sample.sm.StateMachine.Builder;
 
 public class StateMachineTest {
 
@@ -14,9 +15,9 @@ public class StateMachineTest {
     @Test
     public void testStateMachine01() {
         final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(null, Status.TO_DO, o -> Objects.isNull(o.getStatus()), o -> o.withStatus(Status.TO_DO))
-            .build();
+                .typeOf(Status.class, Order.class, Order.class)
+                .withTransition(null, Status.TO_DO, o -> Objects.isNull(o.getStatus()), o -> o.withStatus(Status.TO_DO))
+                .build();
 
         final boolean result = sm.test(null, Status.CREATED, null);
         Assertions.assertThat(result).isFalse();
@@ -27,9 +28,9 @@ public class StateMachineTest {
     @Test
     public void testStateMachine02() {
         final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(null, Status.TO_DO, o -> Objects.isNull(o.getStatus()), o -> o.withStatus(Status.TO_DO))
-            .build();
+                .typeOf(Status.class, Order.class, Order.class)
+                .withTransition(null, Status.TO_DO, o -> Objects.isNull(o.getStatus()), o -> o.withStatus(Status.TO_DO))
+                .build();
 
         final boolean result = sm.test(null, Status.CREATED, null);
         Assertions.assertThat(result).isFalse();
@@ -38,9 +39,9 @@ public class StateMachineTest {
     @Test
     public void testStateMachine03() {
         final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
-            .build();
+                .typeOf(Status.class, Order.class, Order.class)
+                .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
+                .build();
 
         final boolean result = sm.test(Status.CREATED, Status.CREATED, null);
         Assertions.assertThat(result).isFalse();
@@ -50,9 +51,9 @@ public class StateMachineTest {
     @Test
     public void testStateMachine05() {
         final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
-            .build();
+                .typeOf(Status.class, Order.class, Order.class)
+                .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
+                .build();
 
         final boolean result = sm.test(Status.CREATED, Status.TO_DO, Order.builder().status(Status.CREATED).build());
         Assertions.assertThat(result).isTrue();
@@ -61,12 +62,12 @@ public class StateMachineTest {
     @Test
     public void testStateMachine06() {
         final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
-            .withTransitions(Set.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS), Status.TO_DO,
-                o -> List.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS).contains(o.getStatus()),
-                o -> o.withStatus(Status.TO_DO))
-            .build();
+                .typeOf(Status.class, Order.class, Order.class)
+                .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.nonNull(o) && Objects.equals(Status.CREATED, o.getStatus()), o -> o.withStatus(Status.TO_DO))
+                .withTransitions(Set.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS), Status.TO_DO,
+                        o -> List.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS).contains(o.getStatus()),
+                        o -> o.withStatus(Status.TO_DO))
+                .build();
 
         final boolean result1 = sm.test(Status.CREATED, Status.TO_DO, Order.builder().status(Status.CREATED).build());
         Assertions.assertThat(result1).isTrue();
@@ -77,26 +78,30 @@ public class StateMachineTest {
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testStateMachine07() {
-        final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
-            .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
-            .build();
+        Assertions.assertThatThrownBy(() -> {
+            final StateMachine<Status, Order, Order> sm = Builder
+                    .typeOf(Status.class, Order.class, Order.class)
+                    .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
+                    .withTransition(Status.CREATED, Status.TO_DO, o -> Objects.equals(Status.CREATED, o.getStatus()), Function.identity())
+                    .build();
+        }).isInstanceOf(IllegalArgumentException.class);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testStateMachine08() {
-        final StateMachine<Status, Order, Order> sm = Builder
-            .typeOf(Status.class, Order.class, Order.class)
-            .withTransitions(Set.of(Status.CREATED, Status.TEST, Status.IN_PROGRESS), Status.TO_DO,
-                o -> List.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS).contains(o.getStatus()),
-                Function.identity())
-            .withTransitions(Set.of(Status.CREATED, Status.TEST, Status.IN_PROGRESS), Status.TO_DO,
-                o -> List.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS).contains(o.getStatus()),
-                Function.identity())
-            .build();
+        Assertions.assertThatThrownBy(() -> {
+            final StateMachine<Status, Order, Order> sm = Builder
+                    .typeOf(Status.class, Order.class, Order.class)
+                    .withTransitions(Set.of(Status.CREATED, Status.TEST, Status.IN_PROGRESS), Status.TO_DO,
+                            o -> List.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS).contains(o.getStatus()),
+                            Function.identity())
+                    .withTransitions(Set.of(Status.CREATED, Status.TEST, Status.IN_PROGRESS), Status.TO_DO,
+                            o -> List.of(Status.CLOSED, Status.TEST, Status.IN_PROGRESS).contains(o.getStatus()),
+                            Function.identity())
+                    .build();
+        }).isInstanceOf(IllegalArgumentException.class);
     }
 
 //    @Test(expected = IllegalArgumentException.class)

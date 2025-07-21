@@ -1,14 +1,14 @@
 package sample.db;
 
-import org.junit.Before;
 import com.zaxxer.hikari.HikariDataSource;
+import org.junit.jupiter.api.BeforeEach;
 
 
 public class ReportTest {
     private HikariDataSource dataSource = null;
 
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/echobase?useSSL=false");

@@ -1,10 +1,10 @@
 package sample.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Random;
 import java.util.concurrent.ExecutorService;
@@ -23,20 +23,20 @@ public class DeadLockAvoidance {
     private Account from, to;
     private Transfer transfer;
 
-    @BeforeClass
+    @BeforeAll
     public static void init() {
         pool = Executors.newCachedThreadPool();
         counter = new AtomicLong(0);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         this.from = new Account(9999L);
         this.to = new Account(0L);
         this.transfer = Transfer.getInstance();
     }
 
-    @After
+    @AfterEach
     public void tearDown() throws InterruptedException {
         pool.shutdown();
         this.log.info(counter.get() + " transactions completed.");

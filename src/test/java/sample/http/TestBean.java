@@ -1,6 +1,5 @@
 package sample.http;
 
-import org.junit.Test;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

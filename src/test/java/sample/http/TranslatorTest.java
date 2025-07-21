@@ -3,16 +3,15 @@ package sample.http;
 import com.google.common.collect.ImmutableMap;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpHeaderValues;
-import java.io.IOException;
-import java.util.Objects;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.MediaType;
 import okhttp3.Request;
 import okhttp3.RequestBody;
-import okhttp3.Response;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.Objects;
 
 
 @Slf4j

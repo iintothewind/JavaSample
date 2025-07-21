@@ -1,6 +1,9 @@
 package sample.http;
 
 import io.vavr.API;
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Test;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -15,11 +18,6 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
-
-import lombok.SneakyThrows;
-import lombok.extern.slf4j.Slf4j;
-import org.junit.Test;
-
 
 @Slf4j
 public class BeanTest {

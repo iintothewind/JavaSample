@@ -2,15 +2,12 @@ package sample.http;
 
 import com.google.common.io.Resources;
 import io.vavr.control.Try;
-import java.net.URL;
-import java.nio.charset.Charset;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.beanutils.PropertyUtils;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.nio.charset.Charset;
 
 import static sample.http.Translator.Language.ChineseSimplified;
-
-import com.google.common.io.Files;
 
 
 @Slf4j

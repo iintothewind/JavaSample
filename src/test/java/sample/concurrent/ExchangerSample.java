@@ -3,15 +3,18 @@ package sample.concurrent;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
-import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.*;
+import java.util.concurrent.Exchanger;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 @Slf4j
 public class ExchangerSample {
@@ -19,7 +22,7 @@ public class ExchangerSample {
   private Map<String, String> map;
   private Exchanger<String> exchanger;
 
-  @Before
+  @BeforeEach
   public void startUp() throws IOException {
     prop.load(this.getClass().getResourceAsStream("/asc.properties"));
     map = Maps.fromProperties(prop);

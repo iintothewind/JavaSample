@@ -3,9 +3,9 @@ package sample.concurrent;
 import com.google.common.collect.Maps;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Map;
 import java.util.Random;
@@ -26,7 +26,7 @@ public class LocksSample {
   private ReadWriteLock readWriteLock = null;
   private StampedLock stampedLock = null;
 
-  @Before
+  @BeforeEach
   public void setUp() {
     this.map = Maps.newHashMap();
     this.pool = Executors.newWorkStealingPool();
@@ -35,7 +35,7 @@ public class LocksSample {
     this.stampedLock = new StampedLock();
   }
 
-  @After
+  @AfterEach
   public void tearDown() throws InterruptedException {
     this.pool.awaitTermination(3, TimeUnit.SECONDS);
     this.pool.shutdownNow();

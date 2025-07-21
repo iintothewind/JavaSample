@@ -1,11 +1,9 @@
 package sample.pool;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
-@Ignore
 public class PoolTest {
 
   @Test

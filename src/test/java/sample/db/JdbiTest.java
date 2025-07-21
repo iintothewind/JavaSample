@@ -4,13 +4,12 @@ package sample.db;
 import com.google.common.collect.ImmutableList;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
-
-import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Jdbi;
 import org.jdbi.v3.core.statement.Slf4JSqlLogger;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.Optional;
 
 @Slf4j
 public class JdbiTest {

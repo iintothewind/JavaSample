@@ -1,16 +1,15 @@
 package sample.basic;
 
-import java.util.concurrent.TimeUnit;
-
-import com.google.common.cache.CacheLoader;
-import com.google.common.primitives.Ints;
-import org.checkerframework.checker.nullness.qual.Nullable;
-import org.junit.Test;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
 import io.vavr.Tuple;
 import io.vavr.Tuple2;
 import lombok.extern.slf4j.Slf4j;
+import org.checkerframework.checker.nullness.qual.Nullable;
+import org.junit.jupiter.api.Test;
+
+import java.util.concurrent.TimeUnit;
 
 
 @Slf4j

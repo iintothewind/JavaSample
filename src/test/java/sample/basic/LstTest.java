@@ -2,23 +2,17 @@ package sample.basic;
 
 import com.google.common.collect.ImmutableList;
 import io.vavr.collection.HashMap;
-import io.vavr.collection.Iterator;
 import io.vavr.collection.Vector;
-
-import java.security.SecureRandom;
-import java.util.Comparator;
-import java.util.Map.Entry;
-import java.util.Optional;
-
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
-import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;

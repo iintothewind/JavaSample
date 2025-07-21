@@ -1,28 +1,29 @@
 package sample.db;
 
 import com.zaxxer.hikari.HikariDataSource;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import sample.http.JsonUtil;
 import sample.model.GhOptimizeReq;
 import sample.model.Order;
 import sample.model.RoutePlanJob;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
 @Slf4j
 public class JobTest {
 
-    private static HikariDataSource dataSource = null;
+    private HikariDataSource dataSource = null;
 
-    @Before
-    public void setUp() {
+    @BeforeEach
+    protected void setUp() {
 //        dataSource = new HikariDataSource();
 //        dataSource.setJdbcUrl("jdbc:mysql://localhost:13306/ulala_main?allowPublicKeyRetrieval=true&useSSL=false");
 //        dataSource.setUsername("ulala");

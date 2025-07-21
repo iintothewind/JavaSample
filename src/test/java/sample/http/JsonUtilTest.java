@@ -1,8 +1,9 @@
 package sample.http;
 
-import java.util.Objects;
 import org.assertj.core.api.Assertions;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
+
+import java.util.Objects;
 
 public class JsonUtilTest {
 

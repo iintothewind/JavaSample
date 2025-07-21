@@ -6,9 +6,16 @@ import com.zaxxer.hikari.HikariDataSource;
 import io.vavr.Tuple;
 import io.vavr.Tuple3;
 import io.vavr.control.Try;
-import lombok.*;
-import org.junit.Before;
-import org.junit.Test;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import lombok.With;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import sample.http.JsonUtil;
 
 import java.math.BigDecimal;
@@ -22,7 +29,7 @@ import java.util.stream.Collectors;
 public class CompletedOrdersTest {
     private HikariDataSource dataSource = null;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         dataSource = new HikariDataSource();
         dataSource.setJdbcUrl("jdbc:mysql://localhost:3306/echobase?useSSL=false");
