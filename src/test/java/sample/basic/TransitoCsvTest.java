@@ -5,6 +5,7 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import io.vavr.control.Try;
 import org.junit.jupiter.api.Test;
+import sample.http.ResourceUtil;
 
 import java.io.File;
 import java.nio.file.Files;

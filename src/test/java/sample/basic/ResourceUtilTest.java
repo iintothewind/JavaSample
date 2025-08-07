@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import org.simpleflatmapper.lightningcsv.ClosableCsvWriter;
 import org.simpleflatmapper.lightningcsv.CsvWriter;
 import sample.http.JsonUtil;
+import sample.http.ResourceUtil;
 import sample.model.S3Image;
 
 import java.io.File;

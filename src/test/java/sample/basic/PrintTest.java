@@ -12,6 +12,7 @@ import org.apache.pdfbox.printing.PDFPrintable;
 import org.apache.pdfbox.printing.Scaling;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.Resource;
+import sample.http.ResourceUtil;
 
 import javax.print.Doc;
 import javax.print.DocFlavor;
@@ -96,12 +97,12 @@ public class PrintTest {
     public static PrintService findPrintService(final String printerName) {
         final PrintService[] printServices = PrintServiceLookup.lookupPrintServices(null, null);
         final PrintService printService = Vector.of(printServices)
-            .find(s -> Optional
-                .ofNullable(s)
-                .map(PrintService::getName)
-                .filter(n -> n.toLowerCase().contains(printerName.toLowerCase()))
-                .isPresent())
-            .getOrNull();
+                .find(s -> Optional
+                        .ofNullable(s)
+                        .map(PrintService::getName)
+                        .filter(n -> n.toLowerCase().contains(printerName.toLowerCase()))
+                        .isPresent())
+                .getOrNull();
         if (Objects.isNull(printService)) {
             log.error("unable to find printer: {}", printerName);
         }
@@ -112,19 +113,19 @@ public class PrintTest {
     public static byte[] convertToA4(final byte[] content) {
         try (final PDDocument doc = PDDocument.load(content);
 //        try (final PDDocument doc = PDDocument.load(content);
-            final PDDocument newDoc = new PDDocument()) {
+             final PDDocument newDoc = new PDDocument()) {
             if (Objects.nonNull(doc)) {
                 Optional.ofNullable(doc)
-                    .map(PDDocument::getPages)
-                    .map(ImmutableList::copyOf)
-                    .orElse(ImmutableList.of())
-                    .stream()
-                    .map(page -> {
-                        final PDPage newPage = new PDPage(PDRectangle.A4);
-                        newPage.setContents(Try.of(page::getContentStreams).filter(Objects::nonNull).map(ImmutableList::copyOf).getOrNull());
-                        return newPage;
-                    })
-                    .forEach(newDoc::addPage);
+                        .map(PDDocument::getPages)
+                        .map(ImmutableList::copyOf)
+                        .orElse(ImmutableList.of())
+                        .stream()
+                        .map(page -> {
+                            final PDPage newPage = new PDPage(PDRectangle.A4);
+                            newPage.setContents(Try.of(page::getContentStreams).filter(Objects::nonNull).map(ImmutableList::copyOf).getOrNull());
+                            return newPage;
+                        })
+                        .forEach(newDoc::addPage);
                 final File tempFile = Files.createTempFile("ulala", ".pdf").toFile();
                 newDoc.save(tempFile);
                 final byte[] bytes = Files.readAllBytes(tempFile.toPath());
@@ -178,7 +179,7 @@ public class PrintTest {
 
         /* locate a print service that can handle it */
         PrintService[] pservices =
-            PrintServiceLookup.lookupPrintServices(null, null);
+                PrintServiceLookup.lookupPrintServices(null, null);
         if (pservices.length > 0) {
             int ii = 0;
             while (ii < pservices.length) {

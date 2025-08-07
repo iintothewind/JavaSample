@@ -15,6 +15,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import sample.csv.bean.ManifestBrief;
 import sample.http.JsonUtil;
+import sample.http.ResourceUtil;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
